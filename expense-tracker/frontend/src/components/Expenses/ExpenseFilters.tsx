@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { categoriesApi, tagsApi } from '../../services/api';
 import type { ExpenseFilters } from '../../types';
-import { PAYMENT_METHODS } from '../../utils/constants';
+import { PAYMENT_METHODS, MIN_AMOUNT_OPTIONS } from '../../utils/constants';
 
 interface ExpenseFiltersProps {
   filters: ExpenseFilters;
@@ -30,6 +30,15 @@ const ExpenseFiltersComponent = ({ filters, onFiltersChange }: ExpenseFiltersPro
 
   const handleChange = (key: keyof ExpenseFilters, value: any) => {
     setLocalFilters((prev) => ({ ...prev, [key]: value || undefined }));
+  };
+
+  const handleMinAmountChange = (value: string) => {
+    const minAmount = value === '' ? undefined : Number(value);
+    setLocalFilters((prev) => ({
+      ...prev,
+      min_amount: minAmount,
+      max_amount: undefined, // Clear max_amount since we're only filtering by minimum
+    }));
   };
 
   const clearFilters = () => {
@@ -101,23 +110,18 @@ const ExpenseFiltersComponent = ({ filters, onFiltersChange }: ExpenseFiltersPro
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-warm-gray-700 mb-2">Amount Range</label>
-          <div className="flex gap-2">
-            <input
-              type="number"
-              value={localFilters.min_amount || ''}
-              onChange={(e) => handleChange('min_amount', e.target.value ? Number(e.target.value) : undefined)}
-              placeholder="Min"
-              className="flex-1 px-4 py-2.5 border-2 border-warm-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all"
-            />
-            <input
-              type="number"
-              value={localFilters.max_amount || ''}
-              onChange={(e) => handleChange('max_amount', e.target.value ? Number(e.target.value) : undefined)}
-              placeholder="Max"
-              className="flex-1 px-4 py-2.5 border-2 border-warm-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all"
-            />
-          </div>
+          <label className="block text-sm font-medium text-warm-gray-700 mb-2">Minimum Amount</label>
+          <select
+            value={localFilters.min_amount || ''}
+            onChange={(e) => handleMinAmountChange(e.target.value)}
+            className="w-full px-4 py-2.5 border-2 border-warm-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all"
+          >
+            {MIN_AMOUNT_OPTIONS.map((option) => (
+              <option key={option.value || 'all'} value={option.value || ''}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="md:col-span-2 lg:col-span-1">
