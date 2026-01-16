@@ -24,12 +24,12 @@ FROM nginx:alpine
 # Copy built files from builder
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy nginx template - nginx:alpine automatically processes /etc/nginx/templates/*.template
-# It uses envsubst to replace ${VAR} with environment variables
-COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+# Copy entrypoint script that generates nginx config
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # Expose port
 EXPOSE 80
 
-# nginx:alpine's default entrypoint automatically processes templates and starts nginx
-# No custom script needed - just ensure BACKEND_URL is set in Railway
+# Use our entrypoint script
+ENTRYPOINT ["/entrypoint.sh"]
