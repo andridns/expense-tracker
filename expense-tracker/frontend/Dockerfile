@@ -24,16 +24,15 @@ FROM nginx:alpine
 # Copy built files from builder
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx configuration template
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
-# Copy startup script
-COPY start-nginx.sh /start-nginx.sh
-RUN chmod +x /start-nginx.sh
+# Copy custom entrypoint
+COPY docker-entrypoint.sh /docker-entrypoint-custom.sh
+RUN chmod +x /docker-entrypoint-custom.sh
 
 # Expose port
 EXPOSE 80
 
-# Start nginx with proxy configuration if BACKEND_URL is set
-CMD ["/start-nginx.sh"]
+# Use custom entrypoint that processes template and starts nginx
+ENTRYPOINT ["/docker-entrypoint-custom.sh"]
