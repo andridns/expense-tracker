@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 import os
 from app.database import engine, Base
-from app.api import expenses, categories, budgets, reports, export, tags, upload, backup, currency, import_api, seed
+from app.api import expenses, categories, budgets, reports, export, tags, upload, backup, currency, import_api
 
 # Configure logging
 logging.basicConfig(
@@ -19,6 +19,14 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 logger.info("Starting Expense Tracker API")
+
+# Try to import seed module, but don't fail if it doesn't exist
+try:
+    from app.api import seed
+    SEED_AVAILABLE = True
+except ImportError as e:
+    SEED_AVAILABLE = False
+    logger.warning(f"Seed module not available: {e}")
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -55,7 +63,10 @@ app.include_router(upload.router, prefix="/api/v1", tags=["upload"])
 app.include_router(backup.router, prefix="/api/v1", tags=["backup"])
 app.include_router(currency.router, prefix="/api/v1", tags=["currency"])
 app.include_router(import_api.router, prefix="/api/v1", tags=["import"])
-app.include_router(seed.router, prefix="/api/v1", tags=["seed"])
+
+# Include seed router if available
+if SEED_AVAILABLE:
+    app.include_router(seed.router, prefix="/api/v1", tags=["seed"])
 
 # Mount static files for receipts
 uploads_dir = Path(__file__).parent.parent / "uploads"
