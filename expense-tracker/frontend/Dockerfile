@@ -3,6 +3,11 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+# Accept build-time API URL and expose it to Vite during `npm run build`
+# NOTE: Vite only exposes variables prefixed with VITE_*
+ARG VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL}
+
 # Copy package files
 COPY package*.json ./
 
@@ -13,9 +18,8 @@ RUN npm ci
 COPY . .
 
 # Build the application
-# VITE_API_URL will be injected at build time (Railway automatically passes VITE_* vars as build args)
-# If not set, use relative path which will be proxied by nginx
-RUN echo "Building with VITE_API_URL=${VITE_API_URL:-/api/v1}" && \
+# If VITE_API_URL is not provided as a build arg, your code will fall back to /api/v1
+RUN echo "Building with VITE_API_URL=${VITE_API_URL:-<not set, fallback will be /api/v1>}" && \
     npm run build
 
 # Production stage
