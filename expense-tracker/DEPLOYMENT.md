@@ -66,9 +66,10 @@ Ensure your code is pushed to GitHub with all the deployment files:
    - Click on the backend service
    - Go to "Settings" tab
    - **IMPORTANT**: Do NOT set "Root Directory" - leave it empty/unset
-   - **Important**: In the "Build" section, ensure "Builder" is set to "Dockerfile" (not "Railpack" or "Nixpacks")
-   - If you see "Railpack" or auto-detection, click on it and change to "Dockerfile"
-   - The Dockerfile path should be `expense-tracker/backend/Dockerfile` (this is set in railway.toml)
+   - **Important**: In the "Build" section:
+     - Ensure "Builder" is set to "Dockerfile" (not "Railpack" or "Nixpacks")
+     - Set "Dockerfile Path" to: `expense-tracker/backend/Dockerfile`
+     - If you don't see "Dockerfile Path" option, click "Show Advanced" or look for "Dockerfile" field
    - Go to "Variables" tab
    - Add the following environment variables:
 
@@ -99,9 +100,10 @@ PORT=8000
    - Click on the frontend service
    - Go to "Settings" tab
    - **IMPORTANT**: Do NOT set "Root Directory" - leave it empty/unset
-   - **Important**: In the "Build" section, ensure "Builder" is set to "Dockerfile" (not "Railpack" or "Nixpacks")
-   - If you see "Railpack" or auto-detection, click on it and change to "Dockerfile"
-   - The Dockerfile path should be `expense-tracker/frontend/Dockerfile` (this is set in railway.toml)
+   - **Important**: In the "Build" section:
+     - Ensure "Builder" is set to "Dockerfile" (not "Railpack" or "Nixpacks")
+     - Set "Dockerfile Path" to: `expense-tracker/frontend/Dockerfile`
+     - If you don't see "Dockerfile Path" option, click "Show Advanced" or look for "Dockerfile" field
    - Go to "Variables" tab
    - Add the following environment variables:
 
@@ -177,13 +179,21 @@ Railway provides free `.railway.app` domains by default. To use a custom domain:
   1. Go to your service → "Settings" tab
   2. Scroll to the "Build" section
   3. Change "Builder" from "Railpack" or "Nixpacks" to "Dockerfile"
-  4. Ensure "Root Directory" is set correctly (`expense-tracker/backend` or `expense-tracker/frontend`)
-  5. Save and redeploy
-- **Alternative**: If the option to change builder is not available:
-  1. Delete the service
-  2. Create a new service from the same repository
-  3. Immediately set "Root Directory" before Railway auto-detects
-  4. Then set "Builder" to "Dockerfile" in Settings
+  4. Set "Dockerfile Path" to `expense-tracker/backend/Dockerfile` (for backend) or `expense-tracker/frontend/Dockerfile` (for frontend)
+  5. Do NOT set "Root Directory" - leave it empty
+  6. Save and redeploy
+
+**"Dockerfile does not exist" error:**
+- Railway can't find the Dockerfile at the specified path
+- **Solution**:
+  1. Go to your service → "Settings" tab → "Build" section
+  2. Verify "Dockerfile Path" is set correctly:
+     - Backend: `expense-tracker/backend/Dockerfile`
+     - Frontend: `expense-tracker/frontend/Dockerfile`
+  3. Ensure "Builder" is set to "Dockerfile" (not Railpack/Nixpacks)
+  4. Do NOT set "Root Directory" - it should be empty
+  5. Verify the Dockerfile exists in your repository at that path
+  6. Save and redeploy
 
 **Dockerfile not found:**
 - Verify the Dockerfile exists in the correct location
