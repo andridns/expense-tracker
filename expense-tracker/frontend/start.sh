@@ -1,15 +1,25 @@
 #!/bin/sh
+set -e
 
-# Output everything to ensure Railway captures it
-echo "=========================================="
-echo "NGINX STARTUP - Checking BACKEND_URL"
-echo "=========================================="
-echo "BACKEND_URL=${BACKEND_URL:-NOT SET}"
-echo ""
+# IMPORTANT: Output to both stdout and stderr to ensure Railway captures it
+# Railway may only show logs after container starts, but this should appear
+
+# Create a marker file to prove script ran (for debugging)
+touch /tmp/start-script-ran.txt 2>/dev/null || true
+
+# Output to stderr (Railway captures stderr)
+echo "==========================================" >&2
+echo "NGINX STARTUP SCRIPT EXECUTING" >&2
+echo "NGINX STARTUP - Checking BACKEND_URL" >&2
+echo "==========================================" >&2
+echo "BACKEND_URL=${BACKEND_URL:-NOT SET}" >&2
+echo "Script PID: $$" >&2
+echo "Current directory: $(pwd)" >&2
+echo "" >&2
 
 if [ -n "$BACKEND_URL" ]; then
-    echo "✓ BACKEND_URL is set: $BACKEND_URL"
-    echo "Generating nginx config with proxy rules..."
+    echo "✓ BACKEND_URL is set: $BACKEND_URL" >&2
+    echo "Generating nginx config with proxy rules..." >&2
     
     # Generate nginx config with backend URL
     cat > /etc/nginx/conf.d/default.conf <<EOF
@@ -70,19 +80,19 @@ server {
 }
 EOF
     
-    echo "✓ Nginx config generated"
-    echo ""
-    echo "--- Generated config ---"
-    cat /etc/nginx/conf.d/default.conf
-    echo "--- End config ---"
-    echo ""
+    echo "✓ Nginx config generated" >&2
+    echo "" >&2
+    echo "--- Generated config ---" >&2
+    cat /etc/nginx/conf.d/default.conf >&2
+    echo "--- End config ---" >&2
+    echo "" >&2
     
-    echo "Testing nginx configuration..."
-    nginx -t
-    echo "✓ Nginx config is valid"
+    echo "Testing nginx configuration..." >&2
+    nginx -t >&2
+    echo "✓ Nginx config is valid" >&2
 else
-    echo "✗ ERROR: BACKEND_URL is not set!"
-    echo "Creating nginx config without proxy (API calls will fail)"
+    echo "✗ ERROR: BACKEND_URL is not set!" >&2
+    echo "Creating nginx config without proxy (API calls will fail)" >&2
     cat > /etc/nginx/conf.d/default.conf <<'EOF'
 server {
     listen 80;
@@ -97,10 +107,11 @@ server {
 EOF
 fi
 
-echo ""
-echo "=========================================="
-echo "Starting nginx..."
-echo "=========================================="
+echo "" >&2
+echo "==========================================" >&2
+echo "Starting nginx..." >&2
+echo "==========================================" >&2
 
 # Start nginx using the default entrypoint
-exec /docker-entrypoint.sh nginx -g 'daemon off;'
+# Redirect nginx output to stderr so Railway captures it
+exec /docker-entrypoint.sh nginx -g 'daemon off;' 2>&1

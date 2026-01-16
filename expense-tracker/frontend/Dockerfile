@@ -24,12 +24,12 @@ FROM nginx:alpine
 # Copy built files from builder
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy startup script that generates nginx config at runtime
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
+# Copy nginx template - nginx:alpine automatically processes /etc/nginx/templates/*.template
+# It uses envsubst to replace ${VAR} with environment variables
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
 # Expose port
 EXPOSE 80
 
-# Use startup script as CMD - it will generate config and start nginx
-CMD ["/start.sh"]
+# nginx:alpine's default entrypoint automatically processes templates and starts nginx
+# No custom script needed - just ensure BACKEND_URL is set in Railway
