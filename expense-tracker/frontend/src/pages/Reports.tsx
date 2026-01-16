@@ -72,61 +72,61 @@ const Reports = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold text-gray-800">Reports</h2>
-        <div className="flex gap-2">
+        <h2 className="text-3xl font-semibold text-warm-gray-800">Reports</h2>
+        <div className="flex gap-3">
           <button
             onClick={() => handleExport('csv')}
-            className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+            className="bg-warm-gray-600 text-white px-5 py-2.5 rounded-xl hover:bg-warm-gray-700 transition-all shadow-apple font-medium"
           >
             Export CSV
           </button>
           <button
             onClick={() => handleExport('excel')}
-            className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+            className="bg-warm-gray-600 text-white px-5 py-2.5 rounded-xl hover:bg-warm-gray-700 transition-all shadow-apple font-medium"
           >
             Export Excel
           </button>
           <button
             onClick={() => handleExport('pdf')}
-            className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+            className="bg-warm-gray-600 text-white px-5 py-2.5 rounded-xl hover:bg-warm-gray-700 transition-all shadow-apple font-medium"
           >
             Export PDF
           </button>
         </div>
       </div>
 
-      <div className="bg-white p-4 rounded-lg shadow-md">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="bg-white p-6 rounded-2xl shadow-apple">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-warm-gray-700 mb-2">
               Start Date
             </label>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 border-2 border-warm-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-warm-gray-700 mb-2">
               End Date
             </label>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 border-2 border-warm-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-warm-gray-700 mb-2">
               Period
             </label>
             <select
               value={period}
               onChange={(e) => setPeriod(e.target.value as 'monthly' | 'yearly')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              className="w-full px-4 py-2.5 border-2 border-warm-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all"
             >
               <option value="monthly">Monthly</option>
               <option value="yearly">Yearly</option>

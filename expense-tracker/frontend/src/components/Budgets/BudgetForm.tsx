@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { budgetsApi, categoriesApi } from '../../services/api';
 import { toast } from 'react-hot-toast';
 import type { BudgetCreate } from '../../types';
+import { CURRENCIES } from '../../utils/constants';
 
 interface BudgetFormProps {
   budgetId?: string | null;
@@ -190,9 +191,11 @@ const BudgetForm = ({ budgetId, onClose, onSuccess }: BudgetFormProps) => {
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
                 >
-                  <option value="IDR">IDR</option>
-                  <option value="USD">USD</option>
-                  <option value="EUR">EUR</option>
+                  {CURRENCIES.map((curr) => (
+                    <option key={curr.code} value={curr.code}>
+                      {curr.code} - {curr.name}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>

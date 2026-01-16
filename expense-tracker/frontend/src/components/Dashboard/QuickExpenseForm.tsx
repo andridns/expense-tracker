@@ -3,17 +3,7 @@ import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { expensesApi, categoriesApi } from '../../services/api';
 import { toast } from 'react-hot-toast';
 import { formatCurrency } from '../../utils/format';
-
-const PAYMENT_METHODS = [
-  'Cash',
-  'Debit Card',
-  'Credit Card',
-  'GoPay',
-  'OVO',
-  'DANA',
-  'LinkAja',
-  'ShopeePay',
-];
+import { CURRENCIES, PAYMENT_METHODS } from '../../utils/constants';
 
 // Smart parsing function: "100000 lunch" -> { amount: 100000, description: "lunch" }
 const parseExpenseInput = (input: string): { amount: number | null; description: string } => {
@@ -38,14 +28,6 @@ const parseExpenseInput = (input: string): { amount: number | null; description:
   // If no number found, treat entire input as description
   return { amount: null, description: trimmed };
 };
-
-const CURRENCIES = [
-  { code: 'IDR', name: 'Rupiah', symbol: 'Rp' },
-  { code: 'JPY', name: 'Yen', symbol: '¥' },
-  { code: 'USD', name: 'Dollar', symbol: '$' },
-  { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$' },
-  { code: 'MYR', name: 'Ringgit', symbol: 'RM' },
-];
 
 const QuickExpenseForm = () => {
   const [input, setInput] = useState('');
@@ -108,24 +90,24 @@ const QuickExpenseForm = () => {
   }, []);
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="bg-white rounded-2xl shadow-apple-lg p-8 max-w-3xl mx-auto">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="quick-input" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="quick-input" className="block text-sm font-medium text-warm-gray-600 mb-4">
             Quick Add Expense
           </label>
           
           {/* Currency Selection Buttons */}
-          <div className="flex gap-2 mb-3 flex-wrap">
+          <div className="flex gap-3 mb-5 flex-wrap">
             {CURRENCIES.map((curr) => (
               <button
                 key={curr.code}
                 type="button"
                 onClick={() => setCurrency(curr.code)}
-                className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                className={`px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 ${
                   currency === curr.code
-                    ? 'bg-primary-600 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-primary-400 text-white shadow-apple'
+                    : 'bg-beige-100 text-warm-gray-700 hover:bg-beige-200 hover:text-primary-500'
                 }`}
               >
                 {curr.code} {curr.symbol}
@@ -133,7 +115,7 @@ const QuickExpenseForm = () => {
             ))}
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <input
               ref={inputRef}
               id="quick-input"
@@ -141,21 +123,21 @@ const QuickExpenseForm = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="e.g., 100000 lunch or 200.000 coffee"
-              className="flex-1 px-4 py-3 text-lg border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="flex-1 px-6 py-4 text-xl border-2 border-warm-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 placeholder-warm-gray-400 transition-all"
               autoFocus
             />
             <button
               type="submit"
               disabled={!canSubmit || createMutation.isPending}
-              className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-lg transition-colors"
+              className="px-8 py-4 bg-primary-400 text-white rounded-xl hover:bg-primary-500 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-lg transition-all duration-200 shadow-apple hover:shadow-apple-lg"
             >
               {createMutation.isPending ? 'Adding...' : 'Add'}
             </button>
           </div>
           {parsed.amount && (
-            <div className="mt-2 text-sm text-gray-600">
-              <span className="font-semibold">{formatCurrency(parsed.amount, currency)}</span>
-              {parsed.description && <span> • {parsed.description}</span>}
+            <div className="mt-3 text-base text-warm-gray-600">
+              <span className="font-semibold text-warm-gray-800">{formatCurrency(parsed.amount, currency)}</span>
+              {parsed.description && <span className="ml-2">• {parsed.description}</span>}
             </div>
           )}
         </div>
@@ -163,21 +145,21 @@ const QuickExpenseForm = () => {
         <button
           type="button"
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className="text-sm text-primary-600 hover:text-primary-700"
+          className="text-sm text-primary-500 hover:text-primary-600 font-medium transition-colors"
         >
           {showAdvanced ? 'Hide' : 'Show'} advanced options
         </button>
 
         {showAdvanced && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-5 border-t border-warm-gray-200">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-warm-gray-700 mb-2">
                 Category
               </label>
               <select
                 value={categoryId || ''}
                 onChange={(e) => setCategoryId(e.target.value || null)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-4 py-3 border-2 border-warm-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all"
               >
                 <option value="">No category</option>
                 {categories?.map((cat) => (
@@ -189,13 +171,13 @@ const QuickExpenseForm = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-warm-gray-700 mb-2">
                 Payment Method
               </label>
               <select
                 value={paymentMethod}
                 onChange={(e) => setPaymentMethod(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-4 py-3 border-2 border-warm-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all"
               >
                 {PAYMENT_METHODS.map((method) => (
                   <option key={method} value={method}>

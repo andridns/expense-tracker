@@ -3,23 +3,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { expensesApi, categoriesApi, uploadApi, tagsApi } from '../../services/api';
 import { toast } from 'react-hot-toast';
 import type { ExpenseCreate, ExpenseUpdate } from '../../types';
+import { CURRENCIES, PAYMENT_METHODS } from '../../utils/constants';
 
 interface ExpenseFormProps {
   expenseId?: string | null;
   onClose: () => void;
   onSuccess: () => void;
 }
-
-const PAYMENT_METHODS = [
-  'Cash',
-  'Debit Card',
-  'Credit Card',
-  'GoPay',
-  'OVO',
-  'DANA',
-  'LinkAja',
-  'ShopeePay',
-];
 
 const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
   const [formData, setFormData] = useState<ExpenseCreate>({
@@ -155,25 +145,25 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-apple-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="p-8">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800">
+            <h2 className="text-2xl font-semibold text-warm-gray-800">
               {expenseId ? 'Edit Expense' : 'Add Expense'}
             </h2>
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 text-2xl"
+              className="text-warm-gray-500 hover:text-warm-gray-700 text-2xl transition-colors"
             >
               ×
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-warm-gray-700 mb-2">
                   Amount *
                 </label>
                 <input
@@ -183,8 +173,8 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
                   onChange={(e) =>
                     setFormData({ ...formData, amount: parseFloat(e.target.value) || 0 })
                   }
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 ${
-                    errors.amount ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all ${
+                    errors.amount ? 'border-red-400' : 'border-warm-gray-200'
                   }`}
                   required
                 />
@@ -194,22 +184,24 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-warm-gray-700 mb-2">
                   Currency
                 </label>
                 <select
                   value={formData.currency}
                   onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-4 py-3 border-2 border-warm-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all"
                 >
-                  <option value="IDR">IDR</option>
-                  <option value="USD">USD</option>
-                  <option value="EUR">EUR</option>
+                  {CURRENCIES.map((curr) => (
+                    <option key={curr.code} value={curr.code}>
+                      {curr.code} - {curr.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-warm-gray-700 mb-2">
                   Description *
                 </label>
                 <input
@@ -218,8 +210,8 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
                   }
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 ${
-                    errors.description ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all ${
+                    errors.description ? 'border-red-400' : 'border-warm-gray-200'
                   }`}
                   required
                 />

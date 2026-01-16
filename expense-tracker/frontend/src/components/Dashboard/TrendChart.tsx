@@ -28,10 +28,10 @@ interface TrendChartProps {
 const TrendChart = ({ data }: TrendChartProps) => {
   if (!data || !data.trends || data.trends.length === 0) {
     return (
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Spending Trends</h3>
+      <div className="bg-white p-6 rounded-2xl shadow-apple">
+        <h3 className="text-lg font-semibold text-warm-gray-800 mb-4">Spending Trends</h3>
         <div className="flex items-center justify-center h-64">
-          <p className="text-gray-500">No data available</p>
+          <p className="text-warm-gray-500">No data available</p>
         </div>
       </div>
     );
@@ -43,8 +43,8 @@ const TrendChart = ({ data }: TrendChartProps) => {
       {
         label: 'Total Spending',
         data: data.trends.map((item) => item.total),
-        borderColor: '#4CAF50',
-        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+        borderColor: '#60a5fa', // Sky blue
+        backgroundColor: 'rgba(96, 165, 250, 0.1)', // Light sky blue
         tension: 0.4,
         fill: true,
       },
@@ -87,8 +87,8 @@ const TrendChart = ({ data }: TrendChartProps) => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">Spending Trends</h3>
+    <div className="bg-white p-6 rounded-2xl shadow-apple">
+      <h3 className="text-lg font-semibold text-warm-gray-800 mb-4">Spending Trends</h3>
       <div className="h-64">
         <Line data={chartData} options={options} />
       </div>

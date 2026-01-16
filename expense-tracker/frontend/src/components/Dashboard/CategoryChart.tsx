@@ -16,10 +16,10 @@ interface CategoryChartProps {
 const CategoryChart = ({ data }: CategoryChartProps) => {
   if (!data || !data.breakdown || data.breakdown.length === 0) {
     return (
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Spending by Category</h3>
+      <div className="bg-white p-6 rounded-2xl shadow-apple">
+        <h3 className="text-lg font-semibold text-warm-gray-800 mb-4">Spending by Category</h3>
         <div className="flex items-center justify-center h-64">
-          <p className="text-gray-500">No data available</p>
+          <p className="text-warm-gray-500">No data available</p>
         </div>
       </div>
     );
@@ -31,16 +31,16 @@ const CategoryChart = ({ data }: CategoryChartProps) => {
       {
         data: data.breakdown.map((item) => item.total),
         backgroundColor: [
-          '#4CAF50',
-          '#2196F3',
-          '#FF9800',
-          '#9C27B0',
-          '#F44336',
-          '#00BCD4',
-          '#FFEB3B',
-          '#795548',
-          '#607D8B',
-          '#E91E63',
+          '#60a5fa', // Sky blue
+          '#3b82f6', // Blue
+          '#93c5fd', // Light blue
+          '#2563eb', // Darker blue
+          '#dbeafe', // Very light blue
+          '#1d4ed8', // Deep blue
+          '#bfdbfe', // Pale blue
+          '#1e40af', // Navy blue
+          '#eff6ff', // Sky blue 50
+          '#1e3a8a', // Dark blue
         ],
       },
     ],
@@ -71,8 +71,8 @@ const CategoryChart = ({ data }: CategoryChartProps) => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">Spending by Category</h3>
+    <div className="bg-white p-6 rounded-2xl shadow-apple">
+      <h3 className="text-lg font-semibold text-warm-gray-800 mb-4">Spending by Category</h3>
       <div className="h-64">
         <Doughnut data={chartData} options={options} />
       </div>

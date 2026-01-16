@@ -16,26 +16,26 @@ const Layout = ({ children }: LayoutProps) => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-beige-50">
       {/* Header */}
-      <header className="bg-primary-600 text-white shadow-md">
-        <div className="container mx-auto px-4 py-4">
-          <h1 className="text-2xl font-bold">Expense Tracker</h1>
+      <header className="bg-white shadow-apple border-b border-warm-gray-200">
+        <div className="container mx-auto px-6 py-5">
+          <h1 className="text-2xl font-semibold text-warm-gray-800">Expense Tracker</h1>
         </div>
       </header>
 
       {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b border-gray-200">
-        <div className="container mx-auto px-4">
-          <div className="flex space-x-1">
+      <nav className="bg-white shadow-apple border-b border-warm-gray-200">
+        <div className="container mx-auto px-6">
+          <div className="flex space-x-2">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`px-4 py-3 text-sm font-medium transition-colors ${
+                className={`px-5 py-4 text-sm font-medium transition-all duration-200 rounded-t-lg ${
                   location.pathname === item.path
-                    ? 'text-primary-600 border-b-2 border-primary-600'
-                    : 'text-gray-600 hover:text-primary-600'
+                    ? 'text-primary-500 border-b-2 border-primary-400 bg-beige-50'
+                    : 'text-warm-gray-600 hover:text-primary-500 hover:bg-beige-100'
                 }`}
               >
                 <span className="mr-2">{item.icon}</span>
@@ -47,7 +47,7 @@ const Layout = ({ children }: LayoutProps) => {
       </nav>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-6 py-8">
         {children}
       </main>
     </div>
