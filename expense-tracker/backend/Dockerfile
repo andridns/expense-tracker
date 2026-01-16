@@ -23,7 +23,8 @@ COPY pyproject.toml ./
 # Poetry will resolve dependencies from pyproject.toml if poetry.lock is missing
 # This is fine for production - Poetry will create a lock file during install
 # Note: --no-dev is deprecated in Poetry 2.0+, use --without dev instead
-RUN poetry install --without dev --no-interaction --no-ansi
+# --no-root skips installing the current project (we copy the code with COPY . . later)
+RUN poetry install --without dev --no-interaction --no-ansi --no-root
 
 # Copy application code
 COPY . .

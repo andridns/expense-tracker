@@ -9,6 +9,7 @@ import logging
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.cell import Cell
+from dateutil import parser as date_parser
 import io
 
 logger = logging.getLogger(__name__)
@@ -162,6 +163,23 @@ class ExcelImportService:
                 cell = row[col_idx - 1]
                 value = cell.value
                 
+                # For date fields, try to get the actual datetime value from openpyxl
+                if field == 'date' and isinstance(cell, Cell):
+                    # Check if cell has a datetime value
+                    if cell.data_type == 'd' or isinstance(value, (datetime, date)):
+                        # openpyxl already parsed it as datetime/date
+                        value = value
+                    elif isinstance(value, (int, float)) and value > 0:
+                        # Might be Excel serial date number
+                        try:
+                            from datetime import timedelta
+                            excel_epoch = datetime(1899, 12, 30)
+                            value = (excel_epoch + timedelta(days=int(value))).date()
+                            logger.debug(f"Row {row_num}: Converted Excel serial number {cell.value} to date: {value}")
+                        except (ValueError, OverflowError):
+                            # Keep original value, will be parsed later
+                            pass
+                
                 if value is not None:
                     row_data[field] = value
                     logger.debug(f"Row {row_num}: Extracted {field} = {value}")
@@ -221,36 +239,26 @@ class ExcelImportService:
         logger.debug(f"Row {row_num}: Starting validation")
         errors = []
         
-        # Parse date - be lenient, try to infer from datetime
+        # Parse date - be lenient, always provide a valid date
+        from datetime import date as date_class
         if 'date' not in row_data or not row_data['date']:
             # Use today's date as fallback if no date provided
-            from datetime import date as date_class
             row_data['date'] = date_class.today()
             logger.warning(f"Row {row_num}: No date field found, using today's date: {row_data['date']}")
         else:
-            # Parse date - try to extract from datetime
-            logger.debug(f"Row {row_num}: Parsing date: {row_data['date']}")
-            parsed_date = self._parse_date(row_data['date'])
-            if not parsed_date:
-                # If parsing fails, try to extract date from string or use today
-                from datetime import date as date_class
-                # Try to extract just the date part from datetime string
-                date_str = str(row_data['date']).strip()
-                # Look for date pattern at the start (e.g., "1/1/2026" from "1/1/2026 20:55:47")
-                date_match = re.match(r'(\d{1,2}[/-]\d{1,2}[/-]\d{4})', date_str)
-                if date_match:
-                    date_part = date_match.group(1)
-                    parsed_date = self._parse_date(date_part)
-                
-                if not parsed_date:
-                    # Last resort: use today's date
-                    parsed_date = date_class.today()
-                    logger.warning(f"Row {row_num}: Could not parse date '{row_data['date']}', using today's date: {parsed_date}")
-                else:
-                    logger.info(f"Row {row_num}: Extracted date from datetime string: {parsed_date}")
+            # Parse date - try multiple strategies
+            original_date_value = row_data['date']
+            logger.debug(f"Row {row_num}: Parsing date: {original_date_value}")
+            parsed_date = self._parse_date(original_date_value)
             
-            row_data['date'] = parsed_date
-            logger.debug(f"Row {row_num}: Date set to: {parsed_date}")
+            # If parsing fails, use today's date as fallback (don't fail the row)
+            if not parsed_date:
+                fallback_date = date_class.today()
+                row_data['date'] = fallback_date
+                logger.warning(f"Row {row_num}: Could not parse date '{original_date_value}', using today's date: {fallback_date}")
+            else:
+                row_data['date'] = parsed_date
+                logger.debug(f"Row {row_num}: Date parsed successfully: {parsed_date}")
         
         if 'amount' not in row_data or row_data['amount'] is None:
             errors.append("Amount is required")
@@ -338,6 +346,12 @@ class ExcelImportService:
         """Parse date from various formats - lenient parsing that extracts date from datetime"""
         logger.debug(f"Parsing date value: {value} (type: {type(value)})")
         
+        # Handle None/empty values
+        if not value:
+            logger.debug("Date value is empty")
+            return None
+        
+        # Handle date and datetime objects directly
         if isinstance(value, date):
             logger.debug(f"Value is already a date: {value}")
             return value
@@ -345,9 +359,19 @@ class ExcelImportService:
             logger.debug(f"Value is datetime, extracting date: {value.date()}")
             return value.date()
         
-        if not value:
-            logger.debug("Date value is empty")
-            return None
+        # Handle numeric values (Excel serial dates)
+        if isinstance(value, (int, float)):
+            try:
+                serial = float(value)
+                if serial > 0:  # Valid Excel serial dates are positive
+                    logger.debug(f"Trying to parse as Excel serial number: {serial}")
+                    from datetime import timedelta
+                    excel_epoch = datetime(1899, 12, 30)
+                    parsed = (excel_epoch + timedelta(days=int(serial))).date()
+                    logger.debug(f"Successfully parsed Excel serial number: {parsed}")
+                    return parsed
+            except (ValueError, OverflowError) as e:
+                logger.debug(f"Failed to parse as Excel serial number: {e}")
         
         value_str = str(value).strip()
         logger.debug(f"Date string to parse: '{value_str}'")
@@ -363,6 +387,8 @@ class ExcelImportService:
             '%Y-%m-%d %H:%M',         # 2026-01-01 20:55
             '%m-%d-%Y %H:%M:%S',      # 1-1-2026 20:55:47
             '%d-%m-%Y %H:%M:%S',      # 1-1-2026 20:55:47 (DD/MM/YYYY)
+            '%Y/%m/%d %H:%M:%S',      # 2026/01/01 20:55:47
+            '%Y/%m/%d %H:%M',         # 2026/01/01 20:55
         ]
         
         for fmt in datetime_formats:
@@ -382,6 +408,9 @@ class ExcelImportService:
             '%Y/%m/%d',      # 2026/01/01
             '%d.%m.%Y',      # 1.1.2026
             '%m-%d-%Y',      # 1-1-2026
+            '%m.%d.%Y',      # 1.1.2026
+            '%d/%m/%y',      # 1/1/26 (2-digit year)
+            '%m/%d/%y',      # 1/1/26 (2-digit year)
         ]
         
         for fmt in date_formats:
@@ -392,23 +421,11 @@ class ExcelImportService:
             except ValueError:
                 continue
         
-        # Try parsing as Excel date serial number
-        try:
-            serial = float(value_str)
-            logger.debug(f"Trying to parse as Excel serial number: {serial}")
-            # Excel epoch is 1900-01-01, but Excel incorrectly treats 1900 as a leap year
-            from datetime import timedelta
-            excel_epoch = datetime(1899, 12, 30)
-            parsed = (excel_epoch + timedelta(days=int(serial))).date()
-            logger.debug(f"Successfully parsed Excel serial number: {parsed}")
-            return parsed
-        except (ValueError, OverflowError) as e:
-            logger.debug(f"Failed to parse as Excel serial number: {e}")
-        
         # Try to extract date from string using regex (e.g., extract "1/1/2026" from "1/1/2026 20:55:47")
         date_patterns = [
             r'(\d{1,2}[/-]\d{1,2}[/-]\d{4})',  # 1/1/2026 or 1-1-2026
             r'(\d{4}[/-]\d{1,2}[/-]\d{1,2})',  # 2026/1/1 or 2026-1-1
+            r'(\d{1,2}[/-]\d{1,2}[/-]\d{2})',  # 1/1/26 or 1-1-26
         ]
         
         for pattern in date_patterns:
@@ -424,6 +441,15 @@ class ExcelImportService:
                         return parsed
                     except ValueError:
                         continue
+        
+        # Last resort: Use dateutil.parser for very lenient parsing
+        try:
+            parsed_datetime = date_parser.parse(value_str, fuzzy=True, default=datetime.now())
+            parsed = parsed_datetime.date()
+            logger.info(f"Successfully parsed date using dateutil.parser: '{value_str}' -> {parsed}")
+            return parsed
+        except (ValueError, TypeError, OverflowError) as e:
+            logger.debug(f"dateutil.parser failed to parse '{value_str}': {e}")
         
         logger.warning(f"Could not parse date from value: {value_str}")
         return None
