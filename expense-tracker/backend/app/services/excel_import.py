@@ -189,10 +189,11 @@ class ExcelImportService:
         else:
             # Parse amount
             parsed_amount = self._parse_amount(row_data['amount'])
-            if not parsed_amount:
+            if parsed_amount is None:
                 errors.append(f"Invalid amount: {row_data['amount']}")
             else:
                 row_data['amount'] = parsed_amount
+                # Allow 0 amounts (they will be skipped during import, but don't error here)
         
         if 'description' not in row_data or not row_data['description']:
             errors.append("Description is required")
