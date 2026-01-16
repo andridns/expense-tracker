@@ -66,6 +66,8 @@ Ensure your code is pushed to GitHub with all the deployment files:
    - Click on the backend service
    - Go to "Settings" tab
    - Set "Root Directory" to `expense-tracker/backend`
+   - **Important**: In the "Build" section, ensure "Builder" is set to "Dockerfile" (not "Railpack" or "Nixpacks")
+   - If you see "Railpack" or auto-detection, click on it and change to "Dockerfile"
    - Go to "Variables" tab
    - Add the following environment variables:
 
@@ -96,6 +98,8 @@ PORT=8000
    - Click on the frontend service
    - Go to "Settings" tab
    - Set "Root Directory" to `expense-tracker/frontend`
+   - **Important**: In the "Build" section, ensure "Builder" is set to "Dockerfile" (not "Railpack" or "Nixpacks")
+   - If you see "Railpack" or auto-detection, click on it and change to "Dockerfile"
    - Go to "Variables" tab
    - Add the following environment variables:
 
@@ -162,6 +166,28 @@ Railway provides free `.railway.app` domains by default. To use a custom domain:
 | `BACKEND_URL`  | Backend service URL (for nginx proxy) | `https://backend.railway.app`        |
 
 ## Troubleshooting
+
+### Build Errors
+
+**"Error creating build plan with Railpack" or Railway using auto-detection:**
+- This happens when Railway tries to auto-detect instead of using your Dockerfile
+- **Solution**: 
+  1. Go to your service → "Settings" tab
+  2. Scroll to the "Build" section
+  3. Change "Builder" from "Railpack" or "Nixpacks" to "Dockerfile"
+  4. Ensure "Root Directory" is set correctly (`expense-tracker/backend` or `expense-tracker/frontend`)
+  5. Save and redeploy
+- **Alternative**: If the option to change builder is not available:
+  1. Delete the service
+  2. Create a new service from the same repository
+  3. Immediately set "Root Directory" before Railway auto-detects
+  4. Then set "Builder" to "Dockerfile" in Settings
+
+**Dockerfile not found:**
+- Verify the Dockerfile exists in the correct location
+- Check that "Root Directory" matches the directory containing the Dockerfile
+- For backend: Root Directory should be `expense-tracker/backend`
+- For frontend: Root Directory should be `expense-tracker/frontend`
 
 ### Backend Issues
 
