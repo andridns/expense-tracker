@@ -5,12 +5,12 @@ from uuid import UUID
 
 
 class BudgetBase(BaseModel):
-    category_id: Optional[UUID] = Field(None, description="Category ID (null for total budget)")
-    amount: float = Field(..., gt=0, description="Budget amount")
+    category_id: Optional[UUID] = None
+    amount: float = Field(gt=0, description="Budget amount")
     currency: str = Field(default="IDR", max_length=3, description="Currency code")
-    period: str = Field(..., pattern="^(monthly|yearly)$", description="Budget period")
-    start_date: date = Field(..., description="Start date")
-    end_date: date = Field(..., description="End date")
+    period: str = Field(pattern="^(monthly|yearly)$", description="Budget period")
+    start_date: date
+    end_date: date
 
 
 class BudgetCreate(BudgetBase):
@@ -19,9 +19,9 @@ class BudgetCreate(BudgetBase):
 
 class BudgetUpdate(BaseModel):
     category_id: Optional[UUID] = None
-    amount: Optional[float] = Field(None, gt=0)
-    currency: Optional[str] = Field(None, max_length=3)
-    period: Optional[str] = Field(None, pattern="^(monthly|yearly)$")
+    amount: Optional[float] = Field(default=None, gt=0)
+    currency: Optional[str] = Field(default=None, max_length=3)
+    period: Optional[str] = Field(default=None, pattern="^(monthly|yearly)$")
     start_date: Optional[date] = None
     end_date: Optional[date] = None
 

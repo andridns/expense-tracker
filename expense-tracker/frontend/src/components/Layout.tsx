@@ -9,10 +9,10 @@ const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
 
   const navItems = [
-    { path: '/', label: 'Dashboard', icon: '📊' },
+    { path: '/', label: 'Add Expense', icon: '➕' },
     { path: '/expenses', label: 'Expenses', icon: '💰' },
     { path: '/budgets', label: 'Budgets', icon: '📈' },
-    { path: '/reports', label: 'Reports', icon: '📋' },
+    { path: '/reports', label: 'Reports', icon: '📊' },
   ];
 
   return (

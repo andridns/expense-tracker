@@ -5,17 +5,17 @@ from uuid import UUID
 
 
 class ExpenseBase(BaseModel):
-    amount: float = Field(..., gt=0, description="Expense amount")
+    amount: float = Field(gt=0, description="Expense amount")
     currency: str = Field(default="IDR", max_length=3, description="Currency code")
-    description: str = Field(..., min_length=1, max_length=500, description="Expense description")
-    category_id: Optional[UUID] = Field(None, description="Category ID")
-    date: date = Field(..., description="Expense date")
+    description: str = Field(min_length=1, max_length=500, description="Expense description")
+    category_id: Optional[UUID] = None
+    date: date
     tags: Optional[List[str]] = Field(default_factory=list, description="Tags")
-    payment_method: str = Field(..., description="Payment method")
-    receipt_url: Optional[str] = Field(None, description="Receipt image URL")
-    location: Optional[str] = Field(None, max_length=200, description="Location")
-    notes: Optional[str] = Field(None, description="Additional notes")
-    is_recurring: bool = Field(default=False, description="Is recurring expense")
+    payment_method: str = Field(description="Payment method")
+    receipt_url: Optional[str] = None
+    location: Optional[str] = Field(default=None, max_length=200, description="Location")
+    notes: Optional[str] = None
+    is_recurring: bool = False
 
 
 class ExpenseCreate(ExpenseBase):
@@ -23,15 +23,15 @@ class ExpenseCreate(ExpenseBase):
 
 
 class ExpenseUpdate(BaseModel):
-    amount: Optional[float] = Field(None, gt=0)
-    currency: Optional[str] = Field(None, max_length=3)
-    description: Optional[str] = Field(None, min_length=1, max_length=500)
+    amount: Optional[float] = Field(default=None, gt=0)
+    currency: Optional[str] = Field(default=None, max_length=3)
+    description: Optional[str] = Field(default=None, min_length=1, max_length=500)
     category_id: Optional[UUID] = None
     date: Optional[date] = None
     tags: Optional[List[str]] = None
     payment_method: Optional[str] = None
     receipt_url: Optional[str] = None
-    location: Optional[str] = Field(None, max_length=200)
+    location: Optional[str] = Field(default=None, max_length=200)
     notes: Optional[str] = None
     is_recurring: Optional[bool] = None
 
