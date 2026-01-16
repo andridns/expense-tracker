@@ -299,62 +299,69 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Tags
                 </label>
-                <div className="flex gap-2 mb-2">
-                  <input
-                    type="text"
-                    value={tagInput}
-                    onChange={(e) => setTagInput(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleTagAdd();
-                      }
-                    }}
-                    placeholder="Add tag..."
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleTagAdd}
-                    className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
-                  >
-                    Add
-                  </button>
-                </div>
-                {tagSuggestions && tagSuggestions.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mb-2">
-                    {tagSuggestions.slice(0, 5).map((tag) => (
-                      <button
-                        key={tag}
-                        type="button"
-                        onClick={() => {
-                          setTagInput(tag);
+                <div className="relative mb-2">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
                           handleTagAdd();
-                        }}
-                        className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded hover:bg-gray-200"
+                        }
+                      }}
+                      placeholder="Add tag..."
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleTagAdd}
+                      className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+                    >
+                      Add
+                    </button>
+                  </div>
+                  {tagSuggestions && tagSuggestions.length > 0 && tagInput && (
+                    <div className="absolute z-20 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg p-2 max-h-40 overflow-y-auto">
+                      <div className="flex flex-wrap gap-1">
+                        {tagSuggestions.slice(0, 5).map((tag) => (
+                          <button
+                            key={tag}
+                            type="button"
+                            onMouseDown={(e) => {
+                              e.preventDefault(); // Prevent input blur
+                              setTagInput(tag);
+                              handleTagAdd();
+                            }}
+                            className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded hover:bg-gray-200"
+                          >
+                            {tag}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {formData.tags && formData.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {formData.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-2 py-1 bg-primary-100 text-primary-800 text-sm rounded flex items-center gap-1"
                       >
                         {tag}
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => handleTagRemove(tag)}
+                          className="text-primary-600 hover:text-primary-800"
+                        >
+                          ×
+                        </button>
+                      </span>
                     ))}
                   </div>
                 )}
-                <div className="flex flex-wrap gap-2">
-                  {formData.tags?.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2 py-1 bg-primary-100 text-primary-800 text-sm rounded flex items-center gap-1"
-                    >
-                      {tag}
-                      <button
-                        type="button"
-                        onClick={() => handleTagRemove(tag)}
-                        className="text-primary-600 hover:text-primary-800"
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))}
-                </div>
               </div>
 
               <div className="md:col-span-2">

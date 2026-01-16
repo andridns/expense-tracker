@@ -82,20 +82,20 @@ const ExpenseFiltersComponent = ({ filters, onFiltersChange }: ExpenseFiltersPro
           </select>
         </div>
 
-        <div>
+        <div className="md:col-span-2 lg:col-span-1">
           <label className="block text-sm font-medium text-warm-gray-700 mb-2">Date Range</label>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-2 gap-2">
             <input
               type="date"
               value={localFilters.start_date || ''}
               onChange={(e) => handleChange('start_date', e.target.value)}
-              className="flex-1 px-4 py-2.5 border-2 border-warm-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all"
+              className="w-full px-4 py-2.5 border-2 border-warm-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all"
             />
             <input
               type="date"
               value={localFilters.end_date || ''}
               onChange={(e) => handleChange('end_date', e.target.value)}
-              className="flex-1 px-4 py-2.5 border-2 border-warm-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all"
+              className="w-full px-4 py-2.5 border-2 border-warm-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all"
             />
           </div>
         </div>
@@ -120,36 +120,46 @@ const ExpenseFiltersComponent = ({ filters, onFiltersChange }: ExpenseFiltersPro
           </div>
         </div>
 
-        <div>
+        <div className="md:col-span-2 lg:col-span-1">
           <label className="block text-sm font-medium text-warm-gray-700 mb-2">Tags</label>
-          <input
-            type="text"
-            value={tagQuery}
-            onChange={(e) => setTagQuery(e.target.value)}
-            onBlur={() => {
-              if (tagQuery) {
-                handleChange('tags', tagQuery);
-              }
-            }}
-            placeholder="Enter tags..."
-            className="w-full px-4 py-2.5 border-2 border-warm-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all"
-          />
-          {tagSuggestions && tagSuggestions.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {tagSuggestions.slice(0, 5).map((tag) => (
-                <button
-                  key={tag}
-                  onClick={() => {
-                    setTagQuery(tag);
-                    handleChange('tags', tag);
-                  }}
-                  className="px-2.5 py-1 bg-beige-100 text-warm-gray-700 text-xs rounded-lg hover:bg-beige-200 transition-colors"
-                >
-                  {tag}
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="relative">
+            <input
+              type="text"
+              value={tagQuery}
+              onChange={(e) => setTagQuery(e.target.value)}
+              onBlur={(e) => {
+                // Delay to allow click on suggestions
+                setTimeout(() => {
+                  if (tagQuery) {
+                    handleChange('tags', tagQuery);
+                  }
+                }, 200);
+              }}
+              placeholder="Enter tags..."
+              className="w-full px-4 py-2.5 border-2 border-warm-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all"
+            />
+            {tagSuggestions && tagSuggestions.length > 0 && tagQuery && (
+              <div className="absolute z-20 mt-1 w-full bg-white border-2 border-warm-gray-200 rounded-xl shadow-apple-lg p-2 max-h-48 overflow-y-auto">
+                <div className="flex flex-wrap gap-1.5">
+                  {tagSuggestions.slice(0, 5).map((tag) => (
+                    <button
+                      key={tag}
+                      type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault(); // Prevent input blur
+                        setTagQuery(tag);
+                        handleChange('tags', tag);
+                        setTagQuery('');
+                      }}
+                      className="px-2.5 py-1 bg-beige-100 text-warm-gray-700 text-xs rounded-lg hover:bg-beige-200 transition-colors"
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
