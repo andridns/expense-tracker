@@ -13,8 +13,10 @@ RUN npm ci
 COPY . .
 
 # Build the application
-# VITE_API_URL will be injected at build time
-RUN npm run build
+# VITE_API_URL will be injected at build time (Railway automatically passes VITE_* vars as build args)
+# If not set, use relative path which will be proxied by nginx
+RUN echo "Building with VITE_API_URL=${VITE_API_URL:-/api/v1}" && \
+    npm run build
 
 # Production stage
 FROM nginx:alpine
@@ -23,13 +25,15 @@ FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Copy nginx configuration
-# If BACKEND_URL is set, use the template with proxy, otherwise use simple config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+
+# Copy startup script
+COPY start-nginx.sh /start-nginx.sh
+RUN chmod +x /start-nginx.sh
 
 # Expose port
 EXPOSE 80
 
-# Start nginx
-# If BACKEND_URL is set, substitute it in the template, otherwise use default config
-CMD ["/bin/sh", "-c", "if [ -n \"$$BACKEND_URL\" ]; then apk add --no-cache gettext && envsubst '$$BACKEND_URL' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf; fi && nginx -g 'daemon off;'"]
+# Start nginx with proxy configuration if BACKEND_URL is set
+CMD ["/start-nginx.sh"]
