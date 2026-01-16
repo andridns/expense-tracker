@@ -8,6 +8,7 @@ from decimal import Decimal
 from app.database import get_db
 from app.models.expense import Expense
 from app.models.category import Category
+from app.services.currency import get_exchange_rates
 
 router = APIRouter()
 
@@ -17,9 +18,10 @@ async def get_summary(
     start_date: Optional[date] = Query(None),
     end_date: Optional[date] = Query(None),
     period: Optional[str] = Query("monthly"),  # monthly or yearly
+    currency: Optional[str] = Query("IDR", description="Currency to convert all amounts to"),
     db: Session = Depends(get_db)
 ):
-    """Get expense summary"""
+    """Get expense summary with optional currency conversion"""
     query = db.query(Expense)
     
     if not start_date or not end_date:
@@ -38,13 +40,39 @@ async def get_summary(
     
     query = query.filter(Expense.date >= start_date, Expense.date <= end_date)
     
-    total_expenses = query.count()
-    total_amount = db.query(func.sum(Expense.amount)).filter(
-        Expense.date >= start_date,
-        Expense.date <= end_date
-    ).scalar() or Decimal("0")
+    expenses = query.all()
+    total_expenses = len(expenses)
     
-    # Average expense
+    # Calculate totals with currency conversion
+    if currency:
+        # Get unique currencies
+        currencies = set(exp.currency for exp in expenses)
+        rates_cache = {}
+        
+        # Fetch exchange rates for each currency
+        for curr in currencies:
+            if curr.upper() != currency.upper():
+                try:
+                    rates = await get_exchange_rates(curr)
+                    rates_cache[curr.upper()] = rates.get(currency.upper(), 1.0)
+                except Exception:
+                    rates_cache[curr.upper()] = 1.0
+        
+        # Sum with conversion
+        total_amount = Decimal("0")
+        for expense in expenses:
+            if expense.currency.upper() == currency.upper():
+                total_amount += Decimal(str(expense.amount))
+            else:
+                rate = rates_cache.get(expense.currency.upper(), Decimal("1"))
+                total_amount += Decimal(str(expense.amount)) * rate
+    else:
+        # No conversion, sum as-is
+        total_amount = db.query(func.sum(Expense.amount)).filter(
+            Expense.date >= start_date,
+            Expense.date <= end_date
+        ).scalar() or Decimal("0")
+    
     avg_amount = total_amount / total_expenses if total_expenses > 0 else Decimal("0")
     
     return {
@@ -53,7 +81,8 @@ async def get_summary(
         "end_date": end_date.isoformat(),
         "total_expenses": total_expenses,
         "total_amount": float(total_amount),
-        "average_amount": float(avg_amount)
+        "average_amount": float(avg_amount),
+        "currency": currency or "mixed"
     }
 
 

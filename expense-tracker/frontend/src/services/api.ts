@@ -76,6 +76,10 @@ export const budgetsApi = {
     const response = await api.get<Budget>(`/budgets/${id}`);
     return response.data;
   },
+  getSpent: async (budgetId: string, params?: { start_date?: string; end_date?: string }) => {
+    const response = await api.get(`/budgets/${budgetId}/spent`, { params });
+    return response.data;
+  },
   create: async (data: BudgetCreate): Promise<Budget> => {
     const response = await api.post<Budget>('/budgets', data);
     return response.data;

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { formatCurrency, formatDate } from '../../utils/format';
+import CurrencyDisplay from '../CurrencyDisplay';
 import type { Expense } from '../../types';
 
 interface ExpenseListProps {
@@ -96,7 +97,11 @@ const ExpenseList = ({ expenses, isLoading, onEdit, onDelete }: ExpenseListProps
                 </div>
                 <div className="text-right ml-4">
                   <p className="text-lg font-bold text-warm-gray-800">
-                    {formatCurrency(expense.amount, expense.currency)}
+                    <CurrencyDisplay 
+                      amount={expense.amount} 
+                      currency={expense.currency}
+                      size="lg"
+                    />
                   </p>
                   <div className="mt-2 flex gap-3">
                     <button
@@ -160,7 +165,11 @@ const ExpenseList = ({ expenses, isLoading, onEdit, onDelete }: ExpenseListProps
                   </td>
                   <td className="px-5 py-4 text-sm text-warm-gray-600">-</td>
                   <td className="px-5 py-4 text-sm font-semibold text-warm-gray-800">
-                    {formatCurrency(expense.amount, expense.currency)}
+                    <CurrencyDisplay 
+                      amount={expense.amount} 
+                      currency={expense.currency}
+                      size="sm"
+                    />
                   </td>
                   <td className="px-5 py-4 text-sm text-warm-gray-600">{expense.payment_method}</td>
                   <td className="px-5 py-4 text-sm">

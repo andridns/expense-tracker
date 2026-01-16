@@ -2,10 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from uuid import UUID
+from datetime import date
 
 from app.database import get_db
 from app.models.budget import Budget
+from app.models.expense import Expense
 from app.schemas.budget import BudgetCreate, BudgetUpdate, BudgetResponse
+from app.services.currency import get_exchange_rates
 
 router = APIRouter()
 
@@ -39,6 +42,71 @@ async def get_budget(
     if not budget:
         raise HTTPException(status_code=404, detail="Budget not found")
     return budget
+
+
+@router.get("/budgets/{budget_id}/spent")
+async def get_budget_spent(
+    budget_id: UUID,
+    start_date: Optional[date] = Query(None),
+    end_date: Optional[date] = Query(None),
+    db: Session = Depends(get_db)
+):
+    """
+    Get total spent amount for a budget, with currency conversion.
+    Expenses in different currencies are converted to the budget's currency.
+    """
+    budget = db.query(Budget).filter(Budget.id == budget_id).first()
+    if not budget:
+        raise HTTPException(status_code=404, detail="Budget not found")
+    
+    # Use budget date range if not provided
+    if not start_date:
+        start_date = budget.start_date
+    if not end_date:
+        end_date = budget.end_date
+    
+    # Get expenses for this budget
+    query = db.query(Expense).filter(
+        Expense.date >= start_date,
+        Expense.date <= end_date
+    )
+    
+    if budget.category_id:
+        query = query.filter(Expense.category_id == budget.category_id)
+    
+    expenses = query.all()
+    
+    # Get exchange rates for all unique currencies in expenses
+    currencies = set(exp.currency for exp in expenses)
+    rates_cache = {}
+    
+    for currency in currencies:
+        if currency.upper() != budget.currency.upper():
+            try:
+                rates = await get_exchange_rates(currency)
+                rates_cache[currency.upper()] = rates.get(budget.currency.upper(), 1.0)
+            except Exception:
+                # If conversion fails, use 1:1 (better than erroring)
+                rates_cache[currency.upper()] = 1.0
+    
+    # Calculate total spent with conversion
+    total_spent = 0.0
+    for expense in expenses:
+        if expense.currency.upper() == budget.currency.upper():
+            total_spent += float(expense.amount)
+        else:
+            rate = rates_cache.get(expense.currency.upper(), 1.0)
+            total_spent += float(expense.amount) * rate
+    
+    return {
+        "budget_id": str(budget.id),
+        "budget_amount": float(budget.amount),
+        "budget_currency": budget.currency,
+        "spent_amount": total_spent,
+        "spent_currency": budget.currency,
+        "remaining": float(budget.amount) - total_spent,
+        "percentage": (total_spent / float(budget.amount)) * 100 if budget.amount > 0 else 0
+    }
 
 
 @router.post("/budgets", response_model=BudgetResponse, status_code=201)

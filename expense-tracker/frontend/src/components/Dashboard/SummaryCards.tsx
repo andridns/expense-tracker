@@ -1,4 +1,5 @@
 import { formatCurrency } from '../../utils/format';
+import CurrencyDisplay from '../CurrencyDisplay';
 import type { SummaryReport } from '../../types';
 
 interface SummaryCardsProps {
@@ -24,7 +25,11 @@ const SummaryCards = ({ summary }: SummaryCardsProps) => {
       <div className="bg-white p-6 rounded-2xl shadow-apple border-l-4 border-primary-400">
         <h3 className="text-sm font-medium text-warm-gray-600 mb-3">Total Expenses</h3>
         <p className="text-3xl font-semibold text-warm-gray-800">
-          {formatCurrency(summary.total_amount, summary.currency || 'IDR')}
+          <CurrencyDisplay 
+            amount={summary.total_amount} 
+            currency={summary.currency || 'IDR'}
+            size="lg"
+          />
         </p>
         <p className="text-sm text-warm-gray-500 mt-2">{summary.total_expenses} transactions</p>
       </div>
@@ -32,7 +37,11 @@ const SummaryCards = ({ summary }: SummaryCardsProps) => {
       <div className="bg-white p-6 rounded-2xl shadow-apple border-l-4 border-primary-300">
         <h3 className="text-sm font-medium text-warm-gray-600 mb-3">Average Expense</h3>
         <p className="text-3xl font-semibold text-warm-gray-800">
-          {formatCurrency(summary.average_amount, summary.currency || 'IDR')}
+          <CurrencyDisplay 
+            amount={summary.average_amount} 
+            currency={summary.currency || 'IDR'}
+            size="lg"
+          />
         </p>
         <p className="text-sm text-warm-gray-500 mt-2">Per transaction</p>
       </div>

@@ -1,4 +1,5 @@
 import { formatCurrency } from '../../utils/format';
+import CurrencyDisplay from '../CurrencyDisplay';
 import type { Budget } from '../../types';
 
 interface BudgetListProps {
@@ -56,7 +57,11 @@ const BudgetList = ({ budgets, isLoading, onEdit, onDelete }: BudgetListProps) =
                     {new Date(budget.end_date).toLocaleDateString()}
                   </p>
                   <p className="mt-1">
-                    Amount: {formatCurrency(budget.amount, budget.currency)}
+                    Amount: <CurrencyDisplay 
+                      amount={budget.amount} 
+                      currency={budget.currency}
+                      size="sm"
+                    />
                   </p>
                 </div>
               </div>
