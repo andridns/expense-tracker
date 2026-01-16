@@ -20,6 +20,16 @@ fi
 echo "Running database migrations..."
 poetry run alembic upgrade head || echo "Migration failed or already up to date"
 
+# Seed database if empty (only seed categories, not sample expenses)
+echo "Checking if database needs seeding..."
+CATEGORY_COUNT=$(poetry run python -c "from app.database import SessionLocal; from app.models.category import Category; db = SessionLocal(); count = db.query(Category).count(); db.close(); print(count)" 2>/dev/null || echo "0")
+if [ "$CATEGORY_COUNT" = "0" ]; then
+    echo "Database is empty. Seeding default categories..."
+    poetry run python scripts/seed_data.py || echo "Seeding failed or already seeded"
+else
+    echo "Database already has data. Skipping seed."
+fi
+
 # Start the application
 echo "Starting FastAPI server..."
 exec poetry run uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
