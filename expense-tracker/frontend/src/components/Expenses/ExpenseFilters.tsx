@@ -152,7 +152,7 @@ const ExpenseFiltersComponent = ({ filters, onFiltersChange }: ExpenseFiltersPro
             onChange={(e) => handleDateRangeChange(e.target.value as DateRangePreset)}
             className="w-full px-4 py-2.5 border-2 border-warm-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all"
           >
-            {DATE_RANGE_OPTIONS.map((option) => (
+            {dateRangeOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
