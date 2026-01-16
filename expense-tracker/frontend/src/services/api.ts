@@ -31,8 +31,11 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Clear any stored auth state
-      window.location.href = '/login';
+      // Only redirect to login if we're not already on the login page
+      // This prevents redirect loops when checking auth status
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
