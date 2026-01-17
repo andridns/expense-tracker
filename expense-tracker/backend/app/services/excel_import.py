@@ -410,6 +410,7 @@ class ExcelImportService:
         # Try parsing datetime with time component first (e.g., "1/1/2026 20:55:47")
         # This is the most common format from Excel Timestamp columns
         datetime_formats = [
+            '%Y-%m-%d %H.%M.%S',      # 2022-07-09 12.00.00 (Excel Timestamp format)
             '%m/%d/%Y %H:%M:%S',      # 1/1/2026 20:55:47
             '%d/%m/%Y %H:%M:%S',      # 1/1/2026 20:55:47 (DD/MM/YYYY)
             '%Y-%m-%d %H:%M:%S',      # 2026-01-01 20:55:47

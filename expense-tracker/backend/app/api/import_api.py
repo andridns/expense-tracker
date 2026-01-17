@@ -2,6 +2,7 @@
 Import API endpoints for Excel file imports
 """
 import logging
+import re
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Dict
@@ -198,32 +199,30 @@ async def import_excel(
         category_matches: Dict[str, int] = {}
         uncategorized_count = 0
         
-        # Get all categories for type mapping
+        # Get all categories for direct name matching
         logger.debug("Loading categories from database")
         all_categories = db.query(Category).all()
-        category_name_map = {cat.name.lower(): cat for cat in all_categories}
+        # Create maps for matching: exact name, lowercase name, and name without emojis
+        category_name_map = {}
+        category_name_lower_map = {cat.name.lower(): cat for cat in all_categories}
         logger.info(f"Loaded {len(all_categories)} categories from database")
         
-        # Type to category name mapping (common mappings)
-        type_to_category = {
-            'food': 'Food & Dining',
-            'misc': 'Other',
-            'childcare': 'Other',  # Could be a new category, but map to Other for now
-            'income': None,  # Skip income entries (they're not expenses)
-            'taxes': 'Bills & Utilities',
-            'housing': 'Bills & Utilities',
-            'vacation': 'Travel',
-            'travel': 'Travel',
-            'transportation': 'Transportation',
-            'shopping': 'Shopping',
-            'entertainment': 'Entertainment',
-            'healthcare': 'Healthcare',
-            'education': 'Education',
-            'personal care': 'Personal Care',
-            'gifts': 'Gifts & Donations',
-            'subscription': 'Subscriptions',
-        }
-        logger.debug(f"Type to category mapping configured with {len(type_to_category)} mappings")
+        # Helper function to strip emojis and normalize category name
+        def normalize_category_name(category_str: str) -> str:
+            """Strip emojis and normalize category name for matching"""
+            # Remove emojis (Unicode emoji ranges)
+            emoji_pattern = re.compile(
+                "["
+                "\U0001F600-\U0001F64F"  # emoticons
+                "\U0001F300-\U0001F5FF"  # symbols & pictographs
+                "\U0001F680-\U0001F6FF"  # transport & map symbols
+                "\U0001F1E0-\U0001F1FF"  # flags (iOS)
+                "\U00002702-\U000027B0"
+                "\U000024C2-\U0001F251"
+                "]+", flags=re.UNICODE
+            )
+            normalized = emoji_pattern.sub('', category_str).strip()
+            return normalized
         
         skipped_count = 0
         
@@ -253,27 +252,34 @@ async def import_excel(
                     except (ValueError, TypeError):
                         pass
                 
-                # First, try to match Type column to category
+                # Match category directly from Excel file (categories are already in correct format)
                 if 'category' in expense_data and expense_data['category']:
-                    type_value = str(expense_data['category']).strip().lower()
-                    logger.debug(f"Row {idx + 1}: Type value from file: '{type_value}'")
+                    category_value = str(expense_data['category']).strip()
+                    logger.debug(f"Row {idx + 1}: Category value from file: '{category_value}'")
                     
-                    # Check direct type mapping
-                    if type_value in type_to_category:
-                        category_name = type_to_category[type_value]
-                        logger.debug(f"Row {idx + 1}: Found direct type mapping: '{type_value}' -> '{category_name}'")
-                        if category_name and category_name.lower() in category_name_map:
-                            matched_category = category_name_map[category_name.lower()]
-                            logger.info(f"Row {idx + 1}: Matched category via type mapping: {matched_category.name}")
-                    
-                    # If no direct mapping, try to find category by similar name
-                    if not matched_category:
-                        logger.debug(f"Row {idx + 1}: No direct mapping, trying fuzzy match")
-                        for cat_name, category in category_name_map.items():
-                            if type_value in cat_name or cat_name in type_value:
-                                matched_category = category
-                                logger.info(f"Row {idx + 1}: Matched category via fuzzy match: {matched_category.name}")
-                                break
+                    # Try exact match first (case-insensitive)
+                    category_value_lower = category_value.lower()
+                    if category_value_lower in category_name_lower_map:
+                        matched_category = category_name_lower_map[category_value_lower]
+                        logger.info(f"Row {idx + 1}: Matched category via exact name: {matched_category.name}")
+                    else:
+                        # Strip emojis and try matching again
+                        normalized_category = normalize_category_name(category_value)
+                        normalized_lower = normalized_category.lower()
+                        logger.debug(f"Row {idx + 1}: Normalized category (no emojis): '{normalized_category}'")
+                        
+                        # Try exact match with normalized name
+                        if normalized_lower in category_name_lower_map:
+                            matched_category = category_name_lower_map[normalized_lower]
+                            logger.info(f"Row {idx + 1}: Matched category via normalized name: {matched_category.name}")
+                        else:
+                            # Try partial/fuzzy match (check if normalized category contains or is contained in any category name)
+                            for cat_name_lower, category in category_name_lower_map.items():
+                                # Check if category name contains the normalized value or vice versa
+                                if normalized_lower in cat_name_lower or cat_name_lower in normalized_lower:
+                                    matched_category = category
+                                    logger.info(f"Row {idx + 1}: Matched category via fuzzy match: '{normalized_category}' -> '{matched_category.name}'")
+                                    break
                 
                 # If we found a category_id from existing expense, use it (mapped if needed)
                 if expense_category_id and not matched_category:
@@ -288,14 +294,6 @@ async def import_excel(
                         matched_category = db.query(Category).filter(Category.id == expense_category_id).first()
                         if matched_category:
                             logger.info(f"Row {idx + 1}: Using category from expense ID: {matched_category.name}")
-                
-                # If no match from Type column, use smart category matching on description
-                if not matched_category:
-                    description = expense_data.get('description', '')
-                    logger.debug(f"Row {idx + 1}: No type match, trying smart category matching on description: '{description[:50]}'")
-                    matched_category = category_matcher.match(description)
-                    if matched_category:
-                        logger.info(f"Row {idx + 1}: Matched category via smart matching: {matched_category.name}")
                 
                 if matched_category:
                     expense_data['category_id'] = matched_category.id

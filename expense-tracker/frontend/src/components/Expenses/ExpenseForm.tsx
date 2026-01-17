@@ -92,8 +92,13 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
       toast.success('Expense updated successfully');
       onSuccess();
     },
-    onError: () => {
-      toast.error('Failed to update expense');
+    onError: (error: any) => {
+      console.error('Update error:', error);
+      const errorMessage = error?.response?.data?.detail || 
+                          (Array.isArray(error?.response?.data?.detail) 
+                            ? error.response.data.detail.map((d: any) => d.msg || JSON.stringify(d)).join(', ')
+                            : 'Failed to update expense');
+      toast.error(errorMessage);
     },
   });
 
@@ -116,7 +121,22 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
     }
 
     if (expenseId) {
-      updateMutation.mutate({ id: expenseId, data: formData });
+      // Prepare update data with proper formatting
+      // Convert empty strings to null for optional fields
+      const updateData: ExpenseUpdate = {
+        amount: formData.amount,
+        currency: formData.currency,
+        description: formData.description.trim(),
+        category_id: formData.category_id || null,
+        date: formData.date,
+        tags: formData.tags && formData.tags.length > 0 ? formData.tags : [],
+        payment_method: formData.payment_method,
+        receipt_url: formData.receipt_url && formData.receipt_url.trim() !== '' ? formData.receipt_url : null,
+        location: formData.location && formData.location.trim() !== '' ? formData.location.trim() : null,
+        notes: formData.notes && formData.notes.trim() !== '' ? formData.notes.trim() : null,
+        is_recurring: formData.is_recurring,
+      };
+      updateMutation.mutate({ id: expenseId, data: updateData });
     } else {
       createMutation.mutate(formData);
     }
