@@ -139,6 +139,10 @@ def verify_google_token(id_token_str: str) -> Optional[Dict]:
     try:
         google_client_id = os.getenv("GOOGLE_CLIENT_ID")
         if not google_client_id:
+            # Log warning for debugging
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning("GOOGLE_CLIENT_ID not set in environment variables")
             # In development, you might want to skip verification
             # In production, this should always be set
             if os.getenv("ENVIRONMENT") == "development":
@@ -160,10 +164,16 @@ def verify_google_token(id_token_str: str) -> Optional[Dict]:
         
         return idinfo
     except ValueError as e:
-        # Invalid token
+        # Invalid token - log for debugging
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(f"Google token verification failed (ValueError): {str(e)}")
         return None
     except Exception as e:
-        # Other errors
+        # Other errors - log for debugging
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Google token verification failed (Exception): {str(e)}", exc_info=True)
         return None
 
 

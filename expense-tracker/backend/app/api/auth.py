@@ -187,6 +187,12 @@ async def google_login(
     except HTTPException:
         raise
     except Exception as e:
+        # Log the full error for debugging
+        import logging
+        import traceback
+        logger = logging.getLogger(__name__)
+        logger.error(f"Google authentication error: {str(e)}")
+        logger.error(traceback.format_exc())
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Authentication error: {str(e)}"
@@ -199,3 +205,23 @@ async def get_current_user_info(
 ):
     """Get current authenticated user information"""
     return current_user
+
+
+@router.get("/auth/debug")
+async def debug_auth_config():
+    """Debug endpoint to check auth configuration (development only)"""
+    if os.getenv("ENVIRONMENT") == "production":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Debug endpoint not available in production"
+        )
+    
+    google_client_id = os.getenv("GOOGLE_CLIENT_ID")
+    allowed_emails = get_allowed_emails()
+    
+    return {
+        "google_client_id_set": bool(google_client_id),
+        "google_client_id_preview": google_client_id[:20] + "..." if google_client_id else None,
+        "allowed_emails_count": len(allowed_emails),
+        "allowed_emails": allowed_emails
+    }

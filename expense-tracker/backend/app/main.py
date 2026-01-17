@@ -5,10 +5,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 from app.database import engine, Base
 from app.api import expenses, categories, budgets, reports, export, tags, upload, backup, currency, import_api, auth, admin
 
-# Configure logging
+# Configure logging first
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -18,6 +19,15 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+
+# Load environment variables from .env file
+env_path = Path(__file__).parent.parent / ".env"
+if env_path.exists():
+    load_dotenv(dotenv_path=env_path)
+    logger.info(f"Loaded environment variables from {env_path}")
+else:
+    logger.warning(f"No .env file found at {env_path}")
+
 logger.info("Starting Expense Tracker API")
 
 # Try to import seed module, but don't fail if it doesn't exist
