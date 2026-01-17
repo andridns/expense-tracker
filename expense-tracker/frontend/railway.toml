@@ -4,6 +4,7 @@ dockerfilePath = "Dockerfile"
 
 [build.buildArgs]
 VITE_API_URL = "https://backend-production-1e9d.up.railway.app/api/v1"
+VITE_GOOGLE_CLIENT_ID = "346635155284-refhcv4vijdpeb88bb6ths430nu97olo.apps.googleusercontent.com"
 
 [deploy]
 startCommand = "nginx -g 'daemon off;'"
