@@ -90,6 +90,64 @@ backend/
 
 The credentials will be updated automatically on the next deployment/restart.
 
+## Updating Admin Password
+
+### Method 1: Using Environment Variable (Recommended for Production)
+
+Set the `DEFAULT_PASSWORD` environment variable and restart/redeploy the service. The password will be automatically updated on startup.
+
+**Local Development:**
+```bash
+# In backend/.env file
+DEFAULT_PASSWORD=your_new_password_here
+```
+
+**Railway Production:**
+1. Go to your Railway project → Backend service → Variables
+2. Add or update `DEFAULT_PASSWORD` with your new password
+3. Redeploy the service
+
+### Method 2: Using Update Script (Quick Local Update)
+
+For local development, you can use the password update script:
+
+```bash
+# Update to default password (23052020)
+poetry run python scripts/update_admin_password.py
+
+# Or specify a custom password
+poetry run python scripts/update_admin_password.py your_custom_password
+```
+
+This script will:
+- Find the admin user
+- Update the password hash
+- Keep the user active
+
+### Method 3: Reset Database (Local Development Only)
+
+If you want to reset everything including the password:
+
+```bash
+# Delete the SQLite database
+rm expense_tracker.db
+
+# Run migrations
+poetry run alembic upgrade head
+
+# Seed the database (creates admin with default password)
+poetry run python scripts/seed_data.py
+```
+
+**Note:** This will delete all your local data!
+
+### Default Credentials
+
+- **Username:** `admin`
+- **Default Password:** `23052020`
+
+**⚠️ Important:** Change the default password in production! Set `DEFAULT_PASSWORD` environment variable to a strong password.
+
 ## API Endpoints
 
 All endpoints are prefixed with `/api/v1/`

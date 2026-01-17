@@ -89,9 +89,13 @@ Then restart/redeploy your backend service.
    - "Or continue with" divider
    - Google Sign-In button (if configured)
 
-4. Click "Sign in with Google" and use an email from your `ALLOWED_EMAILS` list
+4. Login with default credentials:
+   - Username: `admin`
+   - Password: `23052020`
 
-5. If successful, you'll be redirected to the dashboard
+5. Or click "Sign in with Google" and use an email from your `ALLOWED_EMAILS` list
+
+6. If successful, you'll be redirected to the dashboard
 
 ---
 
@@ -115,6 +119,18 @@ Then restart/redeploy your backend service.
 ### Login works but user not created
 - ✅ Check database migrations are run: `poetry run alembic upgrade head`
 - ✅ Check backend logs for errors
+
+### Cannot login with default credentials
+- ✅ Verify you're using the correct password: `23052020` (not `admin123`)
+- ✅ If you changed the default password, update it using the password update script:
+  ```bash
+  poetry run python scripts/update_admin_password.py
+  ```
+- ✅ Check backend logs for "Invalid password" warnings
+- ✅ Ensure the admin user exists: Check `/api/v1/auth/debug` endpoint (development only)
+
+### Need to update admin password
+See the [Backend README](../backend/README.md#updating-admin-password) for detailed instructions on updating passwords.
 
 ---
 

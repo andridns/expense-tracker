@@ -73,8 +73,14 @@ This is a complete walkthrough for deploying your Expense Tracker application to
         DATABASE_URL=<paste the DATABASE_URL from PostgreSQL service>
         ALLOWED_ORIGINS=https://your-frontend.railway.app
         PORT=8000
+        DEFAULT_USERNAME=admin
+        DEFAULT_PASSWORD=<choose a strong password>
         ```
       
+      - **Important**: 
+        - Set `DEFAULT_PASSWORD` to a strong password (not the default `23052020`)
+        - The admin user will be created/updated automatically on deployment
+        - You can change the password later by updating this variable and redeploying
       - **Note**: For `ALLOWED_ORIGINS`, you'll need to update this after deploying the frontend. For now, you can set it to `*` temporarily, or leave it and update later.
    
    f. **Save all changes**
@@ -142,7 +148,11 @@ This is a complete walkthrough for deploying your Expense Tracker application to
 1. Open your **frontend URL** in a web browser
    - Example: `https://your-frontend.railway.app`
 2. The application should load and be fully functional!
-3. **To access from your mobile phone:**
+3. **Login with admin credentials:**
+   - Username: `admin` (or whatever you set in `DEFAULT_USERNAME`)
+   - Password: The password you set in `DEFAULT_PASSWORD` environment variable
+   - **Note**: If you didn't set `DEFAULT_PASSWORD`, the default is `23052020` (change this!)
+4. **To access from your mobile phone:**
    - Simply open the same URL in your mobile browser
    - The app is mobile-responsive and will work perfectly
 
@@ -213,9 +223,22 @@ After deployment, verify:
 - `DATABASE_URL` - From PostgreSQL service
 - `ALLOWED_ORIGINS` - Your frontend URL
 - `PORT` - 8000
+- `DEFAULT_USERNAME` - Admin username (default: "admin")
+- `DEFAULT_PASSWORD` - Admin password (⚠️ **Set a strong password!**)
 
 **Frontend:**
 - `VITE_API_URL` - Your backend URL + `/api/v1`
+
+### Updating Admin Password in Production
+
+To change the admin password after deployment:
+
+1. Go to Railway → Backend service → Variables
+2. Update the `DEFAULT_PASSWORD` variable with your new password
+3. Redeploy the service (or restart it)
+4. The password will be automatically updated on the next startup
+
+**Note**: The password update happens automatically - you don't need to manually update the database.
 
 ---
 

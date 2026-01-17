@@ -48,6 +48,10 @@ poetry run alembic upgrade head
 poetry run python scripts/seed_data.py
 ```
 
+**Default Login Credentials:**
+- Username: `admin`
+- Password: `23052020`
+
 5. Start the server:
 ```bash
 poetry run uvicorn app.main:app --reload
