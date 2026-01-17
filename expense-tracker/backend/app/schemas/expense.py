@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Optional, List
-from datetime import date, datetime
+from datetime import date as date_type, datetime
 from uuid import UUID
 
 
@@ -9,7 +9,7 @@ class ExpenseBase(BaseModel):
     currency: str = Field(default="IDR", max_length=3, description="Currency code")
     description: str = Field(min_length=1, max_length=500, description="Expense description")
     category_id: Optional[UUID] = None
-    date: date
+    date: date_type
     tags: Optional[List[str]] = Field(default_factory=list, description="Tags")
     payment_method: str = Field(description="Payment method")
     receipt_url: Optional[str] = None
@@ -27,7 +27,7 @@ class ExpenseUpdate(BaseModel):
     currency: Optional[str] = Field(default=None, max_length=3)
     description: Optional[str] = Field(default=None, min_length=1, max_length=500)
     category_id: Optional[UUID] = None
-    date: Optional[date] = None
+    date: Optional[date_type] = None
     tags: Optional[List[str]] = None
     payment_method: Optional[str] = None
     receipt_url: Optional[str] = None
