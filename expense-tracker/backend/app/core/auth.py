@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 import os
 import secrets
 from typing import Optional, Dict, List
+from uuid import UUID
 from google.oauth2 import id_token
 from google.auth.transport.requests import Request as GoogleRequest
 
@@ -82,8 +83,15 @@ def verify_session_token(token: str) -> Optional[str]:
 
 def get_current_user_from_token(token: str, db: Session) -> Optional[User]:
     """Get user from session token"""
-    user_id = verify_session_token(token)
-    if user_id is None:
+    user_id_str = verify_session_token(token)
+    if user_id_str is None:
+        return None
+    
+    try:
+        # Convert string to UUID
+        user_id = UUID(user_id_str)
+    except (ValueError, TypeError):
+        # Invalid UUID format
         return None
     
     user = db.query(User).filter(User.id == user_id, User.is_active == True).first()
