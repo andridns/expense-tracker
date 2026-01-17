@@ -24,7 +24,7 @@ const Layout = ({ children }: LayoutProps) => {
 
   const navItems = [
     { path: '/', label: 'Add Expense', icon: '➕' },
-    { path: '/expenses', label: 'Expenses', icon: '💰' },
+    { path: '/expenses', label: 'Explorer', icon: '🔍' },
     { path: '/budgets', label: 'Budgets', icon: '📈' },
     { path: '/reports', label: 'Reports', icon: '📊' },
     { path: '/import', label: 'Import', icon: '📥' },
