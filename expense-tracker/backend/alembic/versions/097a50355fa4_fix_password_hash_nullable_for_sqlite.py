@@ -75,13 +75,17 @@ def upgrade() -> None:
                 if row and row[0] == 'NO':
                     # Column is NOT NULL, make it nullable
                     op.alter_column('users', 'password_hash', nullable=True)
-            except Exception:
+                    print("✓ Migration 097a50355fa4: Made password_hash nullable in PostgreSQL")
+                else:
+                    print("✓ Migration 097a50355fa4: password_hash is already nullable in PostgreSQL")
+            except Exception as e:
                 # If check fails, try to alter anyway
                 try:
                     op.alter_column('users', 'password_hash', nullable=True)
-                except Exception:
+                    print("✓ Migration 097a50355fa4: Made password_hash nullable in PostgreSQL (forced)")
+                except Exception as e2:
                     # Column might already be nullable or doesn't exist
-                    pass
+                    print(f"⚠ Migration 097a50355fa4: Could not alter password_hash (might already be nullable): {e2}")
 
 
 def downgrade() -> None:

@@ -18,8 +18,10 @@ fi
 
 # Run database migrations
 echo "Running database migrations..."
-poetry run alembic upgrade head || {
+poetry run alembic upgrade head 2>&1 || {
     echo "Warning: Migration failed or already up to date"
+    echo "Checking current migration version..."
+    poetry run alembic current || echo "Could not check migration version"
 }
 
 # Seed database if empty (only seed categories, not sample expenses)
