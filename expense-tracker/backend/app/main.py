@@ -18,6 +18,9 @@ logging.basicConfig(
     ]
 )
 
+# Suppress harmless bcrypt version warnings from passlib
+logging.getLogger("passlib.handlers.bcrypt").setLevel(logging.ERROR)
+
 logger = logging.getLogger(__name__)
 
 # Load environment variables from .env file
