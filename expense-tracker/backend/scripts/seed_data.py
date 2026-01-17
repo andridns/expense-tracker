@@ -187,26 +187,35 @@ def seed_budgets():
 
 
 def seed_user():
-    """Seed default user"""
-    print("Seeding user...")
+    """Seed or update default user from environment variables"""
+    print("Seeding/updating user...")
     # Get username and password from environment or use defaults
     username = os.getenv("DEFAULT_USERNAME", "admin")
     password = os.getenv("DEFAULT_PASSWORD", "admin123")
     
     existing_user = db.query(User).filter(User.username == username).first()
-    if existing_user:
-        print(f"✓ User '{username}' already exists, skipping")
-        return
     
-    user = User(
-        username=username,
-        password_hash=get_password_hash(password),
-        is_active=True
-    )
-    db.add(user)
-    db.commit()
-    print(f"✓ Created user '{username}' with password '{password}'")
-    print(f"  ⚠️  Please change the default password after first login!")
+    if existing_user:
+        # Update password if environment variables are explicitly set
+        # This allows updating credentials via Railway env vars
+        if os.getenv("DEFAULT_PASSWORD"):
+            existing_user.password_hash = get_password_hash(password)
+            existing_user.is_active = True
+            db.commit()
+            print(f"✓ Updated user '{username}' password from DEFAULT_PASSWORD environment variable")
+        else:
+            print(f"✓ User '{username}' already exists, skipping (set DEFAULT_PASSWORD env var to update)")
+    else:
+        # Create new user
+        user = User(
+            username=username,
+            password_hash=get_password_hash(password),
+            is_active=True
+        )
+        db.add(user)
+        db.commit()
+        print(f"✓ Created user '{username}' with password from environment variables")
+        print(f"  ⚠️  Password set from DEFAULT_PASSWORD environment variable")
 
 
 def main():

@@ -8,9 +8,14 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class GoogleTokenRequest(BaseModel):
+    id_token: str
+
+
 class UserResponse(BaseModel):
     id: UUID
-    username: str
+    username: Optional[str] = None
+    email: Optional[str] = None
     is_active: bool
 
     class Config:

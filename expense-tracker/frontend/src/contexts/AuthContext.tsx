@@ -3,7 +3,8 @@ import { authApi } from '../services/api';
 
 interface User {
   id: string;
-  username: string;
+  username?: string;
+  email?: string;
   is_active: boolean;
 }
 
@@ -11,6 +12,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (username: string, password: string) => Promise<void>;
+  googleLogin: (idToken: string) => Promise<void>;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
 }
@@ -54,6 +56,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUser(userData);
   };
 
+  const googleLogin = async (idToken: string) => {
+    const userData = await authApi.googleLogin(idToken);
+    setUser(userData);
+  };
+
   const logout = async () => {
     try {
       await authApi.logout();
@@ -70,6 +77,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         user,
         loading,
         login,
+        googleLogin,
         logout,
         isAuthenticated: !!user,
       }}

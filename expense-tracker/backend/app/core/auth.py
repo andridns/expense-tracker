@@ -6,7 +6,9 @@ from jose import JWTError, jwt
 from datetime import datetime, timedelta
 import os
 import secrets
-from typing import Optional
+from typing import Optional, Dict, List
+from google.oauth2 import id_token
+from google.auth.transport.requests import Request as GoogleRequest
 
 from app.database import get_db
 from app.models.user import User
@@ -26,12 +28,32 @@ security = HTTPBearer(auto_error=False)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against a hash"""
-    return pwd_context.verify(plain_password, hashed_password)
+    # Ensure password is encoded as bytes and not longer than 72 bytes (bcrypt limit)
+    if isinstance(plain_password, str):
+        password_bytes = plain_password.encode('utf-8')
+    else:
+        password_bytes = plain_password
+    
+    # Bcrypt has a 72-byte limit, truncate if necessary
+    if len(password_bytes) > 72:
+        password_bytes = password_bytes[:72]
+    
+    return pwd_context.verify(password_bytes, hashed_password)
 
 
 def get_password_hash(password: str) -> str:
     """Hash a password"""
-    return pwd_context.hash(password)
+    # Ensure password is encoded as bytes and not longer than 72 bytes (bcrypt limit)
+    if isinstance(password, str):
+        password_bytes = password.encode('utf-8')
+    else:
+        password_bytes = password
+    
+    # Bcrypt has a 72-byte limit, truncate if necessary
+    if len(password_bytes) > 72:
+        password_bytes = password_bytes[:72]
+    
+    return pwd_context.hash(password_bytes)
 
 
 def create_session_token(user_id: str) -> str:
@@ -98,3 +120,47 @@ def get_current_user(
         )
     
     return user
+
+
+def verify_google_token(id_token_str: str) -> Optional[Dict]:
+    """Verify Google ID token and return user info"""
+    try:
+        google_client_id = os.getenv("GOOGLE_CLIENT_ID")
+        if not google_client_id:
+            # In development, you might want to skip verification
+            # In production, this should always be set
+            if os.getenv("ENVIRONMENT") == "development":
+                # For development, decode without verification (not secure, but useful for testing)
+                # In production, always verify
+                return None
+            raise ValueError("GOOGLE_CLIENT_ID not set")
+        
+        # Verify the token
+        idinfo = id_token.verify_oauth2_token(
+            id_token_str,
+            GoogleRequest(),
+            google_client_id
+        )
+        
+        # Verify issuer
+        if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
+            raise ValueError('Wrong issuer.')
+        
+        return idinfo
+    except ValueError as e:
+        # Invalid token
+        return None
+    except Exception as e:
+        # Other errors
+        return None
+
+
+def get_allowed_emails() -> List[str]:
+    """Get list of allowed emails from environment variable"""
+    allowed_emails_str = os.getenv("ALLOWED_EMAILS", "")
+    if not allowed_emails_str:
+        return []
+    
+    # Split by comma and strip whitespace
+    emails = [email.strip() for email in allowed_emails_str.split(",") if email.strip()]
+    return emails

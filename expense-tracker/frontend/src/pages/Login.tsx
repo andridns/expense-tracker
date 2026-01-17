@@ -1,14 +1,79 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
+
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: any) => void;
+          renderButton: (element: HTMLElement, config: any) => void;
+          prompt: (callback: (notification: any) => void) => void;
+        };
+      };
+    };
+  }
+}
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
+  const googleButtonRef = useRef<HTMLDivElement>(null);
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+
+  useEffect(() => {
+    // Load Google Identity Services script
+    if (!window.google && googleClientId) {
+      const script = document.createElement('script');
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        if (window.google && googleButtonRef.current) {
+          window.google.accounts.id.initialize({
+            client_id: googleClientId,
+            callback: handleGoogleSignIn,
+          });
+          window.google.accounts.id.renderButton(googleButtonRef.current, {
+            theme: 'outline',
+            size: 'large',
+            width: '100%',
+            text: 'signin_with',
+          });
+        }
+      };
+      document.head.appendChild(script);
+    } else if (window.google && googleButtonRef.current && googleClientId) {
+      window.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: handleGoogleSignIn,
+      });
+      window.google.accounts.id.renderButton(googleButtonRef.current, {
+        theme: 'outline',
+        size: 'large',
+        width: '100%',
+        text: 'signin_with',
+      });
+    }
+  }, [googleClientId]);
+
+  const handleGoogleSignIn = async (response: { credential: string }) => {
+    setLoading(true);
+    try {
+      await googleLogin(response.credential);
+      toast.success('Login successful!');
+      navigate('/');
+    } catch (error: any) {
+      toast.error(error.response?.data?.detail || 'Google login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,11 +140,27 @@ const Login = () => {
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-warm-gray-600">
-          <p>Default credentials:</p>
-          <p className="font-mono text-xs mt-1">Username: admin</p>
-          <p className="font-mono text-xs">Password: admin123</p>
-        </div>
+        {googleClientId && (
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-warm-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-warm-gray-500">Or continue with</span>
+              </div>
+            </div>
+            <div ref={googleButtonRef} className="mt-4 flex justify-center"></div>
+          </div>
+        )}
+
+        {!googleClientId && (
+          <div className="mt-6 text-center text-sm text-warm-gray-600">
+            <p>Default credentials:</p>
+            <p className="font-mono text-xs mt-1">Username: admin</p>
+            <p className="font-mono text-xs">Password: admin123</p>
+          </div>
+        )}
       </div>
     </div>
   );

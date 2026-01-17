@@ -217,13 +217,18 @@ export const importApi = {
 // Auth
 export interface User {
   id: string;
-  username: string;
+  username?: string;
+  email?: string;
   is_active: boolean;
 }
 
 export const authApi = {
   login: async (username: string, password: string): Promise<User> => {
     const response = await api.post<User>('/auth/login', { username, password });
+    return response.data;
+  },
+  googleLogin: async (idToken: string): Promise<User> => {
+    const response = await api.post<User>('/auth/google', { id_token: idToken });
     return response.data;
   },
   logout: async (): Promise<void> => {

@@ -34,6 +34,36 @@ else
     echo "Database already has data. Skipping seed."
 fi
 
+# Always sync user credentials from environment variables
+# This allows updating credentials via Railway env vars (DEFAULT_USERNAME, DEFAULT_PASSWORD)
+echo "Syncing user credentials from environment variables..."
+poetry run python -c "
+from app.database import SessionLocal
+from app.models.user import User
+from app.core.auth import get_password_hash
+import os
+
+db = SessionLocal()
+try:
+    username = os.getenv('DEFAULT_USERNAME', 'admin')
+    password = os.getenv('DEFAULT_PASSWORD')
+    
+    user = db.query(User).filter(User.username == username).first()
+    if user and password:
+        user.password_hash = get_password_hash(password)
+        user.is_active = True
+        db.commit()
+        print(f'✓ Updated user \"{username}\" password from DEFAULT_PASSWORD environment variable')
+    elif user:
+        print(f'✓ User \"{username}\" exists (set DEFAULT_PASSWORD env var to update password)')
+    else:
+        print(f'⚠ User \"{username}\" not found (run seed script to create)')
+finally:
+    db.close()
+" || {
+    echo "Warning: Failed to sync user credentials"
+}
+
 # Start the application
 echo "Starting FastAPI server..."
 exec poetry run uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
