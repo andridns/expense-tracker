@@ -23,6 +23,18 @@ router = APIRouter()
 security = HTTPBearer(auto_error=False)
 
 
+def is_production_environment() -> bool:
+    """Check if running in production environment"""
+    env = os.getenv("ENVIRONMENT", "").lower()
+    # Check for production indicators:
+    # 1. Explicit ENVIRONMENT=production
+    # 2. Railway environment (Railway sets RAILWAY_PROJECT_ID when deployed)
+    # 3. RAILWAY_ENVIRONMENT=production
+    railway_deployed = bool(os.getenv("RAILWAY_PROJECT_ID"))
+    railway_env = os.getenv("RAILWAY_ENVIRONMENT", "").lower()
+    return env == "production" or railway_env == "production" or railway_deployed
+
+
 @router.post("/auth/login", response_model=UserResponse)
 async def login(
     login_data: LoginRequest,
@@ -73,14 +85,15 @@ async def login(
         
         # Set secure cookie for web clients (sticky session)
         # Use secure=True only in production (when HTTPS is available)
-        is_production = os.getenv("ENVIRONMENT", "development") == "production"
+        # samesite="none" is required for cross-site requests (frontend and backend on different domains)
+        is_prod = is_production_environment()
         response.set_cookie(
             key=SESSION_COOKIE_NAME,
             value=session_token,
             max_age=SESSION_EXPIRE_HOURS * 3600,  # Convert hours to seconds
             httponly=True,
-            secure=is_production,  # Set to True in production with HTTPS
-            samesite="lax",  # Works for both same-site and cross-site requests
+            secure=is_prod,  # Set to True in production with HTTPS
+            samesite="none" if is_prod else "lax",  # "none" required for cross-site requests in production
             path="/"
         )
         
@@ -100,10 +113,12 @@ async def login(
 @router.post("/auth/logout")
 async def logout(response: Response):
     """Logout and clear session cookie"""
+    is_prod = is_production_environment()
     response.delete_cookie(
         key=SESSION_COOKIE_NAME,
         path="/",
-        samesite="lax"
+        samesite="none" if is_prod else "lax",
+        secure=is_prod
     )
     return {"message": "Logged out successfully"}
 
@@ -181,14 +196,15 @@ async def google_login(
         session_token = create_session_token(str(user.id))
         
         # Set secure cookie
-        is_production = os.getenv("ENVIRONMENT", "development") == "production"
+        # samesite="none" is required for cross-site requests (frontend and backend on different domains)
+        is_prod = is_production_environment()
         response.set_cookie(
             key=SESSION_COOKIE_NAME,
             value=session_token,
             max_age=SESSION_EXPIRE_HOURS * 3600,
             httponly=True,
-            secure=is_production,
-            samesite="lax",
+            secure=is_prod,
+            samesite="none" if is_prod else "lax",  # "none" required for cross-site requests in production
             path="/"
         )
         
