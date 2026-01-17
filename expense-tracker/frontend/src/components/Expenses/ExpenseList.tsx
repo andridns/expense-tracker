@@ -176,11 +176,11 @@ const ExpenseList = ({ expenses, isLoading, onEdit, onDelete }: ExpenseListProps
           const isFuture = isFutureDate(expense.date);
           
           return (
-            <div key={expense.id} className="p-2.5 hover:bg-primary-50/30 transition-colors">
+            <div key={expense.id} className="p-2 hover:bg-primary-50/30 transition-colors">
               {/* Top row: Description, Amount, Flags */}
-              <div className="flex justify-between items-start gap-2 mb-1.5">
+              <div className="flex justify-between items-start gap-2 mb-1">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                  <div className="flex items-center gap-1 mb-0.5 flex-wrap">
                     <span className="font-semibold text-modern-text text-sm truncate">{expense.description}</span>
                     {expense.is_recurring && (
                       <span className="text-xs" title="Recurring">🔄</span>
@@ -196,7 +196,7 @@ const ExpenseList = ({ expenses, isLoading, onEdit, onDelete }: ExpenseListProps
                     {category && (
                       <span className="flex items-center gap-1" title={category.name}>
                         <span>{getCategoryDisplay(category)}</span>
-                        <span className="text-[9px]">{category.name.length > 10 ? category.name.substring(0, 10) + '...' : category.name}</span>
+                        <span className="text-[9px]">{category.name}</span>
                       </span>
                     )}
                   </div>
@@ -210,34 +210,22 @@ const ExpenseList = ({ expenses, isLoading, onEdit, onDelete }: ExpenseListProps
                 </div>
               </div>
               
-              {/* Tags row */}
-              {expense.tags && expense.tags.length > 0 && (
-                <div className="flex items-center gap-1 mb-1.5 flex-wrap">
-                  {expense.tags.map((tag, idx) => (
-                    <span 
-                      key={idx}
-                      className="px-1 py-0.5 bg-primary-50 text-primary-700 text-[9px] rounded font-medium border border-primary-200/50"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-              
               {/* Actions row */}
-              <div className="flex justify-end items-center pt-1.5 border-t border-modern-border/20">
-                <div className="flex gap-2.5">
+              <div className="flex justify-end items-center pt-1 border-t border-modern-border/20">
+                <div className="flex gap-2">
                   <button
                     onClick={() => onEdit(expense.id)}
-                    className="text-primary-600 hover:text-primary-700 font-semibold transition-colors text-[11px] hover:underline"
+                    className="text-primary-600 hover:text-primary-700 transition-colors text-base"
+                    title="Edit"
                   >
-                    Edit
+                    ✏️
                   </button>
                   <button
                     onClick={() => onDelete(expense.id)}
-                    className="text-red-500 hover:text-red-600 font-semibold transition-colors text-[11px] hover:underline"
+                    className="text-red-500 hover:text-red-600 transition-colors text-base"
+                    title="Delete"
                   >
-                    Delete
+                    🗑️
                   </button>
                 </div>
               </div>
@@ -288,9 +276,6 @@ const ExpenseList = ({ expenses, isLoading, onEdit, onDelete }: ExpenseListProps
                 </div>
               </th>
               <th className="px-5 py-4 text-left text-xs font-bold text-modern-text-light uppercase tracking-wider">
-                Tags
-              </th>
-              <th className="px-5 py-4 text-left text-xs font-bold text-modern-text-light uppercase tracking-wider">
                 Actions
               </th>
             </tr>
@@ -332,25 +317,6 @@ const ExpenseList = ({ expenses, isLoading, onEdit, onDelete }: ExpenseListProps
                       <div className="flex items-center gap-1.5" title={category.name}>
                         <span>{getCategoryDisplay(category)}</span>
                         <span>{category.name.length > 15 ? category.name.substring(0, 15) + '...' : category.name}</span>
-                      </div>
-                    ) : (
-                      '-'
-                    )}
-                  </td>
-                  <td className="px-5 py-3 text-sm">
-                    {expense.tags && expense.tags.length > 0 ? (
-                      <div className="flex items-center gap-1 flex-wrap">
-                        {expense.tags.slice(0, 3).map((tag, idx) => (
-                          <span 
-                            key={idx}
-                            className="px-1.5 py-0.5 bg-primary-50 text-primary-700 text-[10px] rounded font-medium border border-primary-200/50"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                        {expense.tags.length > 3 && (
-                          <span className="text-[10px] text-modern-text-light">+{expense.tags.length - 3}</span>
-                        )}
                       </div>
                     ) : (
                       '-'

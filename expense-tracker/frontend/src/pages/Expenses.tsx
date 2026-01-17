@@ -30,11 +30,9 @@ const Expenses = () => {
   });
 
   const handleDelete = (id: string) => {
-    deleteMutation.mutate(id);
-    // Show success toast
-    toast.success('Expense deleted', {
-      duration: 5000,
-    });
+    if (window.confirm('Are you sure you want to delete this expense?')) {
+      deleteMutation.mutate(id);
+    }
   };
 
   const handleEdit = (id: string) => {
