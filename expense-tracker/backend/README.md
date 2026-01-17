@@ -9,17 +9,26 @@ Backend API for the Expense Tracker application built with FastAPI.
 poetry install
 ```
 
-2. Run database migrations:
+2. Configure environment variables:
+```bash
+# Copy the example environment file
+cp .env.example .env
+
+# Edit .env with your configuration (optional for local development)
+# See .env.example for all available options
+```
+
+3. Run database migrations:
 ```bash
 poetry run alembic upgrade head
 ```
 
-3. Seed the database with default categories and sample data:
+4. Seed the database with default categories and sample data:
 ```bash
 poetry run python scripts/seed_data.py
 ```
 
-4. Start the development server:
+5. Start the development server:
 ```bash
 poetry run uvicorn app.main:app --reload
 ```
@@ -49,6 +58,8 @@ backend/
 ```
 
 ## Environment Variables
+
+> **Note**: See `.env.example` for a complete list of all environment variables with descriptions and examples.
 
 - `DATABASE_URL`: Database connection string (default: SQLite)
   - Development: `sqlite:///./expense_tracker.db`

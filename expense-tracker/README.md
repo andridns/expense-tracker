@@ -67,12 +67,21 @@ API documentation: `http://localhost:8000/docs`
 cd frontend
 ```
 
-2. Install dependencies:
+2. Configure environment variables (optional):
+```bash
+# Copy the example environment file
+cp .env.example .env
+
+# Edit .env if you need to customize API URL or Google OAuth
+# See .env.example for all available options
+```
+
+3. Install dependencies:
 ```bash
 npm install
 ```
 
-3. Start the development server:
+4. Start the development server:
 ```bash
 npm run dev
 ```
