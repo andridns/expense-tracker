@@ -30,10 +30,14 @@ async def login(
     db: Session = Depends(get_db)
 ):
     """Login with username and password"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     try:
         user = db.query(User).filter(User.username == login_data.username).first()
         
         if not user:
+            logger.warning(f"Login attempt with non-existent username: {login_data.username}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Incorrect username or password"
@@ -41,16 +45,22 @@ async def login(
         
         # Check if user has password (not OAuth-only user)
         if not user.password_hash:
+            logger.warning(f"Login attempt for OAuth-only user: {login_data.username}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="This account uses Google Sign-In. Please use Google to sign in."
             )
         
-        if not verify_password(login_data.password, user.password_hash):
+        # Verify password
+        password_valid = verify_password(login_data.password, user.password_hash)
+        if not password_valid:
+            logger.warning(f"Invalid password for user: {login_data.username}")
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Incorrect username or password"
             )
+        
+        logger.info(f"Successful login for user: {login_data.username}")
         
         if not user.is_active:
             raise HTTPException(
@@ -208,7 +218,7 @@ async def get_current_user_info(
 
 
 @router.get("/auth/debug")
-async def debug_auth_config():
+async def debug_auth_config(db: Session = Depends(get_db)):
     """Debug endpoint to check auth configuration (development only)"""
     if os.getenv("ENVIRONMENT") == "production":
         raise HTTPException(
@@ -219,9 +229,30 @@ async def debug_auth_config():
     google_client_id = os.getenv("GOOGLE_CLIENT_ID")
     allowed_emails = get_allowed_emails()
     
+    # Check admin user
+    admin_user = db.query(User).filter(User.username == "admin").first()
+    admin_info = None
+    if admin_user:
+        admin_info = {
+            "exists": True,
+            "is_active": admin_user.is_active,
+            "has_password": bool(admin_user.password_hash),
+            "password_hash_length": len(admin_user.password_hash) if admin_user.password_hash else 0,
+            "password_hash_preview": admin_user.password_hash[:20] + "..." if admin_user.password_hash else None
+        }
+        
+        # Test password verification
+        from app.core.auth import verify_password
+        test_password = os.getenv("DEFAULT_PASSWORD", "admin123")
+        if admin_user.password_hash:
+            admin_info["password_verification_test"] = verify_password(test_password, admin_user.password_hash)
+    else:
+        admin_info = {"exists": False}
+    
     return {
         "google_client_id_set": bool(google_client_id),
         "google_client_id_preview": google_client_id[:20] + "..." if google_client_id else None,
         "allowed_emails_count": len(allowed_emails),
-        "allowed_emails": allowed_emails
+        "allowed_emails": allowed_emails,
+        "admin_user": admin_info
     }

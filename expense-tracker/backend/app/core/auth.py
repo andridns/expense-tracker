@@ -11,17 +11,23 @@ from typing import Optional, Dict, List
 from uuid import UUID
 from google.oauth2 import id_token
 from google.auth.transport.requests import Request as GoogleRequest
+import warnings
+import logging
 
 from app.database import get_db
 from app.models.user import User
+
+# Suppress bcrypt version warnings from passlib
+# These warnings are harmless - bcrypt 5.0+ works fine with passlib
+warnings.filterwarnings("ignore", message=".*bcrypt.*")
+warnings.filterwarnings("ignore", message=".*trapped.*")
+warnings.filterwarnings("ignore", category=UserWarning, module="passlib")
 
 # Password hashing - initialize with error handling for bcrypt compatibility
 try:
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 except Exception:
     # Fallback initialization if default fails
-    import warnings
-    warnings.filterwarnings("ignore", category=UserWarning)
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # JWT/Session configuration
@@ -36,14 +42,38 @@ security = HTTPBearer(auto_error=False)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against a hash"""
-    try:
-        return pwd_context.verify(plain_password, hashed_password)
-    except (ValueError, AttributeError):
-        # Fallback to direct bcrypt if passlib fails
+    if not plain_password or not hashed_password:
+        return False
+    
+    logger = logging.getLogger(__name__)
+    
+    # Try passlib first (suppress warnings during verification)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message=".*bcrypt.*")
+        warnings.filterwarnings("ignore", message=".*trapped.*")
         try:
-            return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
-        except Exception:
-            return False
+            result = pwd_context.verify(plain_password, hashed_password)
+            if result:
+                return True
+        except Exception as e:
+            logger.debug(f"Passlib verification failed: {e}, trying direct bcrypt")
+    
+    # Fallback to direct bcrypt if passlib fails or returns False
+    try:
+        # Handle both string and bytes hash formats
+        if isinstance(hashed_password, str):
+            hash_bytes = hashed_password.encode('utf-8')
+        else:
+            hash_bytes = hashed_password
+        
+        result = bcrypt.checkpw(plain_password.encode('utf-8'), hash_bytes)
+        if result:
+            logger.debug("Password verified using direct bcrypt")
+        return result
+    except Exception as e:
+        # Log error for debugging but don't expose details
+        logger.debug(f"Direct bcrypt verification error: {e}")
+        return False
 
 
 def get_password_hash(password: str) -> str:
