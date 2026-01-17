@@ -8,7 +8,7 @@ import ExpenseFilters from '../components/Expenses/ExpenseFilters';
 import type { ExpenseFilters as ExpenseFiltersType } from '../types';
 
 const Expenses = () => {
-  const [filters, setFilters] = useState<ExpenseFiltersType>({});
+  const [filters, setFilters] = useState<ExpenseFiltersType>({ limit: 400 });
   const [showForm, setShowForm] = useState(false);
   const [editingExpense, setEditingExpense] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -91,7 +91,10 @@ const Expenses = () => {
         </div>
       </div>
 
-      <ExpenseFilters filters={filters} onFiltersChange={setFilters} />
+      <ExpenseFilters 
+        filters={filters} 
+        onFiltersChange={(newFilters) => setFilters({ ...newFilters, limit: 400 })} 
+      />
 
       {showForm && (
         <ExpenseForm

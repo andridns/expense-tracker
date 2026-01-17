@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { formatDate } from '../../utils/format';
 import CurrencyDisplay from '../CurrencyDisplay';
 import type { Expense } from '../../types';
@@ -10,8 +10,90 @@ interface ExpenseListProps {
   onDelete: (id: string) => void;
 }
 
+type SortField = 'date' | 'description' | 'category' | 'amount' | 'payment';
+type SortDirection = 'asc' | 'desc';
+
 const ExpenseList = ({ expenses, isLoading, onEdit, onDelete }: ExpenseListProps) => {
-  const [viewMode, setViewMode] = useState<'list' | 'table'>('list');
+  const [sortField, setSortField] = useState<SortField>('date');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      // Toggle direction if clicking the same field
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Set new field with default descending
+      setSortField(field);
+      setSortDirection('desc');
+    }
+  };
+
+  const sortedExpenses = useMemo(() => {
+    const sorted = [...expenses];
+    sorted.sort((a, b) => {
+      let aValue: any;
+      let bValue: any;
+
+      switch (sortField) {
+        case 'date':
+          aValue = new Date(a.date).getTime();
+          bValue = new Date(b.date).getTime();
+          break;
+        case 'description':
+          aValue = a.description.toLowerCase();
+          bValue = b.description.toLowerCase();
+          break;
+        case 'category':
+          aValue = a.category_id || '';
+          bValue = b.category_id || '';
+          break;
+        case 'amount':
+          aValue = a.amount;
+          bValue = b.amount;
+          break;
+        case 'payment':
+          aValue = a.payment_method.toLowerCase();
+          bValue = b.payment_method.toLowerCase();
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) {
+        return sortDirection === 'asc' ? -1 : 1;
+      }
+      if (aValue > bValue) {
+        return sortDirection === 'asc' ? 1 : -1;
+      }
+      return 0;
+    });
+    return sorted;
+  }, [expenses, sortField, sortDirection]);
+
+  const getSortIcon = (field: SortField) => {
+    if (sortField !== field) {
+      return (
+        <span className="ml-1 text-warm-gray-400">
+          <svg className="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+          </svg>
+        </span>
+      );
+    }
+    return sortDirection === 'asc' ? (
+      <span className="ml-1 text-primary-500">
+        <svg className="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+        </svg>
+      </span>
+    ) : (
+      <span className="ml-1 text-primary-500">
+        <svg className="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </span>
+    );
+  };
 
   if (isLoading) {
     return (
@@ -35,165 +117,112 @@ const ExpenseList = ({ expenses, isLoading, onEdit, onDelete }: ExpenseListProps
 
   return (
     <div className="bg-white rounded-2xl shadow-apple-lg">
-      <div className="p-6 border-b border-warm-gray-200 flex justify-between items-center">
+      <div className="p-6 border-b border-warm-gray-200">
         <h3 className="text-lg font-semibold text-warm-gray-800">
           {expenses.length} {expenses.length === 1 ? 'expense' : 'expenses'}
         </h3>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setViewMode('list')}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-              viewMode === 'list'
-                ? 'bg-primary-400 text-white shadow-apple'
-                : 'bg-beige-100 text-warm-gray-700 hover:bg-beige-200'
-            }`}
-          >
-            List
-          </button>
-          <button
-            onClick={() => setViewMode('table')}
-            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-              viewMode === 'table'
-                ? 'bg-primary-400 text-white shadow-apple'
-                : 'bg-beige-100 text-warm-gray-700 hover:bg-beige-200'
-            }`}
-          >
-            Table
-          </button>
-        </div>
       </div>
 
-      {viewMode === 'list' ? (
-        <div className="divide-y divide-warm-gray-200">
-          {expenses.map((expense) => (
-            <div key={expense.id} className="p-5 hover:bg-beige-50 transition-colors">
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h4 className="font-semibold text-warm-gray-800">{expense.description}</h4>
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="bg-beige-50">
+            <tr>
+              <th 
+                className="px-5 py-4 text-left text-xs font-medium text-warm-gray-600 uppercase tracking-wider cursor-pointer hover:bg-beige-100 transition-colors select-none"
+                onClick={() => handleSort('date')}
+              >
+                <div className="flex items-center">
+                  Date
+                  {getSortIcon('date')}
+                </div>
+              </th>
+              <th 
+                className="px-5 py-4 text-left text-xs font-medium text-warm-gray-600 uppercase tracking-wider cursor-pointer hover:bg-beige-100 transition-colors select-none"
+                onClick={() => handleSort('description')}
+              >
+                <div className="flex items-center">
+                  Description
+                  {getSortIcon('description')}
+                </div>
+              </th>
+              <th 
+                className="px-5 py-4 text-left text-xs font-medium text-warm-gray-600 uppercase tracking-wider cursor-pointer hover:bg-beige-100 transition-colors select-none"
+                onClick={() => handleSort('amount')}
+              >
+                <div className="flex items-center">
+                  Amount
+                  {getSortIcon('amount')}
+                </div>
+              </th>
+              <th 
+                className="px-5 py-4 text-left text-xs font-medium text-warm-gray-600 uppercase tracking-wider cursor-pointer hover:bg-beige-100 transition-colors select-none"
+                onClick={() => handleSort('category')}
+              >
+                <div className="flex items-center">
+                  Category
+                  {getSortIcon('category')}
+                </div>
+              </th>
+              <th 
+                className="px-5 py-4 text-left text-xs font-medium text-warm-gray-600 uppercase tracking-wider cursor-pointer hover:bg-beige-100 transition-colors select-none"
+                onClick={() => handleSort('payment')}
+              >
+                <div className="flex items-center">
+                  Payment
+                  {getSortIcon('payment')}
+                </div>
+              </th>
+              <th className="px-5 py-4 text-left text-xs font-medium text-warm-gray-600 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-warm-gray-200">
+            {sortedExpenses.map((expense) => (
+              <tr key={expense.id} className="hover:bg-beige-50 transition-colors">
+                <td className="px-5 py-4 text-sm text-warm-gray-800">
+                  {formatDate(expense.date)}
+                </td>
+                <td className="px-5 py-4 text-sm text-warm-gray-800">
+                  <div className="flex items-center gap-2">
+                    {expense.description}
                     {expense.is_recurring && (
-                      <span className="px-2.5 py-1 bg-primary-100 text-primary-700 text-xs rounded-lg font-medium">
-                        Recurring
+                      <span className="px-2.5 py-1 bg-primary-100 text-primary-700 text-xs rounded-lg">
+                        🔄
                       </span>
                     )}
                   </div>
-                  <div className="text-sm text-warm-gray-600 space-x-4">
-                    <span>{formatDate(expense.date)}</span>
-                    <span>{expense.payment_method}</span>
-                    {expense.location && <span>📍 {expense.location}</span>}
-                  </div>
-                  {expense.tags && expense.tags.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                      {expense.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-2.5 py-1 bg-beige-100 text-warm-gray-700 text-xs rounded-lg"
-                        >
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div className="text-right ml-4">
-                  <p className="text-lg font-bold text-warm-gray-800">
-                    <CurrencyDisplay 
-                      amount={expense.amount} 
-                      currency={expense.currency}
-                      size="lg"
-                    />
-                  </p>
-                  <div className="mt-2 flex gap-3">
+                </td>
+                <td className="px-5 py-4 text-sm font-semibold text-warm-gray-800">
+                  <CurrencyDisplay 
+                    amount={expense.amount} 
+                    currency={expense.currency}
+                    size="sm"
+                  />
+                </td>
+                <td className="px-5 py-4 text-sm text-warm-gray-600">-</td>
+                <td className="px-5 py-4 text-sm text-warm-gray-600">{expense.payment_method}</td>
+                <td className="px-5 py-4 text-sm">
+                  <div className="flex gap-3">
                     <button
                       onClick={() => onEdit(expense.id)}
-                      className="text-primary-500 hover:text-primary-600 text-sm font-medium transition-colors"
+                      className="text-primary-500 hover:text-primary-600 font-medium transition-colors"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => onDelete(expense.id)}
-                      className="text-red-500 hover:text-red-600 text-sm font-medium transition-colors"
+                      className="text-red-500 hover:text-red-600 font-medium transition-colors"
                     >
                       Delete
                     </button>
                   </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-beige-50">
-              <tr>
-                <th className="px-5 py-4 text-left text-xs font-medium text-warm-gray-600 uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-5 py-4 text-left text-xs font-medium text-warm-gray-600 uppercase tracking-wider">
-                  Description
-                </th>
-                <th className="px-5 py-4 text-left text-xs font-medium text-warm-gray-600 uppercase tracking-wider">
-                  Category
-                </th>
-                <th className="px-5 py-4 text-left text-xs font-medium text-warm-gray-600 uppercase tracking-wider">
-                  Amount
-                </th>
-                <th className="px-5 py-4 text-left text-xs font-medium text-warm-gray-600 uppercase tracking-wider">
-                  Payment
-                </th>
-                <th className="px-5 py-4 text-left text-xs font-medium text-warm-gray-600 uppercase tracking-wider">
-                  Actions
-                </th>
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-warm-gray-200">
-              {expenses.map((expense) => (
-                <tr key={expense.id} className="hover:bg-beige-50 transition-colors">
-                  <td className="px-5 py-4 text-sm text-warm-gray-800">
-                    {formatDate(expense.date)}
-                  </td>
-                  <td className="px-5 py-4 text-sm text-warm-gray-800">
-                    <div className="flex items-center gap-2">
-                      {expense.description}
-                      {expense.is_recurring && (
-                        <span className="px-2.5 py-1 bg-primary-100 text-primary-700 text-xs rounded-lg">
-                          🔄
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-5 py-4 text-sm text-warm-gray-600">-</td>
-                  <td className="px-5 py-4 text-sm font-semibold text-warm-gray-800">
-                    <CurrencyDisplay 
-                      amount={expense.amount} 
-                      currency={expense.currency}
-                      size="sm"
-                    />
-                  </td>
-                  <td className="px-5 py-4 text-sm text-warm-gray-600">{expense.payment_method}</td>
-                  <td className="px-5 py-4 text-sm">
-                    <div className="flex gap-3">
-                      <button
-                        onClick={() => onEdit(expense.id)}
-                        className="text-primary-500 hover:text-primary-600 font-medium transition-colors"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => onDelete(expense.id)}
-                        className="text-red-500 hover:text-red-600 font-medium transition-colors"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
