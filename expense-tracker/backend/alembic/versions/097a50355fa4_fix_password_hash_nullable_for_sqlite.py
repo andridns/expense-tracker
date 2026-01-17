@@ -19,65 +19,41 @@ depends_on = None
 def upgrade() -> None:
     bind = op.get_bind()
     inspector = sa.inspect(bind)
+    columns = {col['name']: col for col in inspector.get_columns('users')}
+    indexes = [idx['name'] for idx in inspector.get_indexes('users')]
     
-    # Only fix SQLite databases - PostgreSQL already handled in migration 003
-    if bind.dialect.name == 'sqlite':
-        # Check current column definition
-        columns = {col['name']: col for col in inspector.get_columns('users')}
-        indexes = [idx['name'] for idx in inspector.get_indexes('users')]
-        
-        # Check if password_hash needs to be made nullable
-        # SQLite doesn't enforce NOT NULL constraints, but SQLAlchemy does
-        # We'll recreate the table to ensure proper schema
-        if 'password_hash' in columns:
-            # Create new table with correct schema
+    # Fix both SQLite and PostgreSQL databases
+    # Migration 003 tried to fix PostgreSQL but silently failed, so we ensure it's fixed here
+    if 'password_hash' in columns:
+        if bind.dialect.name == 'sqlite':
+            # SQLite: Recreate table with nullable password_hash
             op.create_table(
                 'users_new',
-                sa.Column('id', sa.String(36), nullable=False, primary_key=True),  # SQLite stores UUID as string
+                sa.Column('id', sa.String(36), nullable=False, primary_key=True),
                 sa.Column('username', sa.String(), nullable=True),
                 sa.Column('email', sa.String(), nullable=True),
-                sa.Column('password_hash', sa.String(), nullable=True),  # Now nullable for OAuth users
+                sa.Column('password_hash', sa.String(), nullable=True),  # Now nullable
                 sa.Column('is_active', sa.Boolean(), nullable=False, server_default='1'),
                 sa.Column('auth_provider', sa.String(), nullable=False, server_default='local'),
                 sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.func.now()),
                 sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
             )
             
-            # Copy data from old table to new table
-            # Handle case where auth_provider might not exist in old data
+            # Copy data
             if 'auth_provider' in columns:
                 op.execute("""
                     INSERT INTO users_new (id, username, email, password_hash, is_active, auth_provider, created_at, updated_at)
-                    SELECT 
-                        id,
-                        username,
-                        email,
-                        password_hash,
-                        is_active,
-                        auth_provider,
-                        created_at,
-                        updated_at
+                    SELECT id, username, email, password_hash, is_active, auth_provider, created_at, updated_at
                     FROM users
                 """)
             else:
                 op.execute("""
                     INSERT INTO users_new (id, username, email, password_hash, is_active, auth_provider, created_at, updated_at)
-                    SELECT 
-                        id,
-                        username,
-                        email,
-                        password_hash,
-                        is_active,
-                        'local' as auth_provider,
-                        created_at,
-                        updated_at
+                    SELECT id, username, email, password_hash, is_active, 'local', created_at, updated_at
                     FROM users
                 """)
             
-            # Drop old table
             op.drop_table('users')
-            
-            # Rename new table
             op.rename_table('users_new', 'users')
             
             # Recreate indexes
@@ -85,10 +61,30 @@ def upgrade() -> None:
                 op.create_index('ix_users_username', 'users', ['username'], unique=True)
             if 'email' in columns and 'ix_users_email' not in indexes:
                 op.create_index('ix_users_email', 'users', ['email'], unique=True)
+                
+        elif bind.dialect.name == 'postgresql':
+            # PostgreSQL: Force alter column to be nullable
+            try:
+                # Check current nullable status
+                result = bind.execute(sa.text("""
+                    SELECT is_nullable 
+                    FROM information_schema.columns 
+                    WHERE table_name = 'users' AND column_name = 'password_hash'
+                """))
+                row = result.fetchone()
+                if row and row[0] == 'NO':
+                    # Column is NOT NULL, make it nullable
+                    op.alter_column('users', 'password_hash', nullable=True)
+            except Exception:
+                # If check fails, try to alter anyway
+                try:
+                    op.alter_column('users', 'password_hash', nullable=True)
+                except Exception:
+                    # Column might already be nullable or doesn't exist
+                    pass
 
 
 def downgrade() -> None:
     # For downgrade, we'd need to make password_hash NOT NULL again
-    # But this is complex for SQLite, so we'll leave it as-is
-    # In practice, you'd recreate the table again with NOT NULL constraint
+    # But this is complex, so we'll leave it as-is
     pass

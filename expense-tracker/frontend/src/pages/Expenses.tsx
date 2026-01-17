@@ -51,7 +51,7 @@ const Expenses = () => {
     try {
       toast.loading('Exporting data...');
       const blob = await exportApi.exportExcel();
-      
+
       // Create download link
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -61,7 +61,7 @@ const Expenses = () => {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-      
+
       toast.dismiss();
       toast.success('Data exported successfully!');
     } catch (error: any) {
