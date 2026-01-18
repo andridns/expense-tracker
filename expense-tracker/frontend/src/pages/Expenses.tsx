@@ -32,7 +32,15 @@ const Expenses = () => {
       const endDateToUse = userEndDate && userEndDate <= today ? userEndDate : today;
       return { ...userFilters, end_date: endDateToUse };
     } else {
-      // Show future expenses: use user's filters as-is (no end_date restriction)
+      // Show future expenses: remove end_date restriction if it's today or earlier
+      // This allows future expenses to be shown
+      const userEndDate = userFilters.end_date;
+      if (userEndDate && userEndDate <= today) {
+        // Remove the end_date restriction to show future expenses
+        const { end_date, ...filtersWithoutEndDate } = userFilters;
+        return filtersWithoutEndDate;
+      }
+      // If user set a future date, keep it as-is
       return userFilters;
     }
   }, [showFutureExpenses, userFilters]);
