@@ -76,7 +76,12 @@ api.interceptors.response.use(
 // Expenses
 export const expensesApi = {
   getAll: async (filters?: ExpenseFilters): Promise<Expense[]> => {
-    const response = await api.get<Expense[]>('/expenses', { params: filters });
+    const response = await api.get<Expense[]>('/expenses', { 
+      params: filters,
+      paramsSerializer: {
+        indexes: null // Serialize arrays as repeated parameters (key=val1&key=val2) instead of brackets
+      }
+    });
     return response.data;
   },
   getById: async (id: string): Promise<Expense> => {
@@ -152,9 +157,18 @@ export const reportsApi = {
     });
     return response.data;
   },
-  getTrends: async (period?: string, categoryId?: string): Promise<TrendData> => {
-    const response = await api.get<TrendData>('/reports/trends', {
-      params: { period, category_id: categoryId },
+  getTrends: async (period?: string, categoryId?: string, categoryIds?: string[]): Promise<TrendData> => {
+    const params: any = { period };
+    if (categoryIds && categoryIds.length > 0) {
+      params.category_ids = categoryIds;
+    } else if (categoryId) {
+      params.category_id = categoryId;
+    }
+    const response = await api.get<TrendData>('/reports/trends', { 
+      params,
+      paramsSerializer: {
+        indexes: null // Serialize arrays as repeated parameters (key=val1&key=val2) instead of brackets
+      }
     });
     return response.data;
   },

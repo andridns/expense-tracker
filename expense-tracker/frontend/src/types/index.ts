@@ -81,7 +81,8 @@ export interface BudgetCreate {
 }
 
 export interface ExpenseFilters {
-  category_id?: string;
+  category_id?: string; // Deprecated: use category_ids instead
+  category_ids?: string[]; // Multiple category IDs for OR filtering
   start_date?: string;
   end_date?: string;
   tags?: string;

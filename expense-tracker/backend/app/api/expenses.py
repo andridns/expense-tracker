@@ -23,7 +23,8 @@ logger = logging.getLogger(__name__)
 
 @router.get("/expenses", response_model=List[ExpenseResponse])
 async def get_expenses(
-    category_id: Optional[UUID] = Query(None),
+    category_id: Optional[UUID] = Query(None, description="Single category ID (deprecated, use category_ids)"),
+    category_ids: Optional[List[UUID]] = Query(None, description="Multiple category IDs for OR filtering"),
     start_date: Optional[date] = Query(None),
     end_date: Optional[date] = Query(None),
     tags: Optional[str] = Query(None),  # comma-separated tags
@@ -39,8 +40,10 @@ async def get_expenses(
     """Get expenses with advanced filtering"""
     query = db.query(Expense)
 
-    # Apply filters
-    if category_id:
+    # Apply filters - support both single category_id (backward compatibility) and multiple category_ids
+    if category_ids:
+        query = query.filter(Expense.category_id.in_(category_ids))
+    elif category_id:
         query = query.filter(Expense.category_id == category_id)
     
     if start_date:

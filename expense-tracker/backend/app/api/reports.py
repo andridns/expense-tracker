@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func, extract
-from typing import Optional
+from typing import Optional, List
 from datetime import date, datetime
 from decimal import Decimal
+from uuid import UUID
 
 from app.database import get_db
 from app.models.expense import Expense
@@ -92,18 +93,24 @@ async def get_summary(
 @router.get("/reports/trends")
 async def get_trends(
     period: Optional[str] = Query("monthly"),  # monthly, quarterly, yearly
-    category_id: Optional[str] = Query(None),
+    category_id: Optional[str] = Query(None, description="Single category ID (deprecated, use category_ids)"),
+    category_ids: Optional[List[str]] = Query(None, description="Multiple category IDs for OR filtering"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Get spending trends grouped by period"""
-    from uuid import UUID
     
     # Build base query
     query = db.query(Expense)
     
-    # Filter by category if provided
-    if category_id:
+    # Filter by category if provided - support both single category_id (backward compatibility) and multiple category_ids
+    if category_ids:
+        try:
+            uuid_list = [UUID(cid) for cid in category_ids]
+            query = query.filter(Expense.category_id.in_(uuid_list))
+        except (ValueError, TypeError):
+            pass  # Invalid UUID, ignore filter
+    elif category_id:
         try:
             query = query.filter(Expense.category_id == UUID(category_id))
         except ValueError:
@@ -115,7 +122,13 @@ async def get_trends(
             extract('year', Expense.date).label('year'),
             func.sum(Expense.amount).label('total')
         )
-        if category_id:
+        if category_ids:
+            try:
+                uuid_list = [UUID(cid) for cid in category_ids]
+                results = results.filter(Expense.category_id.in_(uuid_list))
+            except (ValueError, TypeError):
+                pass
+        elif category_id:
             try:
                 results = results.filter(Expense.category_id == UUID(category_id))
             except ValueError:
@@ -136,7 +149,13 @@ async def get_trends(
             extract('month', Expense.date).label('month'),
             func.sum(Expense.amount).label('total')
         )
-        if category_id:
+        if category_ids:
+            try:
+                uuid_list = [UUID(cid) for cid in category_ids]
+                results = results.filter(Expense.category_id.in_(uuid_list))
+            except (ValueError, TypeError):
+                pass
+        elif category_id:
             try:
                 results = results.filter(Expense.category_id == UUID(category_id))
             except ValueError:
@@ -165,7 +184,13 @@ async def get_trends(
             extract('month', Expense.date).label('month'),
             func.sum(Expense.amount).label('total')
         )
-        if category_id:
+        if category_ids:
+            try:
+                uuid_list = [UUID(cid) for cid in category_ids]
+                results = results.filter(Expense.category_id.in_(uuid_list))
+            except (ValueError, TypeError):
+                pass
+        elif category_id:
             try:
                 results = results.filter(Expense.category_id == UUID(category_id))
             except ValueError:
