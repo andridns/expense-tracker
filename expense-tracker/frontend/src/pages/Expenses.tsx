@@ -82,13 +82,13 @@ const Expenses = () => {
     <div className="space-y-4 md:space-y-6">
       <h2 className="text-2xl md:text-3xl font-bold text-primary-600">Explorer</h2>
 
-      <ExpenseFilters 
-        filters={baseFilters} 
+      <ExpenseFilters
+        filters={baseFilters}
         onFiltersChange={(newFilters) => {
           // Remove skip and limit from filters when they change
           const { skip, limit, ...rest } = newFilters;
           setBaseFilters(rest);
-        }} 
+        }}
       />
 
       {showForm && (

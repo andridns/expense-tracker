@@ -6,6 +6,8 @@ from datetime import date
 from uuid import UUID
 from decimal import Decimal
 import json
+import logging
+import traceback
 
 from app.database import get_db
 from app.models.expense import Expense
@@ -16,6 +18,7 @@ from app.core.auth import get_current_user
 from app.services.currency import get_exchange_rates
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.get("/expenses", response_model=List[ExpenseResponse])
@@ -248,7 +251,26 @@ async def delete_expense(
     db: Session = Depends(get_db)
 ):
     """Delete an expense"""
+    # #region agent log
+    import os
+    log_path = '/Users/andri.danusasmita/github/andridns/sandbox/.cursor/debug.log'
+    import json as json_lib
+    import time
+    try:
+        with open(log_path, 'a') as f:
+            f.write(json_lib.dumps({'sessionId': 'debug-session', 'runId': 'run1', 'hypothesisId': 'A', 'location': 'expenses.py:250', 'message': 'delete_expense entry', 'data': {'expense_id': str(expense_id), 'user_id': str(current_user.id)}, 'timestamp': int(time.time() * 1000)}) + '\n')
+    except: pass
+    # #endregion
+    
     expense = db.query(Expense).filter(Expense.id == expense_id).first()
+    
+    # #region agent log
+    try:
+        with open(log_path, 'a') as f:
+            f.write(json_lib.dumps({'sessionId': 'debug-session', 'runId': 'run1', 'hypothesisId': 'A', 'location': 'expenses.py:252', 'message': 'expense query result', 'data': {'expense_found': expense is not None, 'expense_id': str(expense_id)}, 'timestamp': int(time.time() * 1000)}) + '\n')
+    except: pass
+    # #endregion
+    
     if not expense:
         raise HTTPException(status_code=404, detail="Expense not found")
     
@@ -261,17 +283,118 @@ async def delete_expense(
         'date': expense.date.isoformat(),
     }
     
-    # Log history BEFORE deletion
-    history_entry = ExpenseHistory(
-        expense_id=expense.id,  # Keep reference even after deletion
-        action='delete',
-        user_id=current_user.id,
-        username=current_user.username or current_user.email or 'unknown',
-        description=f"Deleted expense: {expense.description}",
-        old_data=json.dumps(old_data, default=str)
-    )
-    db.add(history_entry)
+    try:
+        # #region agent log
+        try:
+            with open(log_path, 'a') as f:
+                f.write(json_lib.dumps({'sessionId': 'debug-session', 'runId': 'run1', 'hypothesisId': 'B', 'location': 'expenses.py:265', 'message': 'before creating history entry', 'data': {'expense_id': str(expense.id)}, 'timestamp': int(time.time() * 1000)}) + '\n')
+        except: pass
+        # #endregion
+        
+        # Update any existing history entries for this expense to set expense_id to None
+        # This is a workaround for PostgreSQL foreign key constraints until migration 005 is applied
+        # After migration 005, PostgreSQL will automatically set expense_id to NULL via ON DELETE SET NULL
+        # #region agent log
+        try:
+            existing_history_count = db.query(ExpenseHistory).filter(ExpenseHistory.expense_id == expense_id).count()
+            with open(log_path, 'a') as f:
+                f.write(json_lib.dumps({'sessionId': 'debug-session', 'runId': 'run1', 'hypothesisId': 'C', 'location': 'expenses.py:294', 'message': 'before updating existing history', 'data': {'expense_id': str(expense_id), 'existing_history_count': existing_history_count}, 'timestamp': int(time.time() * 1000)}) + '\n')
+        except: pass
+        # #endregion
+        
+        try:
+            # Update existing history entries by fetching and updating individually
+            # Flush after update to ensure PostgreSQL sees the changes before delete
+            existing_history_entries = db.query(ExpenseHistory).filter(ExpenseHistory.expense_id == expense_id).all()
+            for history_entry in existing_history_entries:
+                history_entry.expense_id = None
+            # Flush to make the updates visible to PostgreSQL before delete
+            db.flush()
+            # #region agent log
+            try:
+                with open(log_path, 'a') as f:
+                    f.write(json_lib.dumps({'sessionId': 'debug-session', 'runId': 'run1', 'hypothesisId': 'C', 'location': 'expenses.py:307', 'message': 'existing history updated and flushed', 'data': {'updated_count': len(existing_history_entries)}, 'timestamp': int(time.time() * 1000)}) + '\n')
+            except: pass
+            # #endregion
+        except Exception as update_error:
+            # #region agent log
+            try:
+                with open(log_path, 'a') as f:
+                    f.write(json_lib.dumps({'sessionId': 'debug-session', 'runId': 'run1', 'hypothesisId': 'C', 'location': 'expenses.py:309', 'message': 'update existing history failed', 'data': {'error': str(update_error), 'error_type': type(update_error).__name__}, 'timestamp': int(time.time() * 1000)}) + '\n')
+            except: pass
+            # #endregion
+            logger.error(f"Failed to update existing history entries: {str(update_error)}")
+            logger.error(traceback.format_exc())
+            # Continue anyway - we'll try to create the new history entry
+        
+        # Log history BEFORE deletion
+        # Set expense_id to None to avoid foreign key constraint issues
+        # The old_data JSON contains all the expense information we need
+        history_entry = ExpenseHistory(
+            expense_id=None,  # Set to None to allow expense deletion
+            action='delete',
+            user_id=current_user.id,
+            username=current_user.username or current_user.email or 'unknown',
+            description=f"Deleted expense: {expense.description}",
+            old_data=json.dumps(old_data, default=str)
+        )
+        db.add(history_entry)
+        
+        # #region agent log
+        try:
+            with open(log_path, 'a') as f:
+                f.write(json_lib.dumps({'sessionId': 'debug-session', 'runId': 'run1', 'hypothesisId': 'B', 'location': 'expenses.py:300', 'message': 'history entry added', 'data': {'history_entry_id': str(history_entry.id)}, 'timestamp': int(time.time() * 1000)}) + '\n')
+        except: pass
+        # #endregion
+        
+        # #region agent log
+        try:
+            with open(log_path, 'a') as f:
+                f.write(json_lib.dumps({'sessionId': 'debug-session', 'runId': 'run1', 'hypothesisId': 'D', 'location': 'expenses.py:302', 'message': 'before deleting expense', 'data': {'expense_id': str(expense.id)}, 'timestamp': int(time.time() * 1000)}) + '\n')
+        except: pass
+        # #endregion
+        
+        db.delete(expense)
+        
+        # #region agent log
+        try:
+            with open(log_path, 'a') as f:
+                f.write(json_lib.dumps({'sessionId': 'debug-session', 'runId': 'run1', 'hypothesisId': 'D', 'location': 'expenses.py:305', 'message': 'expense marked for deletion', 'data': {}, 'timestamp': int(time.time() * 1000)}) + '\n')
+        except: pass
+        # #endregion
+        
+        # #region agent log
+        try:
+            with open(log_path, 'a') as f:
+                f.write(json_lib.dumps({'sessionId': 'debug-session', 'runId': 'run1', 'hypothesisId': 'D', 'location': 'expenses.py:307', 'message': 'before commit', 'data': {}, 'timestamp': int(time.time() * 1000)}) + '\n')
+        except: pass
+        # #endregion
+        
+        db.commit()
+        
+        # #region agent log
+        try:
+            with open(log_path, 'a') as f:
+                f.write(json_lib.dumps({'sessionId': 'debug-session', 'runId': 'run1', 'hypothesisId': 'D', 'location': 'expenses.py:309', 'message': 'commit successful', 'data': {}, 'timestamp': int(time.time() * 1000)}) + '\n')
+        except: pass
+        # #endregion
+        
+        logger.info(f"Successfully deleted expense {expense_id} by user {current_user.id}")
+    except HTTPException:
+        raise
+    except Exception as e:
+        # #region agent log
+        try:
+            with open(log_path, 'a') as f:
+                f.write(json_lib.dumps({'sessionId': 'debug-session', 'runId': 'run1', 'hypothesisId': 'D', 'location': 'expenses.py:315', 'message': 'delete/commit failed', 'data': {'error': str(e), 'error_type': type(e).__name__, 'traceback': traceback.format_exc()}, 'timestamp': int(time.time() * 1000)}) + '\n')
+        except: pass
+        # #endregion
+        db.rollback()
+        logger.error(f"Failed to delete expense {expense_id}: {str(e)}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to delete expense: {str(e)}"
+        )
     
-    db.delete(expense)
-    db.commit()
     return None
