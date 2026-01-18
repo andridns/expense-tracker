@@ -12,6 +12,7 @@ import traceback
 from app.database import get_db
 from app.models.expense import Expense
 from app.models.history import ExpenseHistory
+from app.models.category import Category
 from app.models.user import User
 from app.schemas.expense import ExpenseCreate, ExpenseUpdate, ExpenseResponse
 from app.core.auth import get_current_user
@@ -161,6 +162,12 @@ async def create_expense(
     db.refresh(db_expense)
     
     # Log history
+    # Get category name if category_id exists
+    category_name = None
+    if db_expense.category_id:
+        category = db.query(Category).filter(Category.id == db_expense.category_id).first()
+        category_name = category.name if category else None
+    
     history_entry = ExpenseHistory(
         expense_id=db_expense.id,
         action='create',
@@ -173,6 +180,14 @@ async def create_expense(
             'currency': db_expense.currency,
             'description': db_expense.description,
             'date': db_expense.date.isoformat(),
+            'category_id': str(db_expense.category_id) if db_expense.category_id else None,
+            'category_name': category_name,
+            'payment_method': db_expense.payment_method,
+            'tags': db_expense.tags if db_expense.tags else [],
+            'location': db_expense.location,
+            'notes': db_expense.notes,
+            'is_recurring': db_expense.is_recurring,
+            'receipt_url': db_expense.receipt_url,
         }, default=str)
     )
     db.add(history_entry)
@@ -207,12 +222,26 @@ async def update_expense(
         raise HTTPException(status_code=404, detail="Expense not found")
     
     # Store old data for history
+    # Get old category name if category_id exists
+    old_category_name = None
+    if expense.category_id:
+        old_category = db.query(Category).filter(Category.id == expense.category_id).first()
+        old_category_name = old_category.name if old_category else None
+    
     old_data = {
         'id': str(expense.id),
         'amount': float(expense.amount),
         'currency': expense.currency,
         'description': expense.description,
         'date': expense.date.isoformat(),
+        'category_id': str(expense.category_id) if expense.category_id else None,
+        'category_name': old_category_name,
+        'payment_method': expense.payment_method,
+        'tags': expense.tags if expense.tags else [],
+        'location': expense.location,
+        'notes': expense.notes,
+        'is_recurring': expense.is_recurring,
+        'receipt_url': expense.receipt_url,
     }
     
     update_data = expense_update.model_dump(exclude_unset=True)
@@ -225,12 +254,26 @@ async def update_expense(
     
     # Log history
     if changed_fields:
+        # Get new category name if category_id exists
+        new_category_name = None
+        if expense.category_id:
+            new_category = db.query(Category).filter(Category.id == expense.category_id).first()
+            new_category_name = new_category.name if new_category else None
+        
         new_data = {
             'id': str(expense.id),
             'amount': float(expense.amount),
             'currency': expense.currency,
             'description': expense.description,
             'date': expense.date.isoformat(),
+            'category_id': str(expense.category_id) if expense.category_id else None,
+            'category_name': new_category_name,
+            'payment_method': expense.payment_method,
+            'tags': expense.tags if expense.tags else [],
+            'location': expense.location,
+            'notes': expense.notes,
+            'is_recurring': expense.is_recurring,
+            'receipt_url': expense.receipt_url,
         }
         history_entry = ExpenseHistory(
             expense_id=expense.id,
@@ -278,12 +321,26 @@ async def delete_expense(
         raise HTTPException(status_code=404, detail="Expense not found")
     
     # Store data for history before deletion
+    # Get category name if category_id exists
+    category_name = None
+    if expense.category_id:
+        category = db.query(Category).filter(Category.id == expense.category_id).first()
+        category_name = category.name if category else None
+    
     old_data = {
         'id': str(expense.id),
         'amount': float(expense.amount),
         'currency': expense.currency,
         'description': expense.description,
         'date': expense.date.isoformat(),
+        'category_id': str(expense.category_id) if expense.category_id else None,
+        'category_name': category_name,
+        'payment_method': expense.payment_method,
+        'tags': expense.tags if expense.tags else [],
+        'location': expense.location,
+        'notes': expense.notes,
+        'is_recurring': expense.is_recurring,
+        'receipt_url': expense.receipt_url,
     }
     
     try:

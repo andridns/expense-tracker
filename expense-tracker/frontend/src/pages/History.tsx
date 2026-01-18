@@ -1,12 +1,20 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { historyApi, ExpenseHistory } from '../services/api';
+import { historyApi, ExpenseHistory, categoriesApi, Category } from '../services/api';
 
 interface ExpenseData {
   amount?: number;
   currency?: string;
   description?: string;
   date?: string;
+  category_id?: string | null;
+  category_name?: string | null;
+  payment_method?: string;
+  tags?: string[];
+  location?: string | null;
+  notes?: string | null;
+  is_recurring?: boolean;
+  receipt_url?: string | null;
   [key: string]: any;
 }
 
@@ -53,6 +61,20 @@ const History = () => {
     queryKey: ['history', 'users'],
     queryFn: () => historyApi.getUniqueUsernames(),
   });
+
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: () => categoriesApi.getAll(),
+  });
+
+  // Create a map of category_id to category name for quick lookup
+  const categoryMap = useMemo(() => {
+    const map = new Map<string, string>();
+    categories.forEach((cat: Category) => {
+      map.set(cat.id, cat.name);
+    });
+    return map;
+  }, [categories]);
 
   const getActionColor = (action: string) => {
     switch (action) {
@@ -130,20 +152,42 @@ const History = () => {
     const newData = parseExpenseData(entry.new_data);
 
     if (entry.action === 'create' && newData) {
+      const categoryName = newData.category_name || (newData.category_id && categoryMap.get(newData.category_id)) || null;
+      const details: string[] = [];
+      if (categoryName) details.push(`Category: ${categoryName}`);
+      if (newData.payment_method) details.push(`Payment: ${newData.payment_method}`);
+      if (newData.location) details.push(`Location: ${newData.location}`);
+      if (Array.isArray(newData.tags) && newData.tags.length > 0) {
+        details.push(`Tags: ${newData.tags.join(', ')}`);
+      }
+      if (newData.is_recurring) details.push('Recurring: Yes');
+      
       return {
         type: 'create',
         amount: formatAmount(newData.amount, newData.currency),
         description: newData.description || entry.description || 'New expense',
         expenseDate: formatExpenseDate(newData.date),
+        details: details.length > 0 ? details : undefined,
       };
     }
 
     if (entry.action === 'delete' && oldData) {
+      const categoryName = oldData.category_name || (oldData.category_id && categoryMap.get(oldData.category_id)) || null;
+      const details: string[] = [];
+      if (categoryName) details.push(`Category: ${categoryName}`);
+      if (oldData.payment_method) details.push(`Payment: ${oldData.payment_method}`);
+      if (oldData.location) details.push(`Location: ${oldData.location}`);
+      if (Array.isArray(oldData.tags) && oldData.tags.length > 0) {
+        details.push(`Tags: ${oldData.tags.join(', ')}`);
+      }
+      if (oldData.is_recurring) details.push('Recurring: Yes');
+      
       return {
         type: 'delete',
         amount: formatAmount(oldData.amount, oldData.currency),
         description: oldData.description || entry.description || 'Deleted expense',
         expenseDate: formatExpenseDate(oldData.date),
+        details: details.length > 0 ? details : undefined,
       };
     }
 
@@ -168,6 +212,58 @@ const History = () => {
         const oldDate = oldData.date ? new Date(oldData.date).toLocaleDateString() : '(empty)';
         const newDate = newData.date ? new Date(newData.date).toLocaleDateString() : '(empty)';
         changes.push(`Date: ${oldDate} → ${newDate}`);
+      }
+      
+      // Category change
+      const oldCategoryId = oldData.category_id || null;
+      const newCategoryId = newData.category_id || null;
+      const oldCategoryName = oldData.category_name || (oldCategoryId && categoryMap.get(oldCategoryId)) || '(none)';
+      const newCategoryName = newData.category_name || (newCategoryId && categoryMap.get(newCategoryId)) || '(none)';
+      if (oldCategoryId !== newCategoryId) {
+        changes.push(`Category: ${oldCategoryName} → ${newCategoryName}`);
+      }
+      
+      // Payment method change
+      if (oldData.payment_method !== newData.payment_method) {
+        const oldPayment = oldData.payment_method || '(empty)';
+        const newPayment = newData.payment_method || '(empty)';
+        changes.push(`Payment Method: ${oldPayment} → ${newPayment}`);
+      }
+      
+      // Tags change
+      const oldTags = Array.isArray(oldData.tags) ? oldData.tags.sort().join(', ') : (oldData.tags || '(empty)');
+      const newTags = Array.isArray(newData.tags) ? newData.tags.sort().join(', ') : (newData.tags || '(empty)');
+      if (oldTags !== newTags) {
+        changes.push(`Tags: ${oldTags} → ${newTags}`);
+      }
+      
+      // Location change
+      if (oldData.location !== newData.location) {
+        const oldLoc = oldData.location || '(empty)';
+        const newLoc = newData.location || '(empty)';
+        changes.push(`Location: ${oldLoc} → ${newLoc}`);
+      }
+      
+      // Notes change
+      if (oldData.notes !== newData.notes) {
+        const oldNotes = oldData.notes || '(empty)';
+        const newNotes = newData.notes || '(empty)';
+        // Truncate long notes for display
+        const truncate = (text: string, maxLen: number = 50) => 
+          text.length > maxLen ? text.substring(0, maxLen) + '...' : text;
+        changes.push(`Notes: "${truncate(oldNotes)}" → "${truncate(newNotes)}"`);
+      }
+      
+      // Is recurring change
+      if (oldData.is_recurring !== newData.is_recurring) {
+        changes.push(`Recurring: ${oldData.is_recurring ? 'Yes' : 'No'} → ${newData.is_recurring ? 'Yes' : 'No'}`);
+      }
+      
+      // Receipt URL change
+      if (oldData.receipt_url !== newData.receipt_url) {
+        const oldReceipt = oldData.receipt_url ? 'Yes' : '(none)';
+        const newReceipt = newData.receipt_url ? 'Yes' : '(none)';
+        changes.push(`Receipt: ${oldReceipt} → ${newReceipt}`);
       }
 
       return {
@@ -335,6 +431,17 @@ const History = () => {
                       {changeDetails.description}
                     </div>
                     
+                    {/* Show details for create/delete */}
+                    {(changeDetails.type === 'create' || changeDetails.type === 'delete') && changeDetails.details && changeDetails.details.length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        {changeDetails.details.map((detail, idx) => (
+                          <div key={idx} className="text-[10px] text-modern-text-light bg-gray-50/50 px-2 py-1 rounded border border-gray-200/50">
+                            {detail}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
                     {/* Show specific changes for updates */}
                     {changeDetails.type === 'update' && changeDetails.changes && changeDetails.changes.length > 0 && (
                       <div className="mt-2 space-y-1">
@@ -398,6 +505,17 @@ const History = () => {
                             <div className="text-modern-text-light font-medium">
                               {changeDetails.description}
                             </div>
+                            
+                            {/* Show details for create/delete */}
+                            {(changeDetails.type === 'create' || changeDetails.type === 'delete') && changeDetails.details && changeDetails.details.length > 0 && (
+                              <div className="mt-2 space-y-1">
+                                {changeDetails.details.map((detail, idx) => (
+                                  <div key={idx} className="text-xs text-modern-text-light bg-gray-50/50 px-2 py-1 rounded border border-gray-200/50 inline-block mr-1">
+                                    {detail}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                             
                             {/* Show specific changes for updates */}
                             {changeDetails.type === 'update' && changeDetails.changes && changeDetails.changes.length > 0 && (
