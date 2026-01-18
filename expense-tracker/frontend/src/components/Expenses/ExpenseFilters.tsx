@@ -163,6 +163,10 @@ const ExpenseFiltersComponent = ({ filters, onFiltersChange, onClearFilters }: E
     setDateRangePreset('all');
     lastSentFilters.current = newFilters;
     onFiltersChange(newFilters);
+    // Call the optional onClearFilters callback if provided
+    if (onClearFilters) {
+      onClearFilters();
+    }
   };
 
   // Count active filters
