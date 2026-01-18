@@ -10,7 +10,6 @@ interface ExpenseData {
   date?: string;
   category_id?: string | null;
   category_name?: string | null;
-  payment_method?: string;
   tags?: string[];
   location?: string | null;
   notes?: string | null;
@@ -156,7 +155,6 @@ const History = () => {
       const categoryName = newData.category_name || (newData.category_id && categoryMap.get(newData.category_id)) || null;
       const details: string[] = [];
       if (categoryName) details.push(`Category: ${categoryName}`);
-      if (newData.payment_method) details.push(`Payment: ${newData.payment_method}`);
       if (newData.location) details.push(`Location: ${newData.location}`);
       if (Array.isArray(newData.tags) && newData.tags.length > 0) {
         details.push(`Tags: ${newData.tags.join(', ')}`);
@@ -176,7 +174,6 @@ const History = () => {
       const categoryName = oldData.category_name || (oldData.category_id && categoryMap.get(oldData.category_id)) || null;
       const details: string[] = [];
       if (categoryName) details.push(`Category: ${categoryName}`);
-      if (oldData.payment_method) details.push(`Payment: ${oldData.payment_method}`);
       if (oldData.location) details.push(`Location: ${oldData.location}`);
       if (Array.isArray(oldData.tags) && oldData.tags.length > 0) {
         details.push(`Tags: ${oldData.tags.join(', ')}`);
@@ -233,13 +230,6 @@ const History = () => {
       
       if (oldCategoryId !== newCategoryId) {
         changes.push(`Category: ${oldCategoryName} → ${newCategoryName}`);
-      }
-      
-      // Payment method change
-      if (oldData.payment_method !== newData.payment_method) {
-        const oldPayment = oldData.payment_method || '(empty)';
-        const newPayment = newData.payment_method || '(empty)';
-        changes.push(`Payment Method: ${oldPayment} → ${newPayment}`);
       }
       
       // Tags change

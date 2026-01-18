@@ -6,7 +6,6 @@ export interface Expense {
   category_id: string | null;
   date: string;
   tags: string[];
-  payment_method: string;
   receipt_url: string | null;
   location: string | null;
   notes: string | null;
@@ -44,7 +43,6 @@ export interface ExpenseCreate {
   category_id?: string | null;
   date: string;
   tags?: string[];
-  payment_method: string;
   receipt_url?: string | null;
   location?: string | null;
   notes?: string | null;
@@ -58,7 +56,6 @@ export interface ExpenseUpdate {
   category_id?: string | null;
   date?: string;
   tags?: string[];
-  payment_method?: string;
   receipt_url?: string | null;
   location?: string | null;
   notes?: string | null;
@@ -86,7 +83,6 @@ export interface ExpenseFilters {
   start_date?: string;
   end_date?: string;
   tags?: string;
-  payment_method?: string;
   min_amount?: number;
   max_amount?: number;
   search?: string;

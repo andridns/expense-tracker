@@ -19,7 +19,6 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
     category_id: null,
     date: new Date().toISOString().split('T')[0],
     tags: [],
-    payment_method: 'Cash', // Default payment method
     receipt_url: null,
     location: null,
     notes: null,
@@ -77,7 +76,6 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
         category_id: expense.category_id,
         date: expense.date,
         tags: expense.tags || [],
-        payment_method: expense.payment_method,
         receipt_url: null,
         location: null,
         notes: null,
@@ -160,7 +158,6 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
         description: formData.description.trim(),
         category_id: formData.category_id || null,
         date: formData.date,
-        payment_method: formData.payment_method,
       };
       updateMutation.mutate({ id: expenseId, data: updateData });
     } else {

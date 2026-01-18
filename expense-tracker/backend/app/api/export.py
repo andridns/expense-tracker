@@ -45,7 +45,7 @@ async def export_csv(
     # Header
     writer.writerow([
         "Date", "Amount", "Currency", "Description", "Category", 
-        "Payment Method", "Tags", "Location", "Recurring", "Notes"
+        "Tags", "Location", "Recurring", "Notes"
     ])
     
     # Data rows
@@ -56,7 +56,6 @@ async def export_csv(
             expense.currency,
             expense.description,
             expense.category.name if expense.category else "",
-            expense.payment_method,
             ", ".join(expense.tags) if expense.tags else "",
             expense.location or "",
             "Yes" if expense.is_recurring else "No",
@@ -101,7 +100,7 @@ async def export_excel(
     # Expenses header
     expense_headers = [
         "ID", "Date", "Amount", "Currency", "Description", "Category",
-        "Payment Method", "Tags", "Location", "Recurring", "Notes"
+        "Tags", "Location", "Recurring", "Notes"
     ]
     ws_expenses.append(expense_headers)
     
@@ -119,7 +118,6 @@ async def export_excel(
             expense.currency,
             expense.description,
             expense.category.name if expense.category else "",
-            expense.payment_method,
             ", ".join(expense.tags) if expense.tags else "",
             expense.location or "",
             "Yes" if expense.is_recurring else "No",
@@ -222,15 +220,14 @@ async def export_pdf(
         story.append(Spacer(1, 12))
     
     # Table data
-    data = [["Date", "Amount", "Description", "Category", "Payment Method"]]
+    data = [["Date", "Amount", "Description", "Category"]]
     
     for expense in expenses:
         data.append([
             expense.date.strftime("%Y-%m-%d"),
             f"{expense.currency} {expense.amount:,.2f}",
             expense.description[:30] + "..." if len(expense.description) > 30 else expense.description,
-            expense.category.name if expense.category else "N/A",
-            expense.payment_method
+            expense.category.name if expense.category else "N/A"
         ])
     
     # Create table

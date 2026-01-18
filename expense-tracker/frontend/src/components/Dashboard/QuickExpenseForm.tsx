@@ -89,7 +89,6 @@ const QuickExpenseForm = () => {
       description: parsed.description || 'Expense',
       category_id: categoryId,
       date: new Date().toISOString().split('T')[0],
-      payment_method: 'Cash', // Default payment method
       tags: [],
       is_recurring: false,
     });

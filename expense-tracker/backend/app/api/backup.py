@@ -48,7 +48,6 @@ async def create_backup(
                 "category_id": str(exp.category_id) if exp.category_id else None,
                 "date": exp.date.isoformat(),
                 "tags": exp.tags,
-                "payment_method": exp.payment_method,
                 "receipt_url": exp.receipt_url,
                 "location": exp.location,
                 "notes": exp.notes,

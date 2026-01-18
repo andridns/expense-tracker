@@ -39,11 +39,6 @@ DEFAULT_CATEGORIES = [
     {"name": "Other", "icon": "📦", "color": "#6C757D", "is_default": True},
 ]
 
-# Payment methods
-PAYMENT_METHODS = [
-    "Cash", "Debit Card", "Credit Card", "GoPay", "OVO", "DANA", "LinkAja", "ShopeePay"
-]
-
 # Sample expense descriptions
 EXPENSE_DESCRIPTIONS = [
     "Lunch at restaurant",
@@ -116,7 +111,6 @@ def seed_expenses():
         category = random.choice(categories)
         amount = Decimal(str(random.randint(10000, 500000)))  # 10k to 500k IDR
         description = random.choice(EXPENSE_DESCRIPTIONS)
-        payment_method = random.choice(PAYMENT_METHODS)
         
         # Random tags (1-3 tags)
         num_tags = random.randint(1, 3)
@@ -135,7 +129,6 @@ def seed_expenses():
             category_id=category.id,
             date=expense_date,
             tags=tags,
-            payment_method=payment_method,
             location=location,
             is_recurring=is_recurring,
             notes=f"Sample expense #{i+1}" if random.random() > 0.7 else None

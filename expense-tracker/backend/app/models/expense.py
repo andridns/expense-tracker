@@ -16,7 +16,6 @@ class Expense(Base):
     category_id = Column(UUID(as_uuid=True), ForeignKey("categories.id"), nullable=True)
     date = Column(Date, nullable=False, index=True)
     tags = Column(JSON, nullable=True, default=list)
-    payment_method = Column(String, nullable=False)
     receipt_url = Column(String, nullable=True)
     location = Column(String, nullable=True)
     notes = Column(Text, nullable=True)

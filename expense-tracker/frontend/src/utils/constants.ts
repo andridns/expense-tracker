@@ -31,17 +31,6 @@ export const OTHER_CURRENCIES = [
   { code: 'BND', name: 'Brunei Dollar', symbol: 'B$' },
 ] as const;
 
-export const PAYMENT_METHODS = [
-  'Cash',
-  'Debit Card',
-  'Credit Card',
-  'GoPay',
-  'OVO',
-  'DANA',
-  'LinkAja',
-  'ShopeePay',
-] as const;
-
 export const MIN_AMOUNT_OPTIONS = [
   { label: 'All Amounts', value: undefined },
   { label: 'Rp 100.000', value: 100000 },

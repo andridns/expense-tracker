@@ -456,7 +456,6 @@ async def get_top_expenses(
             "category_id": str(item["expense"].category_id) if item["expense"].category_id else None,
             "date": item["expense"].date.isoformat(),
             "tags": item["expense"].tags if item["expense"].tags else [],
-            "payment_method": item["expense"].payment_method,
             "receipt_url": item["expense"].receipt_url,
             "location": item["expense"].location,
             "notes": item["expense"].notes,

@@ -15,7 +15,7 @@ interface ExpenseListProps {
   onLoadMore?: () => void;
 }
 
-type SortField = 'date' | 'description' | 'category' | 'amount' | 'payment';
+type SortField = 'date' | 'description' | 'category' | 'amount';
 type SortDirection = 'asc' | 'desc';
 
 // Get category display (icon or abbreviation)
@@ -84,10 +84,6 @@ const ExpenseList = ({ expenses, isLoading, onEdit, onDelete, hasMore = false, i
         case 'amount':
           aValue = a.amount;
           bValue = b.amount;
-          break;
-        case 'payment':
-          aValue = a.payment_method.toLowerCase();
-          bValue = b.payment_method.toLowerCase();
           break;
         default:
           return 0;

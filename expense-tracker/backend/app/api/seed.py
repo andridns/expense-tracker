@@ -29,10 +29,6 @@ DEFAULT_CATEGORIES = [
     {"name": "Other", "icon": "📦", "color": "#6C757D", "is_default": True},
 ]
 
-PAYMENT_METHODS = [
-    "Cash", "Debit Card", "Credit Card", "GoPay", "OVO", "DANA", "LinkAja", "ShopeePay"
-]
-
 EXPENSE_DESCRIPTIONS = [
     "Lunch at restaurant", "Grab ride to office", "Monthly internet bill",
     "Netflix subscription", "Groceries at supermarket", "Coffee with friends",
@@ -88,7 +84,6 @@ async def seed_database(db: Session = Depends(get_db)):
             category = random.choice(categories)
             amount = Decimal(str(random.randint(10000, 500000)))  # 10k to 500k IDR
             description = random.choice(EXPENSE_DESCRIPTIONS)
-            payment_method = random.choice(PAYMENT_METHODS)
             
             num_tags = random.randint(1, 3)
             tags = random.sample(SAMPLE_TAGS, num_tags)
@@ -102,7 +97,6 @@ async def seed_database(db: Session = Depends(get_db)):
                 category_id=category.id,
                 date=expense_date,
                 tags=tags,
-                payment_method=payment_method,
                 location=location,
                 is_recurring=is_recurring,
                 notes=f"Sample expense #{i+1}" if random.random() > 0.7 else None

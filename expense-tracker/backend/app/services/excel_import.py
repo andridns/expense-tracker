@@ -27,7 +27,6 @@ class ExcelImportService:
         'name': ['name'],  # Separate mapping for Name column
         'rawtext': ['rawtext', 'raw text'],  # Separate mapping for RawText column
         'category': ['category', 'kategori', 'type', 'jenis'],
-        'payment_method': ['payment method', 'payment', 'method', 'cara bayar', 'metode pembayaran'],
         'location': ['location', 'lokasi', 'place', 'tempat'],
         'notes': ['notes', 'note', 'catatan', 'remarks', 'keterangan'],
         'who': ['who'],  # Separate mapping for Who column
@@ -319,13 +318,6 @@ class ExcelImportService:
                 logger.debug(f"Row {row_num}: Description validated: '{row_data['description']}'")
         
         # Parse optional fields
-        if 'payment_method' in row_data and row_data['payment_method']:
-            row_data['payment_method'] = str(row_data['payment_method']).strip()
-            logger.debug(f"Row {row_num}: Payment method: {row_data['payment_method']}")
-        else:
-            row_data['payment_method'] = 'Cash'  # Default
-            logger.debug(f"Row {row_num}: Using default payment method: Cash")
-        
         if 'currency' in row_data and row_data['currency']:
             currency = str(row_data['currency']).strip().upper()
             if len(currency) == 3:

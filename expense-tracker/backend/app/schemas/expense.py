@@ -11,7 +11,6 @@ class ExpenseBase(BaseModel):
     category_id: Optional[UUID] = None
     date: date_type
     tags: Optional[List[str]] = Field(default_factory=list, description="Tags")
-    payment_method: str = Field(description="Payment method")
     receipt_url: Optional[str] = None
     location: Optional[str] = Field(default=None, max_length=200, description="Location")
     notes: Optional[str] = None
@@ -29,7 +28,6 @@ class ExpenseUpdate(BaseModel):
     category_id: Optional[UUID] = None
     date: Optional[date_type] = None
     tags: Optional[List[str]] = None
-    payment_method: Optional[str] = None
     receipt_url: Optional[str] = None
     location: Optional[str] = Field(default=None, max_length=200)
     notes: Optional[str] = None

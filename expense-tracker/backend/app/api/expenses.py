@@ -29,7 +29,6 @@ async def get_expenses(
     start_date: Optional[date] = Query(None),
     end_date: Optional[date] = Query(None),
     tags: Optional[str] = Query(None),  # comma-separated tags
-    payment_method: Optional[str] = Query(None),
     min_amount: Optional[float] = Query(None),
     max_amount: Optional[float] = Query(None),
     search: Optional[str] = Query(None),
@@ -56,9 +55,6 @@ async def get_expenses(
     if tags:
         tag_list = [tag.strip() for tag in tags.split(",")]
         query = query.filter(Expense.tags.contains(tag_list))
-    
-    if payment_method:
-        query = query.filter(Expense.payment_method == payment_method)
     
     # Handle amount filtering with currency conversion to IDR
     if min_amount is not None or max_amount is not None:
@@ -182,7 +178,6 @@ async def create_expense(
             'date': db_expense.date.isoformat(),
             'category_id': str(db_expense.category_id) if db_expense.category_id else None,
             'category_name': category_name,
-            'payment_method': db_expense.payment_method,
             'tags': db_expense.tags if db_expense.tags else [],
             'location': db_expense.location,
             'notes': db_expense.notes,
@@ -236,7 +231,6 @@ async def update_expense(
         'date': expense.date.isoformat(),
         'category_id': str(expense.category_id) if expense.category_id else None,
         'category_name': old_category_name,
-        'payment_method': expense.payment_method,
         'tags': expense.tags if expense.tags else [],
         'location': expense.location,
         'notes': expense.notes,
@@ -268,7 +262,6 @@ async def update_expense(
             'date': expense.date.isoformat(),
             'category_id': str(expense.category_id) if expense.category_id else None,
             'category_name': new_category_name,
-            'payment_method': expense.payment_method,
             'tags': expense.tags if expense.tags else [],
             'location': expense.location,
             'notes': expense.notes,
@@ -335,7 +328,6 @@ async def delete_expense(
         'date': expense.date.isoformat(),
         'category_id': str(expense.category_id) if expense.category_id else None,
         'category_name': category_name,
-        'payment_method': expense.payment_method,
         'tags': expense.tags if expense.tags else [],
         'location': expense.location,
         'notes': expense.notes,

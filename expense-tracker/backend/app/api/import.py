@@ -98,7 +98,6 @@ async def import_excel(
                 category_id=expense_data.get('category_id'),
                 date=expense_date,
                 tags=expense_data.get('tags', []),
-                payment_method=expense_data.get('payment_method', 'Cash'),
                 location=expense_data.get('location'),
                 notes=expense_data.get('notes'),
                 is_recurring=False
