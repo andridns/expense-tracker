@@ -216,10 +216,21 @@ const History = () => {
       }
       
       // Category change
-      const oldCategoryId = oldData.category_id || null;
-      const newCategoryId = newData.category_id || null;
+      // Normalize category_id values: handle null, undefined, and string "null"
+      const normalizeCategoryId = (id: any): string | null => {
+        if (id === null || id === undefined || id === 'null' || id === '') return null;
+        return String(id).trim() || null;
+      };
+      
+      const oldCategoryId = normalizeCategoryId(oldData.category_id);
+      const newCategoryId = normalizeCategoryId(newData.category_id);
       const oldCategoryName = oldData.category_name || (oldCategoryId && categoryMap.get(oldCategoryId)) || '(none)';
       const newCategoryName = newData.category_name || (newCategoryId && categoryMap.get(newCategoryId)) || '(none)';
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7243/ingest/32912573-1b06-4b9c-8dbd-40ff1ced2bb2',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'History.tsx:228',message:'category change check',data:{oldCategoryIdRaw:oldData.category_id,newCategoryIdRaw:newData.category_id,oldCategoryId,newCategoryId,idsEqual:oldCategoryId===newCategoryId,oldCategoryName,newCategoryName,hasOldName:!!oldData.category_name,hasNewName:!!newData.category_name,categoryMapSize:categoryMap.size},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'category'})}).catch(()=>{});
+      // #endregion
+      
       if (oldCategoryId !== newCategoryId) {
         changes.push(`Category: ${oldCategoryName} → ${newCategoryName}`);
       }
