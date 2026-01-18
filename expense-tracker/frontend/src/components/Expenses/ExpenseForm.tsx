@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { expensesApi, categoriesApi, uploadApi, tagsApi } from '../../services/api';
+import { expensesApi, categoriesApi } from '../../services/api';
 import { toast } from 'react-hot-toast';
 import type { ExpenseCreate, ExpenseUpdate } from '../../types';
 import { CURRENCIES, OTHER_CURRENCIES } from '../../utils/constants';
@@ -25,7 +25,8 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
     notes: null,
     is_recurring: false,
   });
-  const [tagInput, setTagInput] = useState('');
+  const [showOtherCurrencies, setShowOtherCurrencies] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { data: categories } = useQuery({
@@ -50,11 +51,22 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
     enabled: !!expenseId,
   });
 
-  const { data: tagSuggestions } = useQuery({
-    queryKey: ['tag-suggestions', tagInput],
-    queryFn: () => tagsApi.getSuggestions(tagInput),
-    enabled: tagInput.length > 0,
-  });
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowOtherCurrencies(false);
+      }
+    };
+
+    if (showOtherCurrencies) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showOtherCurrencies]);
 
   useEffect(() => {
     if (expense) {
@@ -66,10 +78,10 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
         date: expense.date,
         tags: expense.tags || [],
         payment_method: expense.payment_method,
-        receipt_url: expense.receipt_url,
-        location: expense.location || null,
-        notes: expense.notes || null,
-        is_recurring: expense.is_recurring,
+        receipt_url: null,
+        location: null,
+        notes: null,
+        is_recurring: false,
       });
     }
   }, [expense]);
@@ -129,9 +141,6 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
     if (formData.amount <= 0) {
       newErrors.amount = 'Amount must be greater than 0';
     }
-    if (formData.location && formData.location.trim().length > 200) {
-      newErrors.location = 'Location must be 200 characters or less';
-    }
     if (formData.currency && formData.currency.length > 3) {
       newErrors.currency = 'Currency code must be 3 characters or less';
     }
@@ -151,12 +160,7 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
         description: formData.description.trim(),
         category_id: formData.category_id || null,
         date: formData.date,
-        tags: formData.tags || [],
         payment_method: formData.payment_method,
-        receipt_url: formData.receipt_url && formData.receipt_url.trim() !== '' ? formData.receipt_url.trim() : null,
-        location: formData.location && formData.location.trim() !== '' ? formData.location.trim() : null,
-        notes: formData.notes && formData.notes.trim() !== '' ? formData.notes.trim() : null,
-        is_recurring: formData.is_recurring,
       };
       updateMutation.mutate({ id: expenseId, data: updateData });
     } else {
@@ -164,34 +168,25 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
     }
   };
 
-  const handleTagAdd = () => {
-    if (tagInput.trim() && !formData.tags?.includes(tagInput.trim())) {
-      setFormData({
-        ...formData,
-        tags: [...(formData.tags || []), tagInput.trim()],
-      });
-      setTagInput('');
-    }
+  // Check if current currency is not IDR, JPY, or USD
+  const isOtherCurrency = !['IDR', 'JPY', 'USD'].includes(formData.currency);
+  
+  // Get current currency display info
+  const getCurrentCurrencyInfo = () => {
+    const allCurrencies = [...CURRENCIES, ...OTHER_CURRENCIES];
+    return allCurrencies.find(c => c.code === formData.currency);
   };
 
-  const handleTagRemove = (tag: string) => {
-    setFormData({
-      ...formData,
-      tags: formData.tags?.filter((t) => t !== tag) || [],
-    });
+  // Get all currencies except IDR, JPY, USD for the "Other" dropdown, sorted alphabetically
+  const getOtherCurrencies = () => {
+    const mainCurrencies = CURRENCIES.filter(c => !['IDR', 'JPY', 'USD'].includes(c.code));
+    const allOtherCurrencies = [...mainCurrencies, ...OTHER_CURRENCIES];
+    return allOtherCurrencies.sort((a, b) => a.code.localeCompare(b.code));
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const result = await uploadApi.uploadReceipt(file);
-      setFormData({ ...formData, receipt_url: result.url });
-      toast.success('Receipt uploaded successfully');
-    } catch (error) {
-      toast.error('Failed to upload receipt');
-    }
+  const handleOtherCurrencySelect = (selectedCurrency: string) => {
+    setFormData({ ...formData, currency: selectedCurrency });
+    setShowOtherCurrencies(false);
   };
 
   return (
@@ -237,24 +232,86 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
                 <label className="block text-sm font-medium text-warm-gray-700 mb-2">
                   Currency
                 </label>
-                <select
-                  value={formData.currency}
-                  onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                  className="w-full px-3 py-2.5 md:px-4 md:py-3 border-2 border-warm-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all text-sm md:text-base"
-                >
-                  {CURRENCIES.map((curr) => (
-                    <option key={curr.code} value={curr.code}>
-                      {curr.code} - {curr.name}
-                    </option>
-                  ))}
-                  <optgroup label="Other Currencies">
-                    {OTHER_CURRENCIES.map((curr) => (
-                      <option key={curr.code} value={curr.code}>
-                        {curr.code} - {curr.name}
-                      </option>
-                    ))}
-                  </optgroup>
-                </select>
+                <div className="flex gap-1.5 md:gap-2 flex-wrap relative">
+                  {/* IDR Button */}
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, currency: 'IDR' })}
+                    className={`px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 ${
+                      formData.currency === 'IDR'
+                        ? 'bg-primary-600 text-white shadow-modern hover:bg-primary-700 hover:shadow-modern-lg'
+                        : 'bg-modern-border/10 text-modern-text-light hover:bg-primary-50 hover:text-primary-600 border border-modern-border/30'
+                    }`}
+                  >
+                    IDR Rp
+                  </button>
+                  
+                  {/* JPY Button */}
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, currency: 'JPY' })}
+                    className={`px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 ${
+                      formData.currency === 'JPY'
+                        ? 'bg-primary-600 text-white shadow-modern hover:bg-primary-700 hover:shadow-modern-lg'
+                        : 'bg-modern-border/10 text-modern-text-light hover:bg-primary-50 hover:text-primary-600 border border-modern-border/30'
+                    }`}
+                  >
+                    JPY ¥
+                  </button>
+                  
+                  {/* USD Button */}
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, currency: 'USD' })}
+                    className={`px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 ${
+                      formData.currency === 'USD'
+                        ? 'bg-primary-600 text-white shadow-modern hover:bg-primary-700 hover:shadow-modern-lg'
+                        : 'bg-modern-border/10 text-modern-text-light hover:bg-primary-50 hover:text-primary-600 border border-modern-border/30'
+                    }`}
+                  >
+                    USD $
+                  </button>
+                
+                  {/* Other Currencies Button */}
+                  <div className="relative" ref={dropdownRef}>
+                    <button
+                      type="button"
+                      onClick={() => setShowOtherCurrencies(!showOtherCurrencies)}
+                      className={`px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 ${
+                        isOtherCurrency
+                          ? 'bg-primary-600 text-white shadow-modern hover:bg-primary-700 hover:shadow-modern-lg'
+                          : 'bg-modern-border/10 text-modern-text-light hover:bg-primary-50 hover:text-primary-600 border border-modern-border/30'
+                      }`}
+                    >
+                      {isOtherCurrency 
+                        ? `${getCurrentCurrencyInfo()?.code} ${getCurrentCurrencyInfo()?.symbol}`
+                        : 'Other ▼'
+                      }
+                    </button>
+                    
+                    {/* Dropdown */}
+                    {showOtherCurrencies && (
+                      <div className="absolute top-full left-0 mt-2 bg-white border-2 border-modern-border/50 rounded-xl shadow-modern-lg z-50 max-h-64 overflow-y-auto min-w-[200px]">
+                        <div className="p-2">
+                          {getOtherCurrencies().map((curr) => (
+                            <button
+                              key={curr.code}
+                              type="button"
+                              onClick={() => handleOtherCurrencySelect(curr.code)}
+                              className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                formData.currency === curr.code
+                                  ? 'bg-primary-100 text-primary-700'
+                                  : 'text-modern-text hover:bg-primary-50'
+                              }`}
+                            >
+                              <span className="font-semibold">{curr.code}</span> {curr.symbol} - {curr.name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="md:col-span-2">
@@ -292,135 +349,6 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
               </div>
 
 
-              <div>
-                <label className="block text-sm font-medium text-warm-gray-700 mb-2">
-                  Location
-                </label>
-                <input
-                  type="text"
-                  value={formData.location || ''}
-                  onChange={(e) =>
-                    setFormData({ ...formData, location: e.target.value || null })
-                  }
-                  className="w-full px-3 py-2.5 md:px-4 md:py-3 border-2 border-warm-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all text-sm md:text-base"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-warm-gray-700 mb-2">
-                  Tags
-                </label>
-                <div className="relative mb-2">
-                  <div className="flex flex-col sm:flex-row gap-2">
-                    <input
-                      type="text"
-                      value={tagInput}
-                      onChange={(e) => setTagInput(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleTagAdd();
-                        }
-                      }}
-                      placeholder="Add tag..."
-                      className="flex-1 px-3 py-2.5 border-2 border-warm-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all text-sm md:text-base"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleTagAdd}
-                      className="w-full sm:w-auto px-4 py-2.5 bg-primary-400 text-white rounded-xl hover:bg-primary-500 transition-colors text-sm md:text-base font-medium"
-                    >
-                      Add
-                    </button>
-                  </div>
-                  {tagSuggestions && tagSuggestions.length > 0 && tagInput && (
-                    <div className="absolute z-20 mt-1 w-full bg-white border-2 border-warm-gray-200 rounded-xl shadow-apple-lg p-2 max-h-40 overflow-y-auto">
-                      <div className="flex flex-wrap gap-1.5">
-                        {tagSuggestions.slice(0, 5).map((tag) => (
-                          <button
-                            key={tag}
-                            type="button"
-                            onMouseDown={(e) => {
-                              e.preventDefault(); // Prevent input blur
-                              setTagInput(tag);
-                              handleTagAdd();
-                            }}
-                            className="px-2.5 py-1 bg-beige-100 text-warm-gray-700 text-xs rounded-lg hover:bg-beige-200 transition-colors"
-                          >
-                            {tag}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-                {formData.tags && formData.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {formData.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-1 bg-primary-100 text-primary-800 text-sm rounded flex items-center gap-1"
-                      >
-                        {tag}
-                        <button
-                          type="button"
-                          onClick={() => handleTagRemove(tag)}
-                          className="text-primary-600 hover:text-primary-800"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-warm-gray-700 mb-2">
-                  Notes
-                </label>
-                <textarea
-                  value={formData.notes || ''}
-                  onChange={(e) =>
-                    setFormData({ ...formData, notes: e.target.value || null })
-                  }
-                  rows={3}
-                  className="w-full px-3 py-2.5 md:px-4 md:py-3 border-2 border-warm-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all text-sm md:text-base"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-warm-gray-700 mb-2">
-                  Receipt
-                </label>
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  onChange={handleFileUpload}
-                  className="w-full px-3 py-2.5 md:px-4 md:py-3 border-2 border-warm-gray-200 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 bg-white text-warm-gray-800 transition-all text-sm md:text-base"
-                />
-                {formData.receipt_url && (
-                  <p className="text-sm text-gray-600 mt-1">
-                    Receipt uploaded: {formData.receipt_url}
-                  </p>
-                )}
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={formData.is_recurring}
-                    onChange={(e) =>
-                      setFormData({ ...formData, is_recurring: e.target.checked })
-                    }
-                    className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                  />
-                  <span className="text-sm font-medium text-warm-gray-700">
-                    Recurring expense
-                  </span>
-                </label>
-              </div>
             </div>
 
             {/* Category Selection Buttons */}

@@ -7,7 +7,6 @@ import Layout from './components/Layout';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Expenses from './pages/Expenses';
-import Budgets from './pages/Budgets';
 import Reports from './pages/Reports';
 import History from './pages/History';
 import Settings from './pages/Settings';
@@ -44,16 +43,6 @@ function App() {
                 <ProtectedRoute>
                   <Layout>
                     <Expenses />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/budgets"
-              element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Budgets />
                   </Layout>
                 </ProtectedRoute>
               }

@@ -25,7 +25,6 @@ const Layout = ({ children }: LayoutProps) => {
   const navItems = [
     { path: '/', label: 'Add Expense', icon: '➕' },
     { path: '/expenses', label: 'Explorer', icon: '🔍' },
-    { path: '/budgets', label: 'Budgets', icon: '📈' },
     { path: '/reports', label: 'Reports', icon: '📊' },
     { path: '/activity', label: 'Activity', icon: '📋' },
     { path: '/settings', label: 'Settings', icon: '⚙️' },
@@ -96,7 +95,7 @@ const Layout = ({ children }: LayoutProps) => {
 
       {/* Mobile Bottom Navigation */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 glass shadow-modern-lg border-t border-modern-border/50 z-50 safe-area-inset-bottom">
-        <div className="grid grid-cols-3 grid-rows-2 gap-1 px-2 py-2">
+        <div className="grid grid-cols-5 grid-rows-1 gap-1 px-2 py-2">
           {navItems.map((item) => (
             <Link
               key={item.path}
