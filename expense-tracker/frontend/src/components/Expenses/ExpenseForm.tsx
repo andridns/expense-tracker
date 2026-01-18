@@ -169,12 +169,13 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
   };
 
   // Check if current currency is not IDR, JPY, or USD
-  const isOtherCurrency = !['IDR', 'JPY', 'USD'].includes(formData.currency);
+  const currentCurrency = formData.currency || 'IDR';
+  const isOtherCurrency = !['IDR', 'JPY', 'USD'].includes(currentCurrency);
   
   // Get current currency display info
   const getCurrentCurrencyInfo = () => {
     const allCurrencies = [...CURRENCIES, ...OTHER_CURRENCIES];
-    return allCurrencies.find(c => c.code === formData.currency);
+    return allCurrencies.find(c => c.code === currentCurrency);
   };
 
   // Get all currencies except IDR, JPY, USD for the "Other" dropdown, sorted alphabetically
@@ -238,7 +239,7 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
                     type="button"
                     onClick={() => setFormData({ ...formData, currency: 'IDR' })}
                     className={`px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 ${
-                      formData.currency === 'IDR'
+                      currentCurrency === 'IDR'
                         ? 'bg-primary-600 text-white shadow-modern hover:bg-primary-700 hover:shadow-modern-lg'
                         : 'bg-modern-border/10 text-modern-text-light hover:bg-primary-50 hover:text-primary-600 border border-modern-border/30'
                     }`}
@@ -251,7 +252,7 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
                     type="button"
                     onClick={() => setFormData({ ...formData, currency: 'JPY' })}
                     className={`px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 ${
-                      formData.currency === 'JPY'
+                      currentCurrency === 'JPY'
                         ? 'bg-primary-600 text-white shadow-modern hover:bg-primary-700 hover:shadow-modern-lg'
                         : 'bg-modern-border/10 text-modern-text-light hover:bg-primary-50 hover:text-primary-600 border border-modern-border/30'
                     }`}
@@ -264,7 +265,7 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
                     type="button"
                     onClick={() => setFormData({ ...formData, currency: 'USD' })}
                     className={`px-3 py-1.5 md:px-4 md:py-2 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 ${
-                      formData.currency === 'USD'
+                      currentCurrency === 'USD'
                         ? 'bg-primary-600 text-white shadow-modern hover:bg-primary-700 hover:shadow-modern-lg'
                         : 'bg-modern-border/10 text-modern-text-light hover:bg-primary-50 hover:text-primary-600 border border-modern-border/30'
                     }`}
@@ -299,7 +300,7 @@ const ExpenseForm = ({ expenseId, onClose, onSuccess }: ExpenseFormProps) => {
                               type="button"
                               onClick={() => handleOtherCurrencySelect(curr.code)}
                               className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                formData.currency === curr.code
+                                currentCurrency === curr.code
                                   ? 'bg-primary-100 text-primary-700'
                                   : 'text-modern-text hover:bg-primary-50'
                               }`}
