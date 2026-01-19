@@ -9,9 +9,14 @@ import type { Category, Expense } from '../types';
 type PeriodType = 'monthly' | 'quarterly' | 'yearly';
 
 const Reports = () => {
-  const [period, setPeriod] = useState<PeriodType>('monthly');
+  // Get current year as string
+  const getCurrentYear = () => {
+    return new Date().getFullYear().toString();
+  };
+
+  const [period, setPeriod] = useState<PeriodType>('yearly');
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
-  const [selectedPeriodValue, setSelectedPeriodValue] = useState<string | null>(null);
+  const [selectedPeriodValue, setSelectedPeriodValue] = useState<string | null>(getCurrentYear());
   const [allExpenses, setAllExpenses] = useState<Array<Expense & { amount_in_idr: number }>>([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
@@ -46,7 +51,12 @@ const Reports = () => {
 
   // Reset selected period when period type or categories change
   useEffect(() => {
-    setSelectedPeriodValue(null);
+    // When period is yearly, default to current year
+    if (period === 'yearly') {
+      setSelectedPeriodValue(getCurrentYear());
+    } else {
+      setSelectedPeriodValue(null);
+    }
     setAllExpenses([]);
     setHasMore(false);
   }, [period, selectedCategoryIds]);
