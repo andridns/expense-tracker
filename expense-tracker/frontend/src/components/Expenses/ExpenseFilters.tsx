@@ -13,6 +13,7 @@ interface ExpenseFiltersProps {
 const ExpenseFiltersComponent = ({ filters, onFiltersChange, onClearFilters }: ExpenseFiltersProps) => {
   const [localFilters, setLocalFilters] = useState<ExpenseFilters>(filters);
   const lastSentFilters = useRef<ExpenseFilters>(filters);
+  const [isExpanded, setIsExpanded] = useState(false);
   
   // Get date range options (generated dynamically)
   const dateRangeOptions = useMemo(() => getDateRangeOptions(), []);
@@ -180,10 +181,76 @@ const ExpenseFiltersComponent = ({ filters, onFiltersChange, onClearFilters }: E
     return count;
   }, [localFilters, dateRangePreset]);
 
+  // Get filter summary text for collapsed view
+  const getFilterSummary = useMemo(() => {
+    const parts: string[] = [];
+    if (localFilters.search) parts.push(`Search: "${localFilters.search}"`);
+    const selectedCategoryIds = getSelectedCategoryIds();
+    if (selectedCategoryIds.length > 0) {
+      const categoryNames = selectedCategoryIds
+        .map(id => categories?.find(c => c.id === id)?.name)
+        .filter(Boolean)
+        .slice(0, 2);
+      if (categoryNames.length > 0) {
+        parts.push(`Categories: ${categoryNames.join(', ')}${selectedCategoryIds.length > 2 ? ` +${selectedCategoryIds.length - 2}` : ''}`);
+      }
+    }
+    if (dateRangePreset !== 'all') {
+      const rangeOption = dateRangeOptions.find(opt => opt.value === dateRangePreset);
+      if (rangeOption) parts.push(`Date: ${rangeOption.label}`);
+    }
+    if (localFilters.min_amount) {
+      const amountOption = MIN_AMOUNT_OPTIONS.find(opt => opt.value === localFilters.min_amount);
+      if (amountOption) parts.push(`Min: ${amountOption.label}`);
+    }
+    return parts.length > 0 ? parts.join(' • ') : 'No filters applied';
+  }, [localFilters, dateRangePreset, categories, dateRangeOptions]);
+
   return (
-    <div className="glass p-4 md:p-5 rounded-2xl shadow-modern border border-modern-border/50">
-      {/* Primary Filters - Most Important */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-4">
+    <div className="glass rounded-2xl shadow-modern border border-modern-border/50 overflow-hidden">
+      {/* Collapsible Header */}
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full p-4 md:p-5 flex items-center justify-between hover:bg-warm-gray-50/50 transition-colors"
+      >
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className="flex-shrink-0">
+            <svg
+              className={`w-5 h-5 text-warm-gray-600 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0 text-left">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-warm-gray-700">Filters</span>
+              {activeFiltersCount > 0 && (
+                <span className="px-2 py-0.5 bg-primary-600 text-white text-xs font-semibold rounded-full">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </div>
+            {!isExpanded && (
+              <div className="text-xs text-warm-gray-500 mt-1 truncate">
+                {getFilterSummary}
+              </div>
+            )}
+          </div>
+        </div>
+      </button>
+
+      {/* Expandable Content */}
+      <div
+        className={`transition-all duration-300 ease-in-out overflow-hidden ${
+          isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <div className="px-4 md:px-5 pb-4 md:pb-5">
+          {/* Primary Filters - Most Important */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-4">
         {/* Search */}
         <div>
           <label className="block text-xs font-semibold text-warm-gray-700 mb-2">Search</label>
@@ -275,28 +342,30 @@ const ExpenseFiltersComponent = ({ filters, onFiltersChange, onClearFilters }: E
         </div>
       </div>
 
-      {/* Clear Filters Button */}
-      <div className="flex justify-end pt-3 border-t border-warm-gray-100">
-        <button
-          onClick={clearFilters}
-          className={`w-full sm:w-auto px-4 py-2 text-xs font-semibold rounded-lg transition-all ${
-            activeFiltersCount > 0
-              ? 'text-warm-gray-700 bg-warm-gray-100 hover:bg-warm-gray-200 active:scale-95'
-              : 'text-warm-gray-400 bg-warm-gray-50 cursor-not-allowed'
-          }`}
-          disabled={activeFiltersCount === 0}
-        >
-          {activeFiltersCount > 0 ? (
-            <span className="flex items-center gap-1.5">
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-              Clear ({activeFiltersCount})
-            </span>
-          ) : (
-            'Clear'
-          )}
-        </button>
+          {/* Clear Filters Button */}
+          <div className="flex justify-end pt-3 border-t border-warm-gray-100">
+            <button
+              onClick={clearFilters}
+              className={`w-full sm:w-auto px-4 py-2 text-xs font-semibold rounded-lg transition-all ${
+                activeFiltersCount > 0
+                  ? 'text-warm-gray-700 bg-warm-gray-100 hover:bg-warm-gray-200 active:scale-95'
+                  : 'text-warm-gray-400 bg-warm-gray-50 cursor-not-allowed'
+              }`}
+              disabled={activeFiltersCount === 0}
+            >
+              {activeFiltersCount > 0 ? (
+                <span className="flex items-center gap-1.5">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  Clear ({activeFiltersCount})
+                </span>
+              ) : (
+                'Clear'
+              )}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

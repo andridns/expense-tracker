@@ -15,6 +15,7 @@ const Reports = () => {
   const [allExpenses, setAllExpenses] = useState<Array<Expense & { amount_in_idr: number }>>([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
+  const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
 
   const { data: categories } = useQuery({
     queryKey: ['categories'],
@@ -142,78 +143,144 @@ const Reports = () => {
     return names;
   };
 
+  // Get filter summary for collapsed view
+  const getFilterSummary = useMemo(() => {
+    const parts: string[] = [];
+    parts.push(`Period: ${period.charAt(0).toUpperCase() + period.slice(1)}`);
+    if (selectedCategoryIds.length > 0) {
+      const categoryNames = selectedCategoryIds
+        .map(id => categories?.find(c => c.id === id)?.name)
+        .filter(Boolean)
+        .slice(0, 2);
+      if (categoryNames.length > 0) {
+        parts.push(`Categories: ${categoryNames.join(', ')}${selectedCategoryIds.length > 2 ? ` +${selectedCategoryIds.length - 2}` : ''}`);
+      }
+    }
+    return parts.join(' • ');
+  }, [period, selectedCategoryIds, categories]);
+
+  const activeFiltersCount = useMemo(() => {
+    return selectedCategoryIds.length > 0 ? 1 : 0;
+  }, [selectedCategoryIds]);
+
   return (
     <div className="space-y-4 md:space-y-6">
       <h2 className="text-2xl md:text-3xl font-semibold text-warm-gray-800">Reports</h2>
 
-      {/* Period Toggle */}
-      <div className="glass p-4 md:p-5 rounded-2xl shadow-modern border border-modern-border/50">
-        <label className="block text-sm font-semibold text-warm-gray-700 mb-3">Period</label>
-        <div className="flex gap-2 md:gap-3 flex-wrap">
-          <button
-            onClick={() => setPeriod('monthly')}
-            className={`px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 ${
-              period === 'monthly'
-                ? 'bg-primary-600 text-white shadow-apple hover:bg-primary-700 hover:shadow-apple-lg'
-                : 'bg-warm-gray-100 text-warm-gray-700 hover:bg-primary-50 hover:text-primary-600 border border-warm-gray-200'
-            }`}
-          >
-            Monthly
-          </button>
-          <button
-            onClick={() => setPeriod('quarterly')}
-            className={`px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 ${
-              period === 'quarterly'
-                ? 'bg-primary-600 text-white shadow-apple hover:bg-primary-700 hover:shadow-apple-lg'
-                : 'bg-warm-gray-100 text-warm-gray-700 hover:bg-primary-50 hover:text-primary-600 border border-warm-gray-200'
-            }`}
-          >
-            Quarterly
-          </button>
-          <button
-            onClick={() => setPeriod('yearly')}
-            className={`px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 ${
-              period === 'yearly'
-                ? 'bg-primary-600 text-white shadow-apple hover:bg-primary-700 hover:shadow-apple-lg'
-                : 'bg-warm-gray-100 text-warm-gray-700 hover:bg-primary-50 hover:text-primary-600 border border-warm-gray-200'
-            }`}
-          >
-            Yearly
-          </button>
-        </div>
-      </div>
-
-      {/* Category Filter Buttons */}
-      <div className="glass p-4 md:p-5 rounded-2xl shadow-modern border border-modern-border/50">
-        <label className="block text-sm font-semibold text-warm-gray-700 mb-3">Category</label>
-        <div className="flex gap-2 md:gap-3 flex-wrap">
-          <button
-            onClick={handleClearAllCategories}
-            className={`px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 flex items-center gap-1.5 ${
-              selectedCategoryIds.length === 0
-                ? 'bg-primary-600 text-white shadow-apple hover:bg-primary-700 hover:shadow-apple-lg'
-                : 'bg-warm-gray-100 text-warm-gray-700 hover:bg-primary-50 hover:text-primary-600 border border-warm-gray-200'
-            }`}
-          >
-            <span>All Categories</span>
-          </button>
-          {categories?.map((cat) => {
-            const isSelected = selectedCategoryIds.includes(cat.id);
-            return (
-              <button
-                key={cat.id}
-                onClick={() => handleCategoryToggle(cat.id)}
-                className={`px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 flex items-center gap-1.5 ${
-                  isSelected
-                    ? 'bg-primary-600 text-white shadow-apple hover:bg-primary-700 hover:shadow-apple-lg'
-                    : 'bg-warm-gray-100 text-warm-gray-700 hover:bg-primary-50 hover:text-primary-600 border border-warm-gray-200'
-                }`}
+      {/* Collapsible Filters */}
+      <div className="glass rounded-2xl shadow-modern border border-modern-border/50 overflow-hidden">
+        {/* Collapsible Header */}
+        <button
+          onClick={() => setIsFiltersExpanded(!isFiltersExpanded)}
+          className="w-full p-4 md:p-5 flex items-center justify-between hover:bg-warm-gray-50/50 transition-colors"
+        >
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="flex-shrink-0">
+              <svg
+                className={`w-5 h-5 text-warm-gray-600 transition-transform duration-200 ${isFiltersExpanded ? 'rotate-180' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                <span>{cat.icon || '📁'}</span>
-                <span>{cat.name}</span>
-              </button>
-            );
-          })}
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0 text-left">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-warm-gray-700">Filters</span>
+                {activeFiltersCount > 0 && (
+                  <span className="px-2 py-0.5 bg-primary-600 text-white text-xs font-semibold rounded-full">
+                    {activeFiltersCount}
+                  </span>
+                )}
+              </div>
+              {!isFiltersExpanded && (
+                <div className="text-xs text-warm-gray-500 mt-1 truncate">
+                  {getFilterSummary}
+                </div>
+              )}
+            </div>
+          </div>
+        </button>
+
+        {/* Expandable Content */}
+        <div
+          className={`transition-all duration-300 ease-in-out overflow-hidden ${
+            isFiltersExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+          }`}
+        >
+          <div className="px-4 md:px-5 pb-4 md:pb-5 space-y-4">
+            {/* Period Toggle */}
+            <div>
+              <label className="block text-sm font-semibold text-warm-gray-700 mb-3">Period</label>
+              <div className="flex gap-2 md:gap-3 flex-wrap">
+                <button
+                  onClick={() => setPeriod('monthly')}
+                  className={`px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 ${
+                    period === 'monthly'
+                      ? 'bg-primary-600 text-white shadow-apple hover:bg-primary-700 hover:shadow-apple-lg'
+                      : 'bg-warm-gray-100 text-warm-gray-700 hover:bg-primary-50 hover:text-primary-600 border border-warm-gray-200'
+                  }`}
+                >
+                  Monthly
+                </button>
+                <button
+                  onClick={() => setPeriod('quarterly')}
+                  className={`px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 ${
+                    period === 'quarterly'
+                      ? 'bg-primary-600 text-white shadow-apple hover:bg-primary-700 hover:shadow-apple-lg'
+                      : 'bg-warm-gray-100 text-warm-gray-700 hover:bg-primary-50 hover:text-primary-600 border border-warm-gray-200'
+                  }`}
+                >
+                  Quarterly
+                </button>
+                <button
+                  onClick={() => setPeriod('yearly')}
+                  className={`px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 ${
+                    period === 'yearly'
+                      ? 'bg-primary-600 text-white shadow-apple hover:bg-primary-700 hover:shadow-apple-lg'
+                      : 'bg-warm-gray-100 text-warm-gray-700 hover:bg-primary-50 hover:text-primary-600 border border-warm-gray-200'
+                  }`}
+                >
+                  Yearly
+                </button>
+              </div>
+            </div>
+
+            {/* Category Filter Buttons */}
+            <div>
+              <label className="block text-sm font-semibold text-warm-gray-700 mb-3">Category</label>
+              <div className="flex gap-2 md:gap-3 flex-wrap">
+                <button
+                  onClick={handleClearAllCategories}
+                  className={`px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 flex items-center gap-1.5 ${
+                    selectedCategoryIds.length === 0
+                      ? 'bg-primary-600 text-white shadow-apple hover:bg-primary-700 hover:shadow-apple-lg'
+                      : 'bg-warm-gray-100 text-warm-gray-700 hover:bg-primary-50 hover:text-primary-600 border border-warm-gray-200'
+                  }`}
+                >
+                  <span>All Categories</span>
+                </button>
+                {categories?.map((cat) => {
+                  const isSelected = selectedCategoryIds.includes(cat.id);
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => handleCategoryToggle(cat.id)}
+                      className={`px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 flex items-center gap-1.5 ${
+                        isSelected
+                          ? 'bg-primary-600 text-white shadow-apple hover:bg-primary-700 hover:shadow-apple-lg'
+                          : 'bg-warm-gray-100 text-warm-gray-700 hover:bg-primary-50 hover:text-primary-600 border border-warm-gray-200'
+                      }`}
+                    >
+                      <span>{cat.icon || '📁'}</span>
+                      <span>{cat.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
