@@ -67,7 +67,7 @@ const Reports = () => {
 
   const getPeriodDisplayText = (): string => {
     if (!selectedPeriodValue) return '';
-    
+
     if (period === 'yearly') {
       return `in ${selectedPeriodValue}`;
     } else if (period === 'quarterly') {
@@ -83,8 +83,8 @@ const Reports = () => {
       if (parts.length === 2) {
         const year = parts[0];
         const month = parseInt(parts[1]);
-        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
-                           'July', 'August', 'September', 'October', 'November', 'December'];
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+          'July', 'August', 'September', 'October', 'November', 'December'];
         return `in ${monthNames[month - 1]} ${year}`;
       }
       return `in ${selectedPeriodValue}`;
@@ -93,7 +93,7 @@ const Reports = () => {
 
   const handleLoadMore = async () => {
     if (isLoadingMore || !hasMore || !selectedPeriodValue) return;
-    
+
     setIsLoadingMore(true);
     try {
       const nextBatch = await reportsApi.getTopExpenses(
@@ -175,7 +175,7 @@ const Reports = () => {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <h2 className="text-2xl md:text-3xl font-semibold text-warm-gray-800">Reports</h2>
+      <h2 className="text-xl md:text-2xl font-bold text-primary-600">Reports</h2>
 
       {/* Collapsible Filters */}
       <div className="glass rounded-2xl shadow-modern border border-modern-border/50 overflow-hidden">
@@ -215,9 +215,8 @@ const Reports = () => {
 
         {/* Expandable Content */}
         <div
-          className={`transition-all duration-300 ease-in-out overflow-hidden ${
-            isFiltersExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
-          }`}
+          className={`transition-all duration-300 ease-in-out overflow-hidden ${isFiltersExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+            }`}
         >
           <div className="px-4 md:px-5 pb-4 md:pb-5 space-y-4">
             {/* Period Toggle */}
@@ -226,31 +225,28 @@ const Reports = () => {
               <div className="flex gap-2 md:gap-3 flex-wrap">
                 <button
                   onClick={() => setPeriod('monthly')}
-                  className={`px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 ${
-                    period === 'monthly'
+                  className={`px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 ${period === 'monthly'
                       ? 'bg-primary-600 text-white shadow-apple hover:bg-primary-700 hover:shadow-apple-lg'
                       : 'bg-warm-gray-100 text-warm-gray-700 hover:bg-primary-50 hover:text-primary-600 border border-warm-gray-200'
-                  }`}
+                    }`}
                 >
                   Monthly
                 </button>
                 <button
                   onClick={() => setPeriod('quarterly')}
-                  className={`px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 ${
-                    period === 'quarterly'
+                  className={`px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 ${period === 'quarterly'
                       ? 'bg-primary-600 text-white shadow-apple hover:bg-primary-700 hover:shadow-apple-lg'
                       : 'bg-warm-gray-100 text-warm-gray-700 hover:bg-primary-50 hover:text-primary-600 border border-warm-gray-200'
-                  }`}
+                    }`}
                 >
                   Quarterly
                 </button>
                 <button
                   onClick={() => setPeriod('yearly')}
-                  className={`px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 ${
-                    period === 'yearly'
+                  className={`px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 ${period === 'yearly'
                       ? 'bg-primary-600 text-white shadow-apple hover:bg-primary-700 hover:shadow-apple-lg'
                       : 'bg-warm-gray-100 text-warm-gray-700 hover:bg-primary-50 hover:text-primary-600 border border-warm-gray-200'
-                  }`}
+                    }`}
                 >
                   Yearly
                 </button>
@@ -263,11 +259,10 @@ const Reports = () => {
               <div className="flex gap-2 md:gap-3 flex-wrap">
                 <button
                   onClick={handleClearAllCategories}
-                  className={`px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 flex items-center gap-1.5 ${
-                    selectedCategoryIds.length === 0
+                  className={`px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 flex items-center gap-1.5 ${selectedCategoryIds.length === 0
                       ? 'bg-primary-600 text-white shadow-apple hover:bg-primary-700 hover:shadow-apple-lg'
                       : 'bg-warm-gray-100 text-warm-gray-700 hover:bg-primary-50 hover:text-primary-600 border border-warm-gray-200'
-                  }`}
+                    }`}
                 >
                   <span>All Categories</span>
                 </button>
@@ -277,11 +272,10 @@ const Reports = () => {
                     <button
                       key={cat.id}
                       onClick={() => handleCategoryToggle(cat.id)}
-                      className={`px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 flex items-center gap-1.5 ${
-                        isSelected
+                      className={`px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 flex items-center gap-1.5 ${isSelected
                           ? 'bg-primary-600 text-white shadow-apple hover:bg-primary-700 hover:shadow-apple-lg'
                           : 'bg-warm-gray-100 text-warm-gray-700 hover:bg-primary-50 hover:text-primary-600 border border-warm-gray-200'
-                      }`}
+                        }`}
                     >
                       <span>{cat.icon || '📁'}</span>
                       <span>{cat.name}</span>
@@ -295,8 +289,8 @@ const Reports = () => {
       </div>
 
       {/* Trend Chart */}
-      <TrendChart 
-        data={trends} 
+      <TrendChart
+        data={trends}
         title={`Expense Trends${getCategoryNames() ? ` - ${getCategoryNames()}` : ''}`}
         onDataPointClick={handleDataPointClick}
       />
@@ -312,164 +306,164 @@ const Reports = () => {
               </span>
             )}
           </h3>
-          
+
           {isLoadingTopExpenses && allExpenses.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="animate-pulse space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-16 bg-gradient-to-r from-modern-border/20 to-modern-border/10 rounded-xl"></div>
-              ))}
+            <div className="text-center py-8">
+              <div className="animate-pulse space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-16 bg-gradient-to-r from-modern-border/20 to-modern-border/10 rounded-xl"></div>
+                ))}
+              </div>
             </div>
-          </div>
-        ) : allExpenses.length > 0 ? (
-          <div className="space-y-2">
-            {/* Desktop Table View */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gradient-to-r from-modern-border/10 to-transparent">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-modern-text-light uppercase tracking-wider">
-                      Rank
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-modern-text-light uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-modern-text-light uppercase tracking-wider">
-                      Description
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-modern-text-light uppercase tracking-wider">
-                      Category
-                    </th>
-                    <th className="px-4 py-3 text-right text-xs font-bold text-modern-text-light uppercase tracking-wider">
-                      Original Amount
-                    </th>
-                    <th className="px-4 py-3 text-right text-xs font-bold text-modern-text-light uppercase tracking-wider">
-                      Amount (IDR)
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-modern-border/30">
-                  {allExpenses.map((expense, index) => {
-                    const category = expense.category_id ? categoryMap.get(expense.category_id) : undefined;
-                    return (
-                      <tr key={expense.id} className="hover:bg-primary-50/20 transition-colors">
-                        <td className="px-4 py-3 text-sm font-bold text-modern-text">
-                          #{index + 1}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-modern-text font-medium">
-                          {formatDate(expense.date)}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-modern-text font-semibold">
-                          {expense.description}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-modern-text-light font-medium">
-                          {category ? (
-                            <div className="flex items-center gap-1.5">
-                              <span>{getCategoryDisplay(expense.category_id)}</span>
-                              <span>{category.name}</span>
-                            </div>
-                          ) : (
-                            '-'
-                          )}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-modern-text font-medium text-right">
-                          <CurrencyDisplay 
-                            amount={expense.amount} 
+          ) : allExpenses.length > 0 ? (
+            <div className="space-y-2">
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gradient-to-r from-modern-border/10 to-transparent">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-modern-text-light uppercase tracking-wider">
+                        Rank
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-modern-text-light uppercase tracking-wider">
+                        Date
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-modern-text-light uppercase tracking-wider">
+                        Description
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-bold text-modern-text-light uppercase tracking-wider">
+                        Category
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-bold text-modern-text-light uppercase tracking-wider">
+                        Original Amount
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-bold text-modern-text-light uppercase tracking-wider">
+                        Amount (IDR)
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-modern-border/30">
+                    {allExpenses.map((expense, index) => {
+                      const category = expense.category_id ? categoryMap.get(expense.category_id) : undefined;
+                      return (
+                        <tr key={expense.id} className="hover:bg-primary-50/20 transition-colors">
+                          <td className="px-4 py-3 text-sm font-bold text-modern-text">
+                            #{index + 1}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-modern-text font-medium">
+                            {formatDate(expense.date)}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-modern-text font-semibold">
+                            {expense.description}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-modern-text-light font-medium">
+                            {category ? (
+                              <div className="flex items-center gap-1.5">
+                                <span>{getCategoryDisplay(expense.category_id)}</span>
+                                <span>{category.name}</span>
+                              </div>
+                            ) : (
+                              '-'
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-modern-text font-medium text-right">
+                            <CurrencyDisplay
+                              amount={expense.amount}
+                              currency={expense.currency}
+                              size="sm"
+                            />
+                          </td>
+                          <td className="px-4 py-3 text-sm font-bold text-modern-text text-right">
+                            <CurrencyDisplay
+                              amount={expense.amount_in_idr}
+                              currency="IDR"
+                              size="sm"
+                            />
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="md:hidden space-y-3">
+                {allExpenses.map((expense, index) => {
+                  const category = expense.category_id ? categoryMap.get(expense.category_id) : undefined;
+                  return (
+                    <div key={expense.id} className="p-3 bg-gradient-to-r from-modern-border/10 to-transparent rounded-xl border border-modern-border/30">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs font-bold text-primary-600">#{index + 1}</span>
+                            <span className="font-semibold text-modern-text text-sm truncate">{expense.description}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-xs text-modern-text-light">
+                            <span>{formatDate(expense.date)}</span>
+                            {category && (
+                              <span className="flex items-center gap-1">
+                                <span>{getCategoryDisplay(expense.category_id)}</span>
+                                <span>{category.name}</span>
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center pt-2 border-t border-modern-border/20">
+                        <div className="text-xs text-modern-text-light">
+                          <CurrencyDisplay
+                            amount={expense.amount}
                             currency={expense.currency}
                             size="sm"
                           />
-                        </td>
-                        <td className="px-4 py-3 text-sm font-bold text-modern-text text-right">
-                          <CurrencyDisplay 
-                            amount={expense.amount_in_idr} 
+                        </div>
+                        <div className="font-bold text-modern-text">
+                          <CurrencyDisplay
+                            amount={expense.amount_in_idr}
                             currency="IDR"
                             size="sm"
                           />
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Mobile Card View */}
-            <div className="md:hidden space-y-3">
-              {allExpenses.map((expense, index) => {
-                const category = expense.category_id ? categoryMap.get(expense.category_id) : undefined;
-                return (
-                  <div key={expense.id} className="p-3 bg-gradient-to-r from-modern-border/10 to-transparent rounded-xl border border-modern-border/30">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-bold text-primary-600">#{index + 1}</span>
-                          <span className="font-semibold text-modern-text text-sm truncate">{expense.description}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-xs text-modern-text-light">
-                          <span>{formatDate(expense.date)}</span>
-                          {category && (
-                            <span className="flex items-center gap-1">
-                              <span>{getCategoryDisplay(expense.category_id)}</span>
-                              <span>{category.name}</span>
-                            </span>
-                          )}
                         </div>
                       </div>
                     </div>
-                    <div className="flex justify-between items-center pt-2 border-t border-modern-border/20">
-                      <div className="text-xs text-modern-text-light">
-                        <CurrencyDisplay 
-                          amount={expense.amount} 
-                          currency={expense.currency}
-                          size="sm"
-                        />
-                      </div>
-                      <div className="font-bold text-modern-text">
-                        <CurrencyDisplay 
-                          amount={expense.amount_in_idr} 
-                          currency="IDR"
-                          size="sm"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Load More Button */}
-            {hasMore && (
-              <div className="pt-4 border-t border-modern-border/50 flex justify-center">
-                <button
-                  onClick={handleLoadMore}
-                  disabled={isLoadingMore}
-                  className="px-6 py-3 bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white font-semibold rounded-lg shadow-modern transition-all duration-200 hover:shadow-modern-lg disabled:cursor-not-allowed flex items-center gap-2"
-                >
-                  {isLoadingMore ? (
-                    <>
-                      <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Loading...
-                    </>
-                  ) : (
-                    <>
-                      Load More (Next 50)
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </>
-                  )}
-                </button>
+                  );
+                })}
               </div>
-            )}
-          </div>
-        ) : (
-          <div className="text-center py-8 text-modern-text-light text-sm">
-            No expenses found for the selected period and categories.
-          </div>
-        )}
+
+              {/* Load More Button */}
+              {hasMore && (
+                <div className="pt-4 border-t border-modern-border/50 flex justify-center">
+                  <button
+                    onClick={handleLoadMore}
+                    disabled={isLoadingMore}
+                    className="px-6 py-3 bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white font-semibold rounded-lg shadow-modern transition-all duration-200 hover:shadow-modern-lg disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    {isLoadingMore ? (
+                      <>
+                        <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Loading...
+                      </>
+                    ) : (
+                      <>
+                        Load More (Next 50)
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-8 text-modern-text-light text-sm">
+              No expenses found for the selected period and categories.
+            </div>
+          )}
         </div>
       )}
 

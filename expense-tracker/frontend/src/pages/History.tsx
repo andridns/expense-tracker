@@ -285,7 +285,7 @@ const History = () => {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <h2 className="text-2xl md:text-3xl font-bold text-primary-600">Activity</h2>
+      <h2 className="text-xl md:text-2xl font-bold text-primary-600">Activity</h2>
 
       {/* Filters */}
       <div className="glass p-4 md:p-5 rounded-2xl shadow-modern border border-modern-border/50">
