@@ -1798,41 +1798,5 @@
     "meta": {
       "source": "hvj.csv"
     }
-  },
-  {
-    "period": "2026-02",
-    "currency": "IDR",
-    "summary": {
-      "sinking_fund_idr": 264600,
-      "service_charge_idr": 2646000,
-      "ppn_service_charge_idr": 291060,
-      "electric_m1_total_idr": 1408911,
-      "water_m1_total_idr": 573697,
-      "fitout_idr": 0,
-      "total_idr": 5184268
-    },
-    "electric_m1": {
-      "usage_idr": 1239550,
-      "ppn_idr": 139621,
-      "area_bersama_idr": 0,
-      "pju_idr": 29740,
-      "total_idr": 1408911,
-      "kwh": 858.0,
-      "tarif_per_kwh": 1.4447
-    },
-    "water_m1": {
-      "usage_potable_idr": 270000,
-      "non_potable_idr": 145380,
-      "air_limbah_idr": 124610,
-      "ppn_air_limbah_idr": 13707,
-      "pemeliharaan_idr": 20000,
-      "area_bersama_idr": 0,
-      "total_idr": 573697,
-      "m3": 12.0,
-      "tarif_per_m3": 22500.0
-    },
-    "meta": {
-      "source": "hvj.csv"
-    }
   }
 ]
