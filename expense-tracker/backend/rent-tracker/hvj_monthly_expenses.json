@@ -1,0 +1,1802 @@
+[
+  {
+    "period": "2021-12",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 0,
+      "ppn_service_charge_idr": 0,
+      "electric_m1_total_idr": 563541,
+      "water_m1_total_idr": 119729,
+      "fitout_idr": 0,
+      "total_idr": 910070
+    },
+    "electric_m1": {
+      "usage_idr": 254260,
+      "ppn_idr": 51231,
+      "area_bersama_idr": 251950,
+      "pju_idr": 6100,
+      "total_idr": 563541,
+      "kwh": null,
+      "tarif_per_kwh": null
+    },
+    "water_m1": {
+      "usage_potable_idr": 48750,
+      "non_potable_idr": 26240,
+      "air_limbah_idr": 22490,
+      "ppn_air_limbah_idr": 2249,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 119729,
+      "m3": null,
+      "tarif_per_m3": null
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2022-01",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 226800,
+      "electric_m1_total_idr": 569602,
+      "water_m1_total_idr": 119729,
+      "fitout_idr": 0,
+      "total_idr": 3410931
+    },
+    "electric_m1": {
+      "usage_idr": 254260,
+      "ppn_idr": 51782,
+      "area_bersama_idr": 257460,
+      "pju_idr": 6100,
+      "total_idr": 569602,
+      "kwh": null,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 48750,
+      "non_potable_idr": 26240,
+      "air_limbah_idr": 22490,
+      "ppn_air_limbah_idr": 2249,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 119729,
+      "m3": null,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2022-02",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 226800,
+      "electric_m1_total_idr": 554455,
+      "water_m1_total_idr": 119729,
+      "fitout_idr": 50000,
+      "total_idr": 3445784
+    },
+    "electric_m1": {
+      "usage_idr": 254260,
+      "ppn_idr": 50405,
+      "area_bersama_idr": 243690,
+      "pju_idr": 6100,
+      "total_idr": 554455,
+      "kwh": null,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 48750,
+      "non_potable_idr": 26240,
+      "air_limbah_idr": 22490,
+      "ppn_air_limbah_idr": 2249,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 119729,
+      "m3": null,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2022-03",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 226800,
+      "electric_m1_total_idr": 864468,
+      "water_m1_total_idr": 119729,
+      "fitout_idr": 0,
+      "total_idr": 3705797
+    },
+    "electric_m1": {
+      "usage_idr": 508530,
+      "ppn_idr": 78588,
+      "area_bersama_idr": 265150,
+      "pju_idr": 12200,
+      "total_idr": 864468,
+      "kwh": null,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 48750,
+      "non_potable_idr": 26240,
+      "air_limbah_idr": 22490,
+      "ppn_air_limbah_idr": 2249,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 119729,
+      "m3": null,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2022-04",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 249480,
+      "electric_m1_total_idr": 687234,
+      "water_m1_total_idr": 119953,
+      "fitout_idr": 50000,
+      "total_idr": 3601467
+    },
+    "electric_m1": {
+      "usage_idr": 508530,
+      "ppn_idr": 68104,
+      "area_bersama_idr": 98400,
+      "pju_idr": 12200,
+      "total_idr": 687234,
+      "kwh": null,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 48750,
+      "non_potable_idr": 26240,
+      "air_limbah_idr": 22490,
+      "ppn_air_limbah_idr": 2473,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 119953,
+      "m3": null,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2022-05",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 249480,
+      "electric_m1_total_idr": 643855,
+      "water_m1_total_idr": 119953,
+      "fitout_idr": 0,
+      "total_idr": 3508088
+    },
+    "electric_m1": {
+      "usage_idr": 508530,
+      "ppn_idr": 63805,
+      "area_bersama_idr": 59320,
+      "pju_idr": 12200,
+      "total_idr": 643855,
+      "kwh": 7.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 48750,
+      "non_potable_idr": 26240,
+      "air_limbah_idr": 22490,
+      "ppn_air_limbah_idr": 2473,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 119953,
+      "m3": 0.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2022-06",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 249480,
+      "electric_m1_total_idr": 635408,
+      "water_m1_total_idr": 119953,
+      "fitout_idr": 50000,
+      "total_idr": 3549641
+    },
+    "electric_m1": {
+      "usage_idr": 508530,
+      "ppn_idr": 62968,
+      "area_bersama_idr": 51710,
+      "pju_idr": 12200,
+      "total_idr": 635408,
+      "kwh": 7.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 48750,
+      "non_potable_idr": 26240,
+      "air_limbah_idr": 22490,
+      "ppn_air_limbah_idr": 2473,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 119953,
+      "m3": 0.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2022-07",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 249480,
+      "electric_m1_total_idr": 578010,
+      "water_m1_total_idr": 143035,
+      "fitout_idr": 50000,
+      "total_idr": 3515325
+    },
+    "electric_m1": {
+      "usage_idr": 508530,
+      "ppn_idr": 57280,
+      "area_bersama_idr": 0,
+      "pju_idr": 12200,
+      "total_idr": 578010,
+      "kwh": 16.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 60000,
+      "non_potable_idr": 32300,
+      "air_limbah_idr": 27690,
+      "ppn_air_limbah_idr": 3045,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 143035,
+      "m3": 4.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2022-08",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 249480,
+      "electric_m1_total_idr": 775057,
+      "water_m1_total_idr": 204558,
+      "fitout_idr": 0,
+      "total_idr": 3723895
+    },
+    "electric_m1": {
+      "usage_idr": 681890,
+      "ppn_idr": 76807,
+      "area_bersama_idr": 0,
+      "pju_idr": 16360,
+      "total_idr": 775057,
+      "kwh": 472.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 90000,
+      "non_potable_idr": 48460,
+      "air_limbah_idr": 41530,
+      "ppn_air_limbah_idr": 4568,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 204558,
+      "m3": 6.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2022-09",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 249480,
+      "electric_m1_total_idr": 890009,
+      "water_m1_total_idr": 327594,
+      "fitout_idr": 0,
+      "total_idr": 3961883
+    },
+    "electric_m1": {
+      "usage_idr": 783020,
+      "ppn_idr": 88199,
+      "area_bersama_idr": 0,
+      "pju_idr": 18790,
+      "total_idr": 890009,
+      "kwh": 542.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 150000,
+      "non_potable_idr": 80760,
+      "air_limbah_idr": 69220,
+      "ppn_air_limbah_idr": 7614,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 327594,
+      "m3": 10.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2022-10",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 249480,
+      "electric_m1_total_idr": 1179019,
+      "water_m1_total_idr": 389127,
+      "fitout_idr": 0,
+      "total_idr": 4312426
+    },
+    "electric_m1": {
+      "usage_idr": 1037290,
+      "ppn_idr": 116839,
+      "area_bersama_idr": 0,
+      "pju_idr": 24890,
+      "total_idr": 1179019,
+      "kwh": 718.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 180000,
+      "non_potable_idr": 96920,
+      "air_limbah_idr": 83070,
+      "ppn_air_limbah_idr": 9137,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 389127,
+      "m3": 12.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2022-11",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 249480,
+      "electric_m1_total_idr": 811188,
+      "water_m1_total_idr": 327594,
+      "fitout_idr": 0,
+      "total_idr": 3883062
+    },
+    "electric_m1": {
+      "usage_idr": 713680,
+      "ppn_idr": 80388,
+      "area_bersama_idr": 0,
+      "pju_idr": 17120,
+      "total_idr": 811188,
+      "kwh": 494.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 150000,
+      "non_potable_idr": 80760,
+      "air_limbah_idr": 69220,
+      "ppn_air_limbah_idr": 7614,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 327594,
+      "m3": 10.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2022-12",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 249480,
+      "electric_m1_total_idr": 949127,
+      "water_m1_total_idr": 389127,
+      "fitout_idr": 0,
+      "total_idr": 4082534
+    },
+    "electric_m1": {
+      "usage_idr": 835030,
+      "ppn_idr": 94057,
+      "area_bersama_idr": 0,
+      "pju_idr": 20040,
+      "total_idr": 949127,
+      "kwh": 578.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 180000,
+      "non_potable_idr": 96920,
+      "air_limbah_idr": 83070,
+      "ppn_air_limbah_idr": 9137,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 389127,
+      "m3": 12.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2023-01",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 249480,
+      "electric_m1_total_idr": 1068996,
+      "water_m1_total_idr": 450651,
+      "fitout_idr": 0,
+      "total_idr": 4263927
+    },
+    "electric_m1": {
+      "usage_idr": 940490,
+      "ppn_idr": 105936,
+      "area_bersama_idr": 0,
+      "pju_idr": 22570,
+      "total_idr": 1068996,
+      "kwh": 651.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 210000,
+      "non_potable_idr": 113070,
+      "air_limbah_idr": 96920,
+      "ppn_air_limbah_idr": 10661,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 450651,
+      "m3": 14.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2023-02",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 249480,
+      "electric_m1_total_idr": 1034520,
+      "water_m1_total_idr": 481412,
+      "fitout_idr": 0,
+      "total_idr": 4260212
+    },
+    "electric_m1": {
+      "usage_idr": 910160,
+      "ppn_idr": 102520,
+      "area_bersama_idr": 0,
+      "pju_idr": 21840,
+      "total_idr": 1034520,
+      "kwh": 630.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 225000,
+      "non_potable_idr": 121150,
+      "air_limbah_idr": 103840,
+      "ppn_air_limbah_idr": 11422,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 481412,
+      "m3": 15.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2023-03",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 249480,
+      "electric_m1_total_idr": 1067353,
+      "water_m1_total_idr": 450651,
+      "fitout_idr": 0,
+      "total_idr": 4262284
+    },
+    "electric_m1": {
+      "usage_idr": 939050,
+      "ppn_idr": 105773,
+      "area_bersama_idr": 0,
+      "pju_idr": 22530,
+      "total_idr": 1067353,
+      "kwh": 650.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 210000,
+      "non_potable_idr": 113070,
+      "air_limbah_idr": 96920,
+      "ppn_air_limbah_idr": 10661,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 450651,
+      "m3": 14.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2023-04",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 249480,
+      "electric_m1_total_idr": 1124829,
+      "water_m1_total_idr": 450651,
+      "fitout_idr": 0,
+      "total_idr": 4319760
+    },
+    "electric_m1": {
+      "usage_idr": 989610,
+      "ppn_idr": 111469,
+      "area_bersama_idr": 0,
+      "pju_idr": 23750,
+      "total_idr": 1124829,
+      "kwh": 685.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 210000,
+      "non_potable_idr": 113070,
+      "air_limbah_idr": 96920,
+      "ppn_air_limbah_idr": 10661,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 450651,
+      "m3": 14.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2023-05",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 249480,
+      "electric_m1_total_idr": 993461,
+      "water_m1_total_idr": 296843,
+      "fitout_idr": 0,
+      "total_idr": 4034584
+    },
+    "electric_m1": {
+      "usage_idr": 874040,
+      "ppn_idr": 98451,
+      "area_bersama_idr": 0,
+      "pju_idr": 20970,
+      "total_idr": 993461,
+      "kwh": 605.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 135000,
+      "non_potable_idr": 72690,
+      "air_limbah_idr": 62300,
+      "ppn_air_limbah_idr": 6853,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 296843,
+      "m3": 9.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2023-06",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 249480,
+      "electric_m1_total_idr": 2023063,
+      "water_m1_total_idr": 665981,
+      "fitout_idr": 0,
+      "total_idr": 5433324
+    },
+    "electric_m1": {
+      "usage_idr": 1779870,
+      "ppn_idr": 200483,
+      "area_bersama_idr": 0,
+      "pju_idr": 42710,
+      "total_idr": 2023063,
+      "kwh": 1232.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 315000,
+      "non_potable_idr": 169610,
+      "air_limbah_idr": 145380,
+      "ppn_air_limbah_idr": 15991,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 665981,
+      "m3": 21.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2023-07",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 249480,
+      "electric_m1_total_idr": 1817802,
+      "water_m1_total_idr": 696743,
+      "fitout_idr": 0,
+      "total_idr": 5258825
+    },
+    "electric_m1": {
+      "usage_idr": 1599280,
+      "ppn_idr": 180142,
+      "area_bersama_idr": 0,
+      "pju_idr": 38380,
+      "total_idr": 1817802,
+      "kwh": 1107.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 330000,
+      "non_potable_idr": 177690,
+      "air_limbah_idr": 152300,
+      "ppn_air_limbah_idr": 16753,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 696743,
+      "m3": 22.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2023-08",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 249480,
+      "electric_m1_total_idr": 2211908,
+      "water_m1_total_idr": 758266,
+      "fitout_idr": 0,
+      "total_idr": 5714454
+    },
+    "electric_m1": {
+      "usage_idr": 1946010,
+      "ppn_idr": 219198,
+      "area_bersama_idr": 0,
+      "pju_idr": 46700,
+      "total_idr": 2211908,
+      "kwh": 1347.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 360000,
+      "non_potable_idr": 193840,
+      "air_limbah_idr": 166150,
+      "ppn_air_limbah_idr": 18276,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 758266,
+      "m3": 24.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2023-09",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 249480,
+      "electric_m1_total_idr": 2359693,
+      "water_m1_total_idr": 881312,
+      "fitout_idr": 0,
+      "total_idr": 5985285
+    },
+    "electric_m1": {
+      "usage_idr": 2076030,
+      "ppn_idr": 233843,
+      "area_bersama_idr": 0,
+      "pju_idr": 49820,
+      "total_idr": 2359693,
+      "kwh": 1437.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 420000,
+      "non_potable_idr": 226150,
+      "air_limbah_idr": 193840,
+      "ppn_air_limbah_idr": 21322,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 881312,
+      "m3": 28.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2023-10",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 249480,
+      "electric_m1_total_idr": 1977076,
+      "water_m1_total_idr": 789027,
+      "fitout_idr": 0,
+      "total_idr": 5510383
+    },
+    "electric_m1": {
+      "usage_idr": 1739410,
+      "ppn_idr": 195926,
+      "area_bersama_idr": 0,
+      "pju_idr": 41740,
+      "total_idr": 1977076,
+      "kwh": 1204.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 375000,
+      "non_potable_idr": 201920,
+      "air_limbah_idr": 173070,
+      "ppn_air_limbah_idr": 19037,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 789027,
+      "m3": 25.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2023-11",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 249480,
+      "electric_m1_total_idr": 2036195,
+      "water_m1_total_idr": 912073,
+      "fitout_idr": 0,
+      "total_idr": 5692548
+    },
+    "electric_m1": {
+      "usage_idr": 1791420,
+      "ppn_idr": 201785,
+      "area_bersama_idr": 0,
+      "pju_idr": 42990,
+      "total_idr": 2036195,
+      "kwh": 1240.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 435000,
+      "non_potable_idr": 234230,
+      "air_limbah_idr": 200760,
+      "ppn_air_limbah_idr": 22083,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 912073,
+      "m3": 29.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2023-12",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 226800,
+      "service_charge_idr": 2268000,
+      "ppn_service_charge_idr": 249480,
+      "electric_m1_total_idr": 2190551,
+      "water_m1_total_idr": 942835,
+      "fitout_idr": 0,
+      "total_idr": 5877666
+    },
+    "electric_m1": {
+      "usage_idr": 1927220,
+      "ppn_idr": 217081,
+      "area_bersama_idr": 0,
+      "pju_idr": 46250,
+      "total_idr": 2190551,
+      "kwh": 1334.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 450000,
+      "non_potable_idr": 242300,
+      "air_limbah_idr": 207690,
+      "ppn_air_limbah_idr": 22845,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 942835,
+      "m3": 30.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2024-01",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 578010,
+      "water_m1_total_idr": 204558,
+      "fitout_idr": 0,
+      "total_idr": 3831768
+    },
+    "electric_m1": {
+      "usage_idr": 508530,
+      "ppn_idr": 57280,
+      "area_bersama_idr": 0,
+      "pju_idr": 12200,
+      "total_idr": 578010,
+      "kwh": 327.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 90000,
+      "non_potable_idr": 48460,
+      "air_limbah_idr": 41530,
+      "ppn_air_limbah_idr": 4568,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 204558,
+      "m3": 6.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2024-02",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 2144575,
+      "water_m1_total_idr": 1065881,
+      "fitout_idr": 0,
+      "total_idr": 6259656
+    },
+    "electric_m1": {
+      "usage_idr": 1886770,
+      "ppn_idr": 212525,
+      "area_bersama_idr": 0,
+      "pju_idr": 45280,
+      "total_idr": 2144575,
+      "kwh": 1306.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 510000,
+      "non_potable_idr": 274610,
+      "air_limbah_idr": 235380,
+      "ppn_air_limbah_idr": 25891,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 1065881,
+      "m3": 34.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2024-03",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 1550137,
+      "water_m1_total_idr": 912073,
+      "fitout_idr": 0,
+      "total_idr": 5511410
+    },
+    "electric_m1": {
+      "usage_idr": 1363790,
+      "ppn_idr": 153617,
+      "area_bersama_idr": 0,
+      "pju_idr": 32730,
+      "total_idr": 1550137,
+      "kwh": 944.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 435000,
+      "non_potable_idr": 234230,
+      "air_limbah_idr": 200760,
+      "ppn_air_limbah_idr": 22083,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 912073,
+      "m3": 29.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2024-04",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 1303828,
+      "water_m1_total_idr": 758266,
+      "fitout_idr": 0,
+      "total_idr": 5111294
+    },
+    "electric_m1": {
+      "usage_idr": 1147090,
+      "ppn_idr": 129208,
+      "area_bersama_idr": 0,
+      "pju_idr": 27530,
+      "total_idr": 1303828,
+      "kwh": 794.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 360000,
+      "non_potable_idr": 193840,
+      "air_limbah_idr": 166150,
+      "ppn_air_limbah_idr": 18276,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 758266,
+      "m3": 24.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2024-05",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 2087099,
+      "water_m1_total_idr": 881312,
+      "fitout_idr": 0,
+      "total_idr": 6017611
+    },
+    "electric_m1": {
+      "usage_idr": 1836210,
+      "ppn_idr": 206829,
+      "area_bersama_idr": 0,
+      "pju_idr": 44060,
+      "total_idr": 2087099,
+      "kwh": 1271.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 420000,
+      "non_potable_idr": 226150,
+      "air_limbah_idr": 193840,
+      "ppn_air_limbah_idr": 21322,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 881312,
+      "m3": 28.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2024-06",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 2031277,
+      "water_m1_total_idr": 973597,
+      "fitout_idr": 0,
+      "total_idr": 6054074
+    },
+    "electric_m1": {
+      "usage_idr": 1787090,
+      "ppn_idr": 201297,
+      "area_bersama_idr": 0,
+      "pju_idr": 42890,
+      "total_idr": 2031277,
+      "kwh": 1237.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 465000,
+      "non_potable_idr": 250380,
+      "air_limbah_idr": 214610,
+      "ppn_air_limbah_idr": 23607,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 973597,
+      "m3": 31.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2024-07",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 1936028,
+      "water_m1_total_idr": 419878,
+      "fitout_idr": 0,
+      "total_idr": 5405106
+    },
+    "electric_m1": {
+      "usage_idr": 1703300,
+      "ppn_idr": 191858,
+      "area_bersama_idr": 0,
+      "pju_idr": 40870,
+      "total_idr": 1936028,
+      "kwh": 1179.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 195000,
+      "non_potable_idr": 104990,
+      "air_limbah_idr": 89990,
+      "ppn_air_limbah_idr": 9898,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 419878,
+      "m3": 13.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2024-08",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 1839147,
+      "water_m1_total_idr": 665981,
+      "fitout_idr": 0,
+      "total_idr": 5554328
+    },
+    "electric_m1": {
+      "usage_idr": 1618060,
+      "ppn_idr": 182257,
+      "area_bersama_idr": 0,
+      "pju_idr": 38830,
+      "total_idr": 1839147,
+      "kwh": 1120.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 315000,
+      "non_potable_idr": 169610,
+      "air_limbah_idr": 145380,
+      "ppn_air_limbah_idr": 15991,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 665981,
+      "m3": 21.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2024-09",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 1954099,
+      "water_m1_total_idr": 665981,
+      "fitout_idr": 0,
+      "total_idr": 5669280
+    },
+    "electric_m1": {
+      "usage_idr": 1719190,
+      "ppn_idr": 193649,
+      "area_bersama_idr": 0,
+      "pju_idr": 41260,
+      "total_idr": 1954099,
+      "kwh": 1190.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 315000,
+      "non_potable_idr": 169610,
+      "air_limbah_idr": 145380,
+      "ppn_air_limbah_idr": 15991,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 665981,
+      "m3": 21.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2024-10",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 1852290,
+      "water_m1_total_idr": 665981,
+      "fitout_idr": 0,
+      "total_idr": 5567471
+    },
+    "electric_m1": {
+      "usage_idr": 1629620,
+      "ppn_idr": 183560,
+      "area_bersama_idr": 0,
+      "pju_idr": 39110,
+      "total_idr": 1852290,
+      "kwh": 1128.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 315000,
+      "non_potable_idr": 169610,
+      "air_limbah_idr": 145380,
+      "ppn_air_limbah_idr": 15991,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 665981,
+      "m3": 21.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2024-11",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 967187,
+      "water_m1_total_idr": 296843,
+      "fitout_idr": 0,
+      "total_idr": 4313230
+    },
+    "electric_m1": {
+      "usage_idr": 850920,
+      "ppn_idr": 95847,
+      "area_bersama_idr": 0,
+      "pju_idr": 20420,
+      "total_idr": 967187,
+      "kwh": 589.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 135000,
+      "non_potable_idr": 72690,
+      "air_limbah_idr": 62300,
+      "ppn_air_limbah_idr": 6853,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 296843,
+      "m3": 9.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2024-12",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 743855,
+      "water_m1_total_idr": 327594,
+      "fitout_idr": 0,
+      "total_idr": 4120649
+    },
+    "electric_m1": {
+      "usage_idr": 654440,
+      "ppn_idr": 73715,
+      "area_bersama_idr": 0,
+      "pju_idr": 15700,
+      "total_idr": 743855,
+      "kwh": 453.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 150000,
+      "non_potable_idr": 80760,
+      "air_limbah_idr": 69220,
+      "ppn_air_limbah_idr": 7614,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 327594,
+      "m3": 10.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2025-01",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 1482804,
+      "water_m1_total_idr": 758266,
+      "fitout_idr": 0,
+      "total_idr": 5290270
+    },
+    "electric_m1": {
+      "usage_idr": 1304560,
+      "ppn_idr": 146944,
+      "area_bersama_idr": 0,
+      "pju_idr": 31300,
+      "total_idr": 1482804,
+      "kwh": 903.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 360000,
+      "non_potable_idr": 193840,
+      "air_limbah_idr": 166150,
+      "ppn_air_limbah_idr": 18276,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 758266,
+      "m3": 24.0,
+      "tarif_per_m3": 15000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2025-02",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 1277543,
+      "water_m1_total_idr": 1496543,
+      "fitout_idr": 0,
+      "total_idr": 5823286
+    },
+    "electric_m1": {
+      "usage_idr": 1123970,
+      "ppn_idr": 126603,
+      "area_bersama_idr": 0,
+      "pju_idr": 26970,
+      "total_idr": 1277543,
+      "kwh": 778.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 720000,
+      "non_potable_idr": 387690,
+      "air_limbah_idr": 332300,
+      "ppn_air_limbah_idr": 36553,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 1496543,
+      "m3": 30.0,
+      "tarif_per_m3": 24000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2025-03",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 1226649,
+      "water_m1_total_idr": 1447314,
+      "fitout_idr": 0,
+      "total_idr": 5723163
+    },
+    "electric_m1": {
+      "usage_idr": 1079190,
+      "ppn_idr": 121559,
+      "area_bersama_idr": 0,
+      "pju_idr": 25900,
+      "total_idr": 1226649,
+      "kwh": 747.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 696000,
+      "non_potable_idr": 374760,
+      "air_limbah_idr": 321220,
+      "ppn_air_limbah_idr": 35334,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 1447314,
+      "m3": 29.0,
+      "tarif_per_m3": 24000.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2025-04",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 1254566,
+      "water_m1_total_idr": 1081262,
+      "fitout_idr": 0,
+      "total_idr": 5385028
+    },
+    "electric_m1": {
+      "usage_idr": 1103750,
+      "ppn_idr": 124326,
+      "area_bersama_idr": 0,
+      "pju_idr": 26490,
+      "total_idr": 1254566,
+      "kwh": 764.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 517500,
+      "non_potable_idr": 278650,
+      "air_limbah_idr": 238840,
+      "ppn_air_limbah_idr": 26272,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 1081262,
+      "m3": 23.0,
+      "tarif_per_m3": 22500.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2025-05",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 1395780,
+      "water_m1_total_idr": 1081262,
+      "fitout_idr": 0,
+      "total_idr": 5526242
+    },
+    "electric_m1": {
+      "usage_idr": 1227990,
+      "ppn_idr": 138320,
+      "area_bersama_idr": 0,
+      "pju_idr": 29470,
+      "total_idr": 1395780,
+      "kwh": 850.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 517500,
+      "non_potable_idr": 278650,
+      "air_limbah_idr": 238840,
+      "ppn_air_limbah_idr": 26272,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 1081262,
+      "m3": 23.0,
+      "tarif_per_m3": 22500.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2025-06",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 1362935,
+      "water_m1_total_idr": 1035109,
+      "fitout_idr": 0,
+      "total_idr": 5447244
+    },
+    "electric_m1": {
+      "usage_idr": 1199100,
+      "ppn_idr": 135065,
+      "area_bersama_idr": 0,
+      "pju_idr": 28770,
+      "total_idr": 1362935,
+      "kwh": 830.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 495000,
+      "non_potable_idr": 266530,
+      "air_limbah_idr": 228450,
+      "ppn_air_limbah_idr": 25129,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 1035109,
+      "m3": 22.0,
+      "tarif_per_m3": 22500.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2025-07",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 1857207,
+      "water_m1_total_idr": 1035109,
+      "fitout_idr": 0,
+      "total_idr": 5941516
+    },
+    "electric_m1": {
+      "usage_idr": 1633950,
+      "ppn_idr": 184047,
+      "area_bersama_idr": 0,
+      "pju_idr": 39210,
+      "total_idr": 1857207,
+      "kwh": 1131.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 495000,
+      "non_potable_idr": 266530,
+      "air_limbah_idr": 228450,
+      "ppn_air_limbah_idr": 25129,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 1035109,
+      "m3": 22.0,
+      "tarif_per_m3": 22500.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2025-08",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 1574768,
+      "water_m1_total_idr": 758266,
+      "fitout_idr": 0,
+      "total_idr": 5382234
+    },
+    "electric_m1": {
+      "usage_idr": 1385460,
+      "ppn_idr": 156058,
+      "area_bersama_idr": 0,
+      "pju_idr": 33250,
+      "total_idr": 1574768,
+      "kwh": 959.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 360000,
+      "non_potable_idr": 193840,
+      "air_limbah_idr": 166150,
+      "ppn_air_limbah_idr": 18276,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 758266,
+      "m3": 16.0,
+      "tarif_per_m3": 22500.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2025-09",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 1574768,
+      "water_m1_total_idr": 804408,
+      "fitout_idr": 0,
+      "total_idr": 5428376
+    },
+    "electric_m1": {
+      "usage_idr": 1385460,
+      "ppn_idr": 156058,
+      "area_bersama_idr": 0,
+      "pju_idr": 33250,
+      "total_idr": 1574768,
+      "kwh": 959.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 382500,
+      "non_potable_idr": 205960,
+      "air_limbah_idr": 176530,
+      "ppn_air_limbah_idr": 19418,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 804408,
+      "m3": 17.0,
+      "tarif_per_m3": 22500.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2025-10",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 1561625,
+      "water_m1_total_idr": 804408,
+      "fitout_idr": 0,
+      "total_idr": 5415233
+    },
+    "electric_m1": {
+      "usage_idr": 1373900,
+      "ppn_idr": 154755,
+      "area_bersama_idr": 0,
+      "pju_idr": 32970,
+      "total_idr": 1561625,
+      "kwh": 951.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 382500,
+      "non_potable_idr": 205960,
+      "air_limbah_idr": 176530,
+      "ppn_air_limbah_idr": 19418,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 804408,
+      "m3": 17.0,
+      "tarif_per_m3": 22500.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2025-11",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 1408911,
+      "water_m1_total_idr": 758266,
+      "fitout_idr": 0,
+      "total_idr": 5216377
+    },
+    "electric_m1": {
+      "usage_idr": 1239550,
+      "ppn_idr": 139621,
+      "area_bersama_idr": 0,
+      "pju_idr": 29740,
+      "total_idr": 1408911,
+      "kwh": 858.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 360000,
+      "non_potable_idr": 193840,
+      "air_limbah_idr": 166150,
+      "ppn_air_limbah_idr": 18276,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 758266,
+      "m3": 16.0,
+      "tarif_per_m3": 22500.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2025-12",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 252000,
+      "service_charge_idr": 2520000,
+      "ppn_service_charge_idr": 277200,
+      "electric_m1_total_idr": 1157674,
+      "water_m1_total_idr": 712123,
+      "fitout_idr": 0,
+      "total_idr": 4918997
+    },
+    "electric_m1": {
+      "usage_idr": 1018510,
+      "ppn_idr": 114724,
+      "area_bersama_idr": 0,
+      "pju_idr": 24440,
+      "total_idr": 1157674,
+      "kwh": 705.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 337500,
+      "non_potable_idr": 181730,
+      "air_limbah_idr": 155760,
+      "ppn_air_limbah_idr": 17133,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 712123,
+      "m3": 15.0,
+      "tarif_per_m3": 22500.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  },
+  {
+    "period": "2026-01",
+    "currency": "IDR",
+    "summary": {
+      "sinking_fund_idr": 264600,
+      "service_charge_idr": 2646000,
+      "ppn_service_charge_idr": 291060,
+      "electric_m1_total_idr": 1408911,
+      "water_m1_total_idr": 573697,
+      "fitout_idr": 0,
+      "total_idr": 5184268
+    },
+    "electric_m1": {
+      "usage_idr": 1239550,
+      "ppn_idr": 139621,
+      "area_bersama_idr": 0,
+      "pju_idr": 29740,
+      "total_idr": 1408911,
+      "kwh": 858.0,
+      "tarif_per_kwh": 1.4447
+    },
+    "water_m1": {
+      "usage_potable_idr": 270000,
+      "non_potable_idr": 145380,
+      "air_limbah_idr": 124610,
+      "ppn_air_limbah_idr": 13707,
+      "pemeliharaan_idr": 20000,
+      "area_bersama_idr": 0,
+      "total_idr": 573697,
+      "m3": 12.0,
+      "tarif_per_m3": 22500.0
+    },
+    "meta": {
+      "source": "hvj.csv"
+    }
+  }
+]

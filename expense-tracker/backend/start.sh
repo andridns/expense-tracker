@@ -36,6 +36,21 @@ else
     echo "Database already has data. Skipping seed."
 fi
 
+# Import rent expenses if table is empty or missing data
+echo "Checking if rent expenses need to be imported..."
+RENT_EXPENSE_COUNT=$(poetry run python -c "from app.database import SessionLocal; from app.models.rent_expense import RentExpense; db = SessionLocal(); count = db.query(RentExpense).count(); db.close(); print(count)" 2>/dev/null || echo "0")
+if [ "$RENT_EXPENSE_COUNT" = "0" ]; then
+    echo "Rent expenses table is empty. Importing rent expense data..."
+    # Try to import - the script will find the JSON file automatically
+    # It checks multiple possible locations
+    poetry run python scripts/import_rent_expenses.py || {
+        echo "Warning: Rent expense import failed. This is normal if JSON file is not available."
+        echo "You can manually import later or ensure rent-tracker/hvj_monthly_expenses.json is available."
+    }
+else
+    echo "Rent expenses already exist ($RENT_EXPENSE_COUNT records). Skipping import."
+fi
+
 # Always sync user credentials from environment variables
 # This allows updating credentials via Railway env vars (DEFAULT_USERNAME, DEFAULT_PASSWORD)
 # This also ensures the admin user exists even if seeding was skipped

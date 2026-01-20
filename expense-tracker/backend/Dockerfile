@@ -29,6 +29,10 @@ RUN poetry install --without dev --no-interaction --no-ansi --no-root
 # Copy application code
 COPY . .
 
+# Note: rent-tracker directory should be copied into backend/rent-tracker before building
+# This ensures the JSON file is available for the import script during startup
+# The import script will try multiple paths to find the JSON file if this doesn't exist
+
 # Create uploads directory
 RUN mkdir -p uploads/receipts backups
 

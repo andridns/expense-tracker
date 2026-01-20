@@ -133,19 +133,42 @@ def import_rent_expenses(json_path: Path):
 
 
 if __name__ == "__main__":
-    # Default path: rent-tracker/hvj_monthly_expenses.json relative to project root
-    project_root = Path(__file__).parent.parent.parent
-    default_json_path = project_root / "rent-tracker" / "hvj_monthly_expenses.json"
+    # Try multiple possible paths for the JSON file
+    # 1. Command line argument
+    # 2. rent-tracker/hvj_monthly_expenses.json relative to project root (backend/../rent-tracker/)
+    # 3. ../rent-tracker/hvj_monthly_expenses.json relative to backend/
+    # 4. rent-tracker/hvj_monthly_expenses.json relative to backend/ (if copied in Docker)
     
-    # Allow custom path via command line argument
+    json_path = None
+    
     if len(sys.argv) > 1:
         json_path = Path(sys.argv[1])
     else:
-        json_path = default_json_path
+        # Try multiple locations
+        project_root = Path(__file__).parent.parent.parent
+        possible_paths = [
+            project_root / "rent-tracker" / "hvj_monthly_expenses.json",  # From project root
+            Path(__file__).parent.parent.parent / "rent-tracker" / "hvj_monthly_expenses.json",  # Alternative
+            Path(__file__).parent.parent / ".." / "rent-tracker" / "hvj_monthly_expenses.json",  # Relative from backend
+            Path(__file__).parent.parent / "rent-tracker" / "hvj_monthly_expenses.json",  # If copied to backend/
+        ]
+        
+        for path in possible_paths:
+            if path.exists():
+                json_path = path
+                break
     
-    if not json_path.exists():
-        print(f"Error: JSON file not found at {json_path}")
-        print(f"Usage: python scripts/import_rent_expenses.py [path_to_json_file]")
-        sys.exit(1)
+    if not json_path or not json_path.exists():
+        print(f"Warning: JSON file not found. Tried the following locations:")
+        for path in possible_paths:
+            exists = "✓" if path.exists() else "✗"
+            print(f"  {exists} {path}")
+        print(f"\nNote: Rent expense import will be skipped. This is normal if:")
+        print(f"  - The JSON file is not available in the build")
+        print(f"  - Data has already been imported")
+        print(f"  - You can manually import later using:")
+        print(f"    python scripts/import_rent_expenses.py <path_to_json_file>")
+        # Don't exit with error - allow the application to start even if import fails
+        sys.exit(0)
     
     import_rent_expenses(json_path)
