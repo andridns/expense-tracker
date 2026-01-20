@@ -12,6 +12,9 @@ import type {
   TrendData,
   CategoryBreakdown,
   TopExpensesResponse,
+  RentExpense,
+  RentExpenseTrend,
+  RentExpenseBreakdown,
 } from '../types';
 
 // Use environment variable for API URL, fallback to relative path for local development
@@ -197,6 +200,42 @@ export const reportsApi = {
       paramsSerializer: {
         indexes: null // Serialize arrays as repeated parameters (key=val1&key=val2) instead of brackets
       }
+    });
+    return response.data;
+  },
+};
+
+// Rent Expenses
+export const rentExpensesApi = {
+  getAll: async (period?: string): Promise<RentExpense[]> => {
+    const response = await api.get<RentExpense[]>('/rent-expenses', {
+      params: period ? { period } : {},
+    });
+    return response.data;
+  },
+  getByPeriod: async (period: string): Promise<RentExpense> => {
+    const response = await api.get<RentExpense>(`/rent-expenses/${period}`);
+    return response.data;
+  },
+  getTrends: async (periodType: 'monthly' | 'yearly' = 'monthly', categories?: string[]): Promise<RentExpenseTrend> => {
+    const params: any = { period_type: periodType };
+    if (categories && categories.length > 0) {
+      params.categories = categories;
+    }
+    const response = await api.get<RentExpenseTrend>('/rent-expenses/trends', {
+      params,
+      paramsSerializer: {
+        indexes: null // Serialize arrays as repeated parameters (key=val1&key=val2) instead of brackets
+      }
+    });
+    return response.data;
+  },
+  getBreakdown: async (period?: string, category?: string): Promise<RentExpenseBreakdown> => {
+    const params: any = {};
+    if (period) params.period = period;
+    if (category) params.category = category;
+    const response = await api.get<RentExpenseBreakdown>('/rent-expenses/breakdown', {
+      params,
     });
     return response.data;
   },

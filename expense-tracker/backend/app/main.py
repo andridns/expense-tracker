@@ -7,7 +7,7 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 from app.database import engine, Base
-from app.api import expenses, categories, budgets, reports, export, tags, upload, backup, currency, import_api, auth, admin, history
+from app.api import expenses, categories, budgets, reports, export, tags, upload, backup, currency, import_api, auth, admin, history, rent_expenses
 
 # Configure logging first
 logging.basicConfig(
@@ -85,6 +85,7 @@ app.include_router(currency.router, prefix="/api/v1", tags=["currency"])
 app.include_router(import_api.router, prefix="/api/v1", tags=["import"])
 app.include_router(admin.router, prefix="/api/v1", tags=["admin"])
 app.include_router(history.router, prefix="/api/v1", tags=["history"])
+app.include_router(rent_expenses.router, prefix="/api/v1", tags=["rent-expenses"])
 
 # Include seed router if available
 if SEED_AVAILABLE:
