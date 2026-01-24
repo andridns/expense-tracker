@@ -176,9 +176,14 @@ export const reportsApi = {
     });
     return response.data;
   },
-  getCategoryBreakdown: async (startDate?: string, endDate?: string): Promise<CategoryBreakdown> => {
+  getCategoryBreakdown: async (startDate?: string, endDate?: string, periodType?: string, periodValue?: string): Promise<CategoryBreakdown> => {
+    const params: any = {};
+    if (startDate) params.start_date = startDate;
+    if (endDate) params.end_date = endDate;
+    if (periodType) params.period_type = periodType;
+    if (periodValue) params.period_value = periodValue;
     const response = await api.get<CategoryBreakdown>('/reports/category-breakdown', {
-      params: { start_date: startDate, end_date: endDate },
+      params,
     });
     return response.data;
   },

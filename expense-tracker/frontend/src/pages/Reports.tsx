@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { reportsApi, categoriesApi, rentExpensesApi } from '../services/api';
 import TrendChart from '../components/Dashboard/TrendChart';
+import CategoryBarChart from '../components/Reports/CategoryBarChart';
 import { formatDate } from '../utils/format';
 import CurrencyDisplay from '../components/CurrencyDisplay';
 import RentExpenseTrendChart from '../components/RentExpenses/RentExpenseTrendChart';
@@ -52,6 +53,12 @@ const Reports = () => {
     queryKey: ['topExpenses', period, selectedPeriodValue, selectedCategoryIds],
     queryFn: () => reportsApi.getTopExpenses(period, selectedPeriodValue || undefined, undefined, selectedCategoryIds.length > 0 ? selectedCategoryIds : undefined, 0, 50),
     enabled: activeTab === 'daily' && selectedPeriodValue !== null,
+  });
+
+  const { data: categoryBreakdown, isLoading: isLoadingCategoryBreakdown } = useQuery({
+    queryKey: ['categoryBreakdown', period, selectedPeriodValue, selectedCategoryIds],
+    queryFn: () => reportsApi.getCategoryBreakdown(undefined, undefined, period, selectedPeriodValue || undefined),
+    enabled: activeTab === 'daily',
   });
 
   // Rent Expenses Queries
@@ -383,6 +390,12 @@ const Reports = () => {
             data={trends}
             title={`Expense Trends${getCategoryNames() ? ` - ${getCategoryNames()}` : ''}`}
             onDataPointClick={handleDataPointClick}
+          />
+
+          {/* Category Bar Chart */}
+          <CategoryBarChart
+            data={categoryBreakdown}
+            title={`Expenses by Category${getPeriodDisplayText() ? ` ${getPeriodDisplayText()}` : ''}${getCategoryNames() ? ` - ${getCategoryNames()}` : ''}`}
           />
 
           {/* Top Expenses */}

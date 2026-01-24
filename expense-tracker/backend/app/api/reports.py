@@ -214,34 +214,186 @@ async def get_trends(
 async def get_category_breakdown(
     start_date: Optional[date] = Query(None),
     end_date: Optional[date] = Query(None),
+    period_type: Optional[str] = Query(None, description="Period type: monthly, quarterly, yearly"),
+    period_value: Optional[str] = Query(None, description="Specific period value (e.g., '2025', '2025-03', '2025-Q1')"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Get category-wise breakdown"""
-    if not start_date or not end_date:
-        today = date.today()
-        start_date = date(today.year, today.month, 1)
-        end_date = date(today.year, today.month, 28)
+    """Get category-wise breakdown with optional period-based filtering and IDR conversion"""
     
-    results = db.query(
-        Category.name,
-        Category.id,
-        func.sum(Expense.amount).label('total'),
-        func.count(Expense.id).label('count')
-    ).join(
-        Expense, Category.id == Expense.category_id, isouter=True
-    ).filter(
+    # Calculate date range based on period_value or period_type if start_date/end_date not provided
+    today = date.today()
+    
+    if not start_date or not end_date:
+        if period_value:
+            # Parse specific period value (same logic as top-expenses)
+            if "-Q" in period_value:
+                # Quarterly format: "2025-Q1"
+                parts = period_value.split("-Q")
+                if len(parts) == 2:
+                    year = int(parts[0])
+                    quarter = int(parts[1])
+                    start_month = ((quarter - 1) * 3) + 1
+                    end_month = quarter * 3
+                    start_date = date(year, start_month, 1)
+                    if end_month == 12:
+                        end_date = date(year, 12, 31)
+                    else:
+                        end_date = date(year, end_month + 1, 1) - timedelta(days=1)
+                else:
+                    start_date = date(today.year, 1, 1)
+                    end_date = date(today.year, 12, 31)
+            elif "-" in period_value:
+                # Monthly format: "2025-03"
+                parts = period_value.split("-")
+                if len(parts) == 2:
+                    year = int(parts[0])
+                    month = int(parts[1])
+                    start_date = date(year, month, 1)
+                    if month == 12:
+                        end_date = date(year, 12, 31)
+                    else:
+                        end_date = date(year, month + 1, 1) - timedelta(days=1)
+                else:
+                    start_date = date(today.year, today.month, 1)
+                    if today.month == 12:
+                        end_date = date(today.year, 12, 31)
+                    else:
+                        end_date = date(today.year, today.month + 1, 1) - timedelta(days=1)
+            elif period_value.isdigit():
+                # Yearly format: "2025"
+                year = int(period_value)
+                start_date = date(year, 1, 1)
+                end_date = date(year, 12, 31)
+            else:
+                # Fallback to current period based on period_type
+                if period_type == "yearly":
+                    start_date = date(today.year, 1, 1)
+                    end_date = date(today.year, 12, 31)
+                elif period_type == "quarterly":
+                    current_quarter = ((today.month - 1) // 3) + 1
+                    start_month = ((current_quarter - 1) * 3) + 1
+                    end_month = current_quarter * 3
+                    start_date = date(today.year, start_month, 1)
+                    if end_month == 12:
+                        end_date = date(today.year, 12, 31)
+                    else:
+                        end_date = date(today.year, end_month + 1, 1) - timedelta(days=1)
+                else:  # monthly or default
+                    start_date = date(today.year, today.month, 1)
+                    if today.month == 12:
+                        end_date = date(today.year, 12, 31)
+                    else:
+                        end_date = date(today.year, today.month + 1, 1) - timedelta(days=1)
+        elif period_type:
+            # Use period_type to determine current period
+            if period_type == "yearly":
+                start_date = date(today.year, 1, 1)
+                end_date = date(today.year, 12, 31)
+            elif period_type == "quarterly":
+                current_quarter = ((today.month - 1) // 3) + 1
+                start_month = ((current_quarter - 1) * 3) + 1
+                end_month = current_quarter * 3
+                start_date = date(today.year, start_month, 1)
+                if end_month == 12:
+                    end_date = date(today.year, 12, 31)
+                else:
+                    end_date = date(today.year, end_month + 1, 1) - timedelta(days=1)
+            else:  # monthly
+                start_date = date(today.year, today.month, 1)
+                if today.month == 12:
+                    end_date = date(today.year, 12, 31)
+                else:
+                    end_date = date(today.year, today.month + 1, 1) - timedelta(days=1)
+        else:
+            # Default to current month
+            start_date = date(today.year, today.month, 1)
+            if today.month == 12:
+                end_date = date(today.year, 12, 31)
+            else:
+                end_date = date(today.year, today.month + 1, 1) - timedelta(days=1)
+    
+    # Get all expenses in the date range
+    expenses = db.query(Expense).filter(
         Expense.date >= start_date,
         Expense.date <= end_date
-    ).group_by(Category.id, Category.name).all()
+    ).all()
     
+    if not expenses:
+        return {
+            "start_date": start_date.isoformat(),
+            "end_date": end_date.isoformat(),
+            "breakdown": []
+        }
+    
+    # Get unique currencies and fetch exchange rates for IDR conversion
+    currencies = set(exp.currency for exp in expenses)
+    conversion_rates = {}
+    
+    for curr in currencies:
+        currency_upper = curr.upper()
+        if currency_upper == "IDR":
+            conversion_rates[currency_upper] = Decimal("1.0")
+        else:
+            try:
+                rates = await get_exchange_rates(currency_upper)
+                idr_rate = rates.get("IDR")
+                if idr_rate:
+                    conversion_rates[currency_upper] = Decimal(str(idr_rate))
+                else:
+                    # Fallback: try via USD
+                    usd_rate = rates.get("USD")
+                    if usd_rate and usd_rate > 0:
+                        usd_rates = await get_exchange_rates("USD")
+                        idr_from_usd = usd_rates.get("IDR", 1.0)
+                        conversion_rates[currency_upper] = Decimal(str(float(idr_from_usd) / float(usd_rate)))
+                    else:
+                        conversion_rates[currency_upper] = Decimal("1.0")
+            except Exception:
+                conversion_rates[currency_upper] = Decimal("1.0")
+    
+    # Group expenses by category and calculate totals in IDR
+    category_totals = {}
+    category_counts = {}
+    
+    for expense in expenses:
+        category_id = str(expense.category_id) if expense.category_id else None
+        
+        # Get category name
+        if expense.category_id:
+            category = db.query(Category).filter(Category.id == expense.category_id).first()
+            category_name = category.name if category else "Uncategorized"
+        else:
+            category_name = "Uncategorized"
+        
+        # Convert to IDR
+        currency_upper = expense.currency.upper()
+        rate = conversion_rates.get(currency_upper, Decimal("1.0"))
+        amount_in_idr = Decimal(str(expense.amount)) * rate
+        
+        # Accumulate totals
+        if category_id not in category_totals:
+            category_totals[category_id] = Decimal("0")
+            category_counts[category_id] = 0
+        
+        category_totals[category_id] += amount_in_idr
+        category_counts[category_id] += 1
+    
+    # Build breakdown list
     breakdown = []
-    for result in results:
+    for category_id, total in category_totals.items():
+        # Get category name (already stored in our loop, but get fresh to be safe)
+        if category_id and category_id != "None":
+            category = db.query(Category).filter(Category.id == UUID(category_id)).first()
+            category_name = category.name if category else "Uncategorized"
+        else:
+            category_name = "Uncategorized"
+        
         breakdown.append({
-            "category_id": str(result.id),
-            "category_name": result.name,
-            "total": float(result.total or 0),
-            "count": result.count or 0
+            "category_id": category_id or "",
+            "category_name": category_name,
+            "total": float(total),
+            "count": category_counts[category_id]
         })
     
     # Sort by total descending
