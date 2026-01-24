@@ -10,7 +10,7 @@ import RentExpenseFilters from '../components/RentExpenses/RentExpenseFilters';
 import RentExpenseDetailCard from '../components/RentExpenses/RentExpenseDetailCard';
 import type { Category, Expense, RentExpenseCategory, RentExpenseTrend, RentExpense } from '../types';
 
-type PeriodType = 'monthly' | 'quarterly' | 'yearly';
+type PeriodType = 'monthly' | 'quarterly' | 'semester' | 'yearly';
 type TabType = 'daily' | 'rent';
 
 const Reports = () => {
@@ -32,7 +32,7 @@ const Reports = () => {
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
 
   // Rent Expenses State
-  const [rentPeriodType, setRentPeriodType] = useState<'monthly' | 'yearly'>('monthly');
+  const [rentPeriodType, setRentPeriodType] = useState<'monthly' | 'quarterly' | 'semester' | 'yearly'>('yearly');
   const [selectedRentCategories, setSelectedRentCategories] = useState<RentExpenseCategory[]>([]);
   const [selectedRentPeriod, setSelectedRentPeriod] = useState<string | null>(null);
   const [rentUsageView, setRentUsageView] = useState<'cost' | 'electricity_usage' | 'water_usage'>('cost');
@@ -123,6 +123,13 @@ const Reports = () => {
       const parts = selectedPeriodValue.split('-Q');
       if (parts.length === 2) {
         return `in Q${parts[1]} ${parts[0]}`;
+      }
+      return `in ${selectedPeriodValue}`;
+    } else if (period === 'semester') {
+      // Format: "2025-S1" -> "in Semester 1 2025"
+      const parts = selectedPeriodValue.split('-S');
+      if (parts.length === 2) {
+        return `in Semester ${parts[1]} ${parts[0]}`;
       }
       return `in ${selectedPeriodValue}`;
     } else {
@@ -337,6 +344,15 @@ const Reports = () => {
                         }`}
                     >
                       Quarterly
+                    </button>
+                    <button
+                      onClick={() => setPeriod('semester')}
+                      className={`px-4 py-2 md:px-5 md:py-2.5 rounded-xl font-semibold text-xs md:text-sm transition-all duration-200 ${period === 'semester'
+                        ? 'bg-primary-600 text-white shadow-apple hover:bg-primary-700 hover:shadow-apple-lg'
+                        : 'bg-warm-gray-100 text-warm-gray-700 hover:bg-primary-50 hover:text-primary-600 border border-warm-gray-200'
+                        }`}
+                    >
+                      Semester
                     </button>
                     <button
                       onClick={() => setPeriod('yearly')}

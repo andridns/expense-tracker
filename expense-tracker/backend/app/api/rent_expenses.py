@@ -40,7 +40,7 @@ async def get_rent_expenses(
 # Otherwise FastAPI will match /trends and /breakdown to /{period}
 @router.get("/rent-expenses/trends", response_model=RentExpenseTrend)
 async def get_rent_expense_trends(
-    period_type: Optional[str] = Query("monthly", description="Period type: 'monthly' or 'yearly'"),
+    period_type: Optional[str] = Query("yearly", description="Period type: 'monthly', 'quarterly', 'semester', or 'yearly'"),
     categories: Optional[List[str]] = Query(None, description="Filter by categories (electricity, water, service_charge, sinking_fund, fitout)"),
     usage_view: Optional[str] = Query("cost", description="View type: 'cost', 'electricity_usage', or 'water_usage'"),
     current_user: User = Depends(get_current_user),
@@ -51,6 +51,26 @@ async def get_rent_expense_trends(
     # Get all expenses
     all_expenses = db.query(RentExpense).all()
     
+    # Helper function to convert period (YYYY-MM) to period key based on period_type
+    def get_period_key(period_str: str, ptype: str) -> str:
+        """Convert YYYY-MM format to appropriate period key"""
+        if ptype == "yearly":
+            return period_str[:4]  # Extract year
+        elif ptype == "quarterly":
+            # Extract year and month, convert to quarter
+            year = period_str[:4]
+            month = int(period_str[5:7])
+            quarter = ((month - 1) // 3) + 1
+            return f"{year}-Q{quarter}"
+        elif ptype == "semester":
+            # Extract year and month, convert to semester
+            year = period_str[:4]
+            month = int(period_str[5:7])
+            semester = 1 if month <= 6 else 2
+            return f"{year}-S{semester}"
+        else:  # monthly
+            return period_str
+    
     # Handle usage views (electricity kWh or water m³)
     if usage_view == "electricity_usage":
         # Show electricity usage in kWh
@@ -59,10 +79,7 @@ async def get_rent_expense_trends(
             if expense.electric_kwh is None:
                 continue  # Skip if no usage data
             
-            if period_type == "yearly":
-                period_key = expense.period[:4]  # Extract year
-            else:
-                period_key = expense.period
+            period_key = get_period_key(expense.period, period_type)
             
             if period_key not in period_totals:
                 period_totals[period_key] = 0.0
@@ -87,10 +104,7 @@ async def get_rent_expense_trends(
             if expense.water_m3 is None:
                 continue  # Skip if no usage data
             
-            if period_type == "yearly":
-                period_key = expense.period[:4]  # Extract year
-            else:
-                period_key = expense.period
+            period_key = get_period_key(expense.period, period_type)
             
             if period_key not in period_totals:
                 period_totals[period_key] = 0.0
@@ -126,10 +140,7 @@ async def get_rent_expense_trends(
                 if 'fitout' in categories:
                     total += float(expense.fitout_idr or 0)
                 
-                if period_type == "yearly":
-                    period_key = expense.period[:4]  # Extract year
-                else:
-                    period_key = expense.period
+                period_key = get_period_key(expense.period, period_type)
                 
                 if period_key not in period_totals:
                     period_totals[period_key] = 0.0
@@ -149,33 +160,21 @@ async def get_rent_expense_trends(
             }
         else:
             # No categories selected, use total
-            if period_type == "yearly":
-                # Group by year - extract first 4 characters of period
-                year_expr = func.substr(RentExpense.period, 1, 4).label('year')
-                results = db.query(
-                    year_expr,
-                    func.sum(RentExpense.total_idr).label('total')
-                ).group_by(year_expr).order_by(year_expr).all()
-                
-                trends = []
-                for result in results:
-                    trends.append({
-                        "period": str(result.year),
-                        "total": float(result.total or 0)
-                    })
-            else:  # monthly
-                # Group by month (period is already in YYYY-MM format)
-                results = db.query(
-                    RentExpense.period,
-                    func.sum(RentExpense.total_idr).label('total')
-                ).group_by(RentExpense.period).order_by(RentExpense.period).all()
-                
-                trends = []
-                for result in results:
-                    trends.append({
-                        "period": result.period,
-                        "total": float(result.total or 0)
-                    })
+            # Group expenses by period using the helper function
+            period_totals = {}
+            
+            for expense in all_expenses:
+                period_key = get_period_key(expense.period, period_type)
+                if period_key not in period_totals:
+                    period_totals[period_key] = 0.0
+                period_totals[period_key] += float(expense.total_idr or 0)
+            
+            trends = []
+            for period_key in sorted(period_totals.keys()):
+                trends.append({
+                    "period": period_key,
+                    "total": period_totals[period_key]
+                })
             
             return {
                 "period_type": period_type,

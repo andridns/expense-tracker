@@ -222,7 +222,7 @@ export const rentExpensesApi = {
     const response = await api.get<RentExpense>(`/rent-expenses/${period}`);
     return response.data;
   },
-  getTrends: async (periodType: 'monthly' | 'yearly' = 'monthly', categories?: string[], usageView: 'cost' | 'electricity_usage' | 'water_usage' = 'cost'): Promise<RentExpenseTrend> => {
+  getTrends: async (periodType: 'monthly' | 'quarterly' | 'semester' | 'yearly' = 'yearly', categories?: string[], usageView: 'cost' | 'electricity_usage' | 'water_usage' = 'cost'): Promise<RentExpenseTrend> => {
     const params: any = { period_type: periodType, usage_view: usageView };
     if (categories && categories.length > 0) {
       params.categories = categories;

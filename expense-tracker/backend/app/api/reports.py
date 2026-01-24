@@ -92,7 +92,7 @@ async def get_summary(
 
 @router.get("/reports/trends")
 async def get_trends(
-    period: Optional[str] = Query("monthly"),  # monthly, quarterly, yearly
+    period: Optional[str] = Query("monthly"),  # monthly, quarterly, semester, yearly
     category_id: Optional[str] = Query(None, description="Single category ID (deprecated, use category_ids)"),
     category_ids: Optional[List[str]] = Query(None, description="Multiple category IDs for OR filtering"),
     current_user: User = Depends(get_current_user),
@@ -177,6 +177,42 @@ async def get_trends(
                 "period": key,
                 "total": quarterly_data[key]
             })
+    elif period == "semester":
+        # Group by semester (every 6 months)
+        # Semester 1: Jan-Jun (months 1-6), Semester 2: Jul-Dec (months 7-12)
+        results = db.query(
+            extract('year', Expense.date).label('year'),
+            extract('month', Expense.date).label('month'),
+            func.sum(Expense.amount).label('total')
+        )
+        if category_ids:
+            try:
+                uuid_list = [UUID(cid) for cid in category_ids]
+                results = results.filter(Expense.category_id.in_(uuid_list))
+            except (ValueError, TypeError):
+                pass
+        elif category_id:
+            try:
+                results = results.filter(Expense.category_id == UUID(category_id))
+            except ValueError:
+                pass
+        results = results.group_by('year', 'month').order_by('year', 'month').all()
+        
+        # Group months into semesters
+        semester_data = {}
+        for result in results:
+            semester = 1 if int(result.month) <= 6 else 2
+            key = f"{int(result.year)}-S{semester}"
+            if key not in semester_data:
+                semester_data[key] = 0.0
+            semester_data[key] += float(result.total or 0)
+        
+        trends = []
+        for key in sorted(semester_data.keys()):
+            trends.append({
+                "period": key,
+                "total": semester_data[key]
+            })
     else:  # monthly
         # Group by month
         results = db.query(
@@ -214,8 +250,8 @@ async def get_trends(
 async def get_category_breakdown(
     start_date: Optional[date] = Query(None),
     end_date: Optional[date] = Query(None),
-    period_type: Optional[str] = Query(None, description="Period type: monthly, quarterly, yearly"),
-    period_value: Optional[str] = Query(None, description="Specific period value (e.g., '2025', '2025-03', '2025-Q1')"),
+    period_type: Optional[str] = Query(None, description="Period type: monthly, quarterly, semester, yearly"),
+    period_value: Optional[str] = Query(None, description="Specific period value (e.g., '2025', '2025-03', '2025-Q1', '2025-S1')"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -240,6 +276,27 @@ async def get_category_breakdown(
                         end_date = date(year, 12, 31)
                     else:
                         end_date = date(year, end_month + 1, 1) - timedelta(days=1)
+                else:
+                    start_date = date(today.year, 1, 1)
+                    end_date = date(today.year, 12, 31)
+            elif "-S" in period_value:
+                # Semester format: "2025-S1" or "2025-S2"
+                parts = period_value.split("-S")
+                if len(parts) == 2:
+                    year = int(parts[0])
+                    semester = int(parts[1])
+                    if semester == 1:
+                        # Semester 1: Jan-Jun
+                        start_date = date(year, 1, 1)
+                        end_date = date(year, 6, 30)
+                    elif semester == 2:
+                        # Semester 2: Jul-Dec
+                        start_date = date(year, 7, 1)
+                        end_date = date(year, 12, 31)
+                    else:
+                        # Invalid semester, fallback to current year
+                        start_date = date(today.year, 1, 1)
+                        end_date = date(today.year, 12, 31)
                 else:
                     start_date = date(today.year, 1, 1)
                     end_date = date(today.year, 12, 31)
@@ -270,6 +327,14 @@ async def get_category_breakdown(
                 if period_type == "yearly":
                     start_date = date(today.year, 1, 1)
                     end_date = date(today.year, 12, 31)
+                elif period_type == "semester":
+                    current_semester = 1 if today.month <= 6 else 2
+                    if current_semester == 1:
+                        start_date = date(today.year, 1, 1)
+                        end_date = date(today.year, 6, 30)
+                    else:
+                        start_date = date(today.year, 7, 1)
+                        end_date = date(today.year, 12, 31)
                 elif period_type == "quarterly":
                     current_quarter = ((today.month - 1) // 3) + 1
                     start_month = ((current_quarter - 1) * 3) + 1
@@ -290,6 +355,14 @@ async def get_category_breakdown(
             if period_type == "yearly":
                 start_date = date(today.year, 1, 1)
                 end_date = date(today.year, 12, 31)
+            elif period_type == "semester":
+                current_semester = 1 if today.month <= 6 else 2
+                if current_semester == 1:
+                    start_date = date(today.year, 1, 1)
+                    end_date = date(today.year, 6, 30)
+                else:
+                    start_date = date(today.year, 7, 1)
+                    end_date = date(today.year, 12, 31)
             elif period_type == "quarterly":
                 current_quarter = ((today.month - 1) // 3) + 1
                 start_month = ((current_quarter - 1) * 3) + 1
@@ -413,8 +486,8 @@ async def get_category_breakdown(
 
 @router.get("/reports/top-expenses")
 async def get_top_expenses(
-    period_type: Optional[str] = Query("monthly", description="Period type: monthly, quarterly, yearly"),
-    period_value: Optional[str] = Query(None, description="Specific period value (e.g., '2025', '2025-03', '2025-Q1')"),
+    period_type: Optional[str] = Query("monthly", description="Period type: monthly, quarterly, semester, yearly"),
+    period_value: Optional[str] = Query(None, description="Specific period value (e.g., '2025', '2025-03', '2025-Q1', '2025-S1')"),
     category_id: Optional[str] = Query(None, description="Single category ID (deprecated, use category_ids)"),
     category_ids: Optional[List[str]] = Query(None, description="Multiple category IDs for OR filtering"),
     limit: int = Query(50, ge=1, le=100, description="Number of top expenses to return"),
@@ -432,6 +505,7 @@ async def get_top_expenses(
         # Yearly: "2025"
         # Monthly: "2025-03"
         # Quarterly: "2025-Q1"
+        # Semester: "2025-S1"
         if "-Q" in period_value:
             # Quarterly format: "2025-Q1"
             parts = period_value.split("-Q")
@@ -445,6 +519,28 @@ async def get_top_expenses(
                     end_date = date(year, 12, 31)
                 else:
                     end_date = date(year, end_month + 1, 1) - timedelta(days=1)
+            else:
+                # Fallback to current year
+                start_date = date(today.year, 1, 1)
+                end_date = date(today.year, 12, 31)
+        elif "-S" in period_value:
+            # Semester format: "2025-S1" or "2025-S2"
+            parts = period_value.split("-S")
+            if len(parts) == 2:
+                year = int(parts[0])
+                semester = int(parts[1])
+                if semester == 1:
+                    # Semester 1: Jan-Jun
+                    start_date = date(year, 1, 1)
+                    end_date = date(year, 6, 30)
+                elif semester == 2:
+                    # Semester 2: Jul-Dec
+                    start_date = date(year, 7, 1)
+                    end_date = date(year, 12, 31)
+                else:
+                    # Invalid semester, fallback to current year
+                    start_date = date(today.year, 1, 1)
+                    end_date = date(today.year, 12, 31)
             else:
                 # Fallback to current year
                 start_date = date(today.year, 1, 1)
@@ -478,6 +574,14 @@ async def get_top_expenses(
             if period_type == "yearly":
                 start_date = date(today.year, 1, 1)
                 end_date = date(today.year, 12, 31)
+            elif period_type == "semester":
+                current_semester = 1 if today.month <= 6 else 2
+                if current_semester == 1:
+                    start_date = date(today.year, 1, 1)
+                    end_date = date(today.year, 6, 30)
+                else:
+                    start_date = date(today.year, 7, 1)
+                    end_date = date(today.year, 12, 31)
             elif period_type == "quarterly":
                 current_quarter = ((today.month - 1) // 3) + 1
                 start_month = ((current_quarter - 1) * 3) + 1
@@ -498,6 +602,15 @@ async def get_top_expenses(
         if period_type == "yearly":
             start_date = date(today.year, 1, 1)
             end_date = date(today.year, 12, 31)
+        elif period_type == "semester":
+            # Current semester: S1 (Jan-Jun), S2 (Jul-Dec)
+            current_semester = 1 if today.month <= 6 else 2
+            if current_semester == 1:
+                start_date = date(today.year, 1, 1)
+                end_date = date(today.year, 6, 30)
+            else:
+                start_date = date(today.year, 7, 1)
+                end_date = date(today.year, 12, 31)
         elif period_type == "quarterly":
             # Current quarter: Q1 (Jan-Mar), Q2 (Apr-Jun), Q3 (Jul-Sep), Q4 (Oct-Dec)
             current_quarter = ((today.month - 1) // 3) + 1
