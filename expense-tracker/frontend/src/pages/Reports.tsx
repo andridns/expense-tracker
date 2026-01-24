@@ -55,7 +55,7 @@ const Reports = () => {
     enabled: activeTab === 'daily' && selectedPeriodValue !== null,
   });
 
-  const { data: categoryBreakdown, isLoading: isLoadingCategoryBreakdown } = useQuery({
+  const { data: categoryBreakdown } = useQuery({
     queryKey: ['categoryBreakdown', period, selectedPeriodValue, selectedCategoryIds],
     queryFn: () => reportsApi.getCategoryBreakdown(undefined, undefined, period, selectedPeriodValue || undefined),
     enabled: activeTab === 'daily',
