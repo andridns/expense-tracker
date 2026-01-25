@@ -51,7 +51,7 @@ const Reports = () => {
 
   const { data: topExpenses, isLoading: isLoadingTopExpenses } = useQuery({
     queryKey: ['topExpenses', period, selectedPeriodValue, selectedCategoryIds],
-    queryFn: () => reportsApi.getTopExpenses(period, selectedPeriodValue || undefined, undefined, selectedCategoryIds.length > 0 ? selectedCategoryIds : undefined, 0, 50),
+    queryFn: () => reportsApi.getTopExpenses(period, selectedPeriodValue || undefined, undefined, selectedCategoryIds.length > 0 ? selectedCategoryIds : undefined, 0, 500),
     enabled: activeTab === 'daily' && selectedPeriodValue !== null,
   });
 
@@ -157,7 +157,7 @@ const Reports = () => {
         undefined,
         selectedCategoryIds.length > 0 ? selectedCategoryIds : undefined,
         allExpenses.length,
-        50
+        500
       );
       setAllExpenses(prev => [...prev, ...nextBatch.expenses]);
       setHasMore(nextBatch.has_more);
@@ -568,7 +568,7 @@ const Reports = () => {
                           </>
                         ) : (
                           <>
-                            Load More (Next 50)
+                            Load More (Next 500)
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                             </svg>

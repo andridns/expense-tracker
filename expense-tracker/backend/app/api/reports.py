@@ -490,7 +490,7 @@ async def get_top_expenses(
     period_value: Optional[str] = Query(None, description="Specific period value (e.g., '2025', '2025-03', '2025-Q1', '2025-S1')"),
     category_id: Optional[str] = Query(None, description="Single category ID (deprecated, use category_ids)"),
     category_ids: Optional[List[str]] = Query(None, description="Multiple category IDs for OR filtering"),
-    limit: int = Query(50, ge=1, le=100, description="Number of top expenses to return"),
+    limit: int = Query(500, ge=1, le=500, description="Number of top expenses to return"),
     skip: int = Query(0, ge=0, description="Number of expenses to skip for pagination"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
