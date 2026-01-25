@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { reportsApi, categoriesApi, rentExpensesApi } from '../services/api';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { reportsApi, categoriesApi, rentExpensesApi, expensesApi } from '../services/api';
+import { toast } from 'react-hot-toast';
 import TrendChart from '../components/Dashboard/TrendChart';
 import CategoryBarChart from '../components/Reports/CategoryBarChart';
 import { formatDate } from '../utils/format';
@@ -8,6 +9,7 @@ import CurrencyDisplay from '../components/CurrencyDisplay';
 import RentExpenseTrendChart from '../components/RentExpenses/RentExpenseTrendChart';
 import RentExpenseFilters from '../components/RentExpenses/RentExpenseFilters';
 import RentExpenseDetailCard from '../components/RentExpenses/RentExpenseDetailCard';
+import ExpenseForm from '../components/Expenses/ExpenseForm';
 import type { Category, Expense, RentExpenseCategory, RentExpenseTrend, RentExpense } from '../types';
 
 type PeriodType = 'monthly' | 'quarterly' | 'semester' | 'yearly';
@@ -30,6 +32,9 @@ const Reports = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [isFiltersExpanded, setIsFiltersExpanded] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   // Rent Expenses State
   const [rentPeriodType, setRentPeriodType] = useState<'monthly' | 'quarterly' | 'semester' | 'yearly'>('yearly');
@@ -168,6 +173,39 @@ const Reports = () => {
     }
   };
 
+  const deleteMutation = useMutation({
+    mutationFn: expensesApi.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      queryClient.invalidateQueries({ queryKey: ['topExpenses'] });
+      toast.success('Expense deleted');
+    },
+    onError: () => {
+      toast.error('Failed to delete expense');
+    },
+  });
+
+  const handleDelete = (id: string) => {
+    if (window.confirm('Are you sure you want to delete this expense?')) {
+      deleteMutation.mutate(id, {
+        onSuccess: () => {
+          // Remove the deleted expense from the local state
+          setAllExpenses(prev => prev.filter(exp => exp.id !== id));
+        },
+      });
+    }
+  };
+
+  const handleEdit = (id: string) => {
+    setEditingExpense(id);
+    setShowForm(true);
+  };
+
+  const handleFormClose = () => {
+    setShowForm(false);
+    setEditingExpense(null);
+  };
+
   // Create category lookup map
   const categoryMap = useMemo(() => {
     if (!categories) return new Map<string, Category>();
@@ -281,6 +319,18 @@ const Reports = () => {
       {/* Daily Expenses Tab */}
       {activeTab === 'daily' && (
         <>
+          {showForm && (
+            <ExpenseForm
+              expenseId={editingExpense}
+              onClose={handleFormClose}
+              onSuccess={() => {
+                handleFormClose();
+                queryClient.invalidateQueries({ queryKey: ['expenses'] });
+                queryClient.invalidateQueries({ queryKey: ['topExpenses'] });
+              }}
+            />
+          )}
+
           {/* Collapsible Filters */}
           <div className="glass rounded-2xl shadow-modern border border-modern-border/50 overflow-hidden">
             {/* Collapsible Header */}
@@ -459,6 +509,9 @@ const Reports = () => {
                           <th className="px-4 py-3 text-right text-xs font-bold text-modern-text-light uppercase tracking-wider">
                             Amount (IDR)
                           </th>
+                          <th className="px-4 py-3 text-left text-xs font-bold text-modern-text-light uppercase tracking-wider">
+                            Actions
+                          </th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-modern-border/30">
@@ -498,6 +551,22 @@ const Reports = () => {
                                   currency="IDR"
                                   size="sm"
                                 />
+                              </td>
+                              <td className="px-4 py-3 text-sm">
+                                <div className="flex gap-3">
+                                  <button
+                                    onClick={() => handleEdit(expense.id)}
+                                    className="text-primary-600 hover:text-primary-700 font-semibold transition-colors hover:underline"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    onClick={() => handleDelete(expense.id)}
+                                    className="text-red-500 hover:text-red-600 font-semibold transition-colors hover:underline"
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                           );
@@ -543,6 +612,25 @@ const Reports = () => {
                                 currency="IDR"
                                 size="sm"
                               />
+                            </div>
+                          </div>
+                          {/* Actions row */}
+                          <div className="flex justify-end items-center pt-2 border-t border-modern-border/20 mt-2">
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleEdit(expense.id)}
+                                className="text-primary-600 hover:text-primary-700 transition-colors text-base"
+                                title="Edit"
+                              >
+                                ✏️
+                              </button>
+                              <button
+                                onClick={() => handleDelete(expense.id)}
+                                className="text-red-500 hover:text-red-600 transition-colors text-base"
+                                title="Delete"
+                              >
+                                🗑️
+                              </button>
                             </div>
                           </div>
                         </div>
