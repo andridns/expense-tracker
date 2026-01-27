@@ -7,7 +7,7 @@ import ExpenseForm from '../components/Expenses/ExpenseForm';
 import ExpenseFilters from '../components/Expenses/ExpenseFilters';
 import type { ExpenseFilters as ExpenseFiltersType } from '../types';
 
-const EXPENSES_PER_PAGE = 500;
+const EXPENSES_PER_PAGE = 100;
 
 const Expenses = () => {
   const [showFutureExpenses, setShowFutureExpenses] = useState(false);
