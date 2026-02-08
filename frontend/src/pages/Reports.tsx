@@ -9,8 +9,10 @@ import CurrencyDisplay from '../components/CurrencyDisplay';
 import RentExpenseTrendChart from '../components/RentExpenses/RentExpenseTrendChart';
 import RentExpenseFilters from '../components/RentExpenses/RentExpenseFilters';
 import RentExpenseDetailCard from '../components/RentExpenses/RentExpenseDetailCard';
+import RentExpenseFormDrawer from '../components/RentExpenses/RentExpenseFormDrawer';
 import ExpenseForm from '../components/Expenses/ExpenseForm';
 import type { Category, Expense, RentExpenseCategory, RentExpenseTrend, RentExpense } from '../types';
+import { useAuth } from '../contexts/AuthContext';
 
 type PeriodType = 'monthly' | 'quarterly' | 'semester' | 'yearly';
 type TabType = 'daily' | 'rent';
@@ -37,12 +39,17 @@ const Reports = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingExpense, setEditingExpense] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const isAdmin = user?.username === 'admin';
 
   // Rent Expenses State
   const [rentPeriodType, setRentPeriodType] = useState<'monthly' | 'quarterly' | 'semester' | 'yearly'>('yearly');
   const [selectedRentCategories, setSelectedRentCategories] = useState<RentExpenseCategory[]>([]);
   const [selectedRentPeriod, setSelectedRentPeriod] = useState<string | null>(null);
   const [rentUsageView, setRentUsageView] = useState<'cost' | 'electricity_usage' | 'water_usage'>('cost');
+  const [rentFormOpen, setRentFormOpen] = useState(false);
+  const [rentFormMode, setRentFormMode] = useState<'create' | 'edit'>('create');
+  const [rentFormExpense, setRentFormExpense] = useState<RentExpense | null>(null);
 
   const { data: categories } = useQuery({
     queryKey: ['categories'],
@@ -299,6 +306,25 @@ const Reports = () => {
     // Reset selected period when switching to usage view since usage data points may not be clickable
     if (view !== 'cost') {
       setSelectedRentPeriod(null);
+    }
+  };
+
+  const openCreateRentForm = () => {
+    setRentFormMode('create');
+    setRentFormExpense(null);
+    setRentFormOpen(true);
+  };
+
+  const openEditRentForm = () => {
+    if (!selectedPeriodExpense) return;
+    setRentFormMode('edit');
+    setRentFormExpense(selectedPeriodExpense);
+    setRentFormOpen(true);
+  };
+
+  const handleRentSaved = (saved: RentExpense) => {
+    if (rentPeriodType === 'monthly' && rentUsageView === 'cost') {
+      setSelectedRentPeriod(saved.period);
     }
   };
 
@@ -706,6 +732,21 @@ const Reports = () => {
       {/* Rent Expenses Tab */}
       {activeTab === 'rent' && (
         <>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 className="text-lg md:text-xl font-semibold text-warm-gray-800">Rent Ledger</h3>
+              <p className="text-xs text-warm-gray-500">Monthly rent + utilities overview</p>
+            </div>
+            {isAdmin && (
+              <button
+                onClick={openCreateRentForm}
+                className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-lg shadow-modern transition-colors"
+              >
+                New Rent
+              </button>
+            )}
+          </div>
+
           {/* Filters */}
           <RentExpenseFilters
             periodType={rentPeriodType}
@@ -757,7 +798,11 @@ const Reports = () => {
                 </div>
               </div>
             ) : selectedPeriodExpense ? (
-              <RentExpenseDetailCard expense={selectedPeriodExpense} />
+              <RentExpenseDetailCard
+                expense={selectedPeriodExpense}
+                canEdit={isAdmin}
+                onEdit={openEditRentForm}
+              />
             ) : (
               <div className="glass p-4 md:p-5 rounded-2xl shadow-modern border border-modern-border/50">
                 <div className="text-center py-8 text-modern-text-light text-sm">
@@ -782,6 +827,14 @@ const Reports = () => {
           ) : null}
         </>
       )}
+
+      <RentExpenseFormDrawer
+        open={rentFormOpen}
+        mode={rentFormMode}
+        expense={rentFormExpense}
+        onClose={() => setRentFormOpen(false)}
+        onSaved={handleRentSaved}
+      />
     </div>
   );
 };

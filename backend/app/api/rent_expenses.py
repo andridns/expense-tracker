@@ -2,14 +2,16 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func, extract
 from typing import Optional, List
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 from uuid import UUID
+import re
 
 from app.database import get_db
 from app.models.rent_expense import RentExpense
 from app.models.user import User
 from app.core.auth import get_current_user
 from app.schemas.rent_expense import (
+    RentExpenseCreate,
     RentExpenseResponse,
     RentExpenseTrend,
     RentExpenseTrendItem,
@@ -18,6 +20,28 @@ from app.schemas.rent_expense import (
 )
 
 router = APIRouter()
+
+PERIOD_RE = re.compile(r"^\d{4}-\d{2}$")
+
+
+def require_admin_user(user: User):
+    if user.username != "admin":
+        raise HTTPException(status_code=403, detail="Admin privileges required")
+
+
+def validate_period(period: str):
+    if not PERIOD_RE.match(period):
+        raise HTTPException(status_code=400, detail="Invalid period format. Use YYYY-MM.")
+
+
+def to_decimal(value: Optional[float]) -> Decimal:
+    if value is None:
+        return Decimal("0")
+    return Decimal(str(value))
+
+
+def round_idr(value: Optional[float]) -> Decimal:
+    return to_decimal(value).quantize(Decimal("1"), rounding=ROUND_HALF_UP)
 
 
 @router.get("/rent-expenses", response_model=List[RentExpenseResponse])
@@ -244,6 +268,111 @@ async def get_rent_expense_breakdown(
     return {
         "period": period,
         "breakdown": breakdown
+    }
+
+
+@router.put("/rent-expenses/{period}", response_model=RentExpenseResponse)
+async def upsert_rent_expense(
+    period: str,
+    payload: RentExpenseCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Create or update rent expense for a specific period (admin only)"""
+    require_admin_user(current_user)
+    validate_period(period)
+
+    if payload.period != period:
+        raise HTTPException(status_code=400, detail="Period in path and body must match")
+
+    rent_expense = db.query(RentExpense).filter(RentExpense.period == period).first()
+    if not rent_expense:
+        rent_expense = RentExpense(period=period)
+        db.add(rent_expense)
+
+    # Round money fields to whole IDR
+    sinking_fund_idr = round_idr(payload.sinking_fund_idr)
+    service_charge_idr = round_idr(payload.service_charge_idr)
+    ppn_service_charge_idr = round_idr(payload.ppn_service_charge_idr)
+    electric_usage_idr = round_idr(payload.electric_usage_idr)
+    electric_ppn_idr = round_idr(payload.electric_ppn_idr)
+    electric_area_bersama_idr = round_idr(payload.electric_area_bersama_idr)
+    electric_pju_idr = round_idr(payload.electric_pju_idr)
+    water_usage_potable_idr = round_idr(payload.water_usage_potable_idr)
+    water_non_potable_idr = round_idr(payload.water_non_potable_idr)
+    water_air_limbah_idr = round_idr(payload.water_air_limbah_idr)
+    water_ppn_air_limbah_idr = round_idr(payload.water_ppn_air_limbah_idr)
+    water_pemeliharaan_idr = round_idr(payload.water_pemeliharaan_idr)
+    water_area_bersama_idr = round_idr(payload.water_area_bersama_idr)
+    fitout_idr = round_idr(payload.fitout_idr)
+
+    # Recompute totals
+    service_charge_total = service_charge_idr + ppn_service_charge_idr
+    electric_total = electric_usage_idr + electric_ppn_idr + electric_area_bersama_idr + electric_pju_idr
+    water_total = (
+        water_usage_potable_idr
+        + water_non_potable_idr
+        + water_air_limbah_idr
+        + water_ppn_air_limbah_idr
+        + water_pemeliharaan_idr
+        + water_area_bersama_idr
+    )
+    total_idr = sinking_fund_idr + service_charge_total + electric_total + water_total + fitout_idr
+
+    # Persist
+    rent_expense.period = period
+    rent_expense.currency = "IDR"
+    rent_expense.sinking_fund_idr = sinking_fund_idr
+    rent_expense.service_charge_idr = service_charge_idr
+    rent_expense.ppn_service_charge_idr = ppn_service_charge_idr
+    rent_expense.electric_m1_total_idr = electric_total
+    rent_expense.water_m1_total_idr = water_total
+    rent_expense.fitout_idr = fitout_idr
+    rent_expense.total_idr = total_idr
+
+    rent_expense.electric_usage_idr = electric_usage_idr
+    rent_expense.electric_ppn_idr = electric_ppn_idr
+    rent_expense.electric_area_bersama_idr = electric_area_bersama_idr
+    rent_expense.electric_pju_idr = electric_pju_idr
+    rent_expense.electric_kwh = payload.electric_kwh
+    rent_expense.electric_tarif_per_kwh = payload.electric_tarif_per_kwh
+
+    rent_expense.water_usage_potable_idr = water_usage_potable_idr
+    rent_expense.water_non_potable_idr = water_non_potable_idr
+    rent_expense.water_air_limbah_idr = water_air_limbah_idr
+    rent_expense.water_ppn_air_limbah_idr = water_ppn_air_limbah_idr
+    rent_expense.water_pemeliharaan_idr = water_pemeliharaan_idr
+    rent_expense.water_area_bersama_idr = water_area_bersama_idr
+    rent_expense.water_m3 = payload.water_m3
+    rent_expense.water_tarif_per_m3 = payload.water_tarif_per_m3
+
+    rent_expense.source = "manual"
+
+    db.commit()
+    db.refresh(rent_expense)
+    return rent_expense
+
+
+@router.delete("/rent-expenses/{period}")
+async def delete_rent_expense(
+    period: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Delete rent expense for a specific period (admin only)"""
+    require_admin_user(current_user)
+    validate_period(period)
+
+    rent_expense = db.query(RentExpense).filter(RentExpense.period == period).first()
+    if not rent_expense:
+        raise HTTPException(status_code=404, detail=f"Rent expense not found for period {period}")
+
+    db.delete(rent_expense)
+    db.commit()
+
+    return {
+        "message": "Deleted",
+        "period": period
     }
 
 

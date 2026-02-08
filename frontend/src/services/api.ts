@@ -13,6 +13,7 @@ import type {
   CategoryBreakdown,
   TopExpensesResponse,
   RentExpense,
+  RentExpenseCreate,
   RentExpenseTrend,
   RentExpenseBreakdown,
 } from '../types';
@@ -220,6 +221,14 @@ export const rentExpensesApi = {
   },
   getByPeriod: async (period: string): Promise<RentExpense> => {
     const response = await api.get<RentExpense>(`/rent-expenses/${period}`);
+    return response.data;
+  },
+  upsert: async (period: string, data: RentExpenseCreate): Promise<RentExpense> => {
+    const response = await api.put<RentExpense>(`/rent-expenses/${period}`, data);
+    return response.data;
+  },
+  remove: async (period: string): Promise<{ message: string; period: string }> => {
+    const response = await api.delete<{ message: string; period: string }>(`/rent-expenses/${period}`);
     return response.data;
   },
   getTrends: async (periodType: 'monthly' | 'quarterly' | 'semester' | 'yearly' = 'yearly', categories?: string[], usageView: 'cost' | 'electricity_usage' | 'water_usage' = 'cost'): Promise<RentExpenseTrend> => {

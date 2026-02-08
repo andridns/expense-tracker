@@ -3,17 +3,37 @@ import CurrencyDisplay from '../CurrencyDisplay';
 
 interface RentExpenseDetailCardProps {
   expense: RentExpense;
+  onEdit?: () => void;
+  canEdit?: boolean;
 }
 
-const RentExpenseDetailCard = ({ expense }: RentExpenseDetailCardProps) => {
+const RentExpenseDetailCard = ({ expense, onEdit, canEdit = false }: RentExpenseDetailCardProps) => {
   const serviceChargeTotal = expense.service_charge_idr + expense.ppn_service_charge_idr;
+  const sourceLabel = expense.source === 'manual' ? 'Manual' : 'Imported';
   
   return (
     <div className="bg-white rounded-2xl shadow-apple border border-modern-border/30 overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white p-4 md:p-6">
-        <h3 className="text-xl md:text-2xl font-bold mb-1">Rent Expense Details</h3>
-        <p className="text-primary-100 text-base md:text-lg">{expense.period}</p>
+      <div className="bg-gradient-to-r from-primary-600 to-primary-700 text-white p-4 md:p-6 relative">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h3 className="text-xl md:text-2xl font-bold mb-1">Rent Expense Details</h3>
+            <p className="text-primary-100 text-base md:text-lg">{expense.period}</p>
+            <div className="mt-2">
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-white/15 text-white/90 border border-white/20">
+                {sourceLabel}
+              </span>
+            </div>
+          </div>
+          {canEdit && onEdit && (
+            <button
+              onClick={onEdit}
+              className="px-3 py-1.5 rounded-lg bg-white/15 hover:bg-white/25 border border-white/20 text-white text-sm font-semibold transition-colors"
+            >
+              Edit
+            </button>
+          )}
+        </div>
         <div className="mt-4 pt-4 border-t border-primary-500/30">
           <div className="flex items-baseline gap-2">
             <span className="text-primary-200 text-sm">Total:</span>
