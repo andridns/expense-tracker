@@ -40,7 +40,7 @@ const Reports = () => {
   const [editingExpense, setEditingExpense] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const isAdmin = user?.username === 'admin';
+  const isAdmin = user?.is_admin || user?.username === 'admin';
 
   // Rent Expenses State
   const [rentPeriodType, setRentPeriodType] = useState<'monthly' | 'quarterly' | 'semester' | 'yearly'>('yearly');

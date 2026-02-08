@@ -9,7 +9,7 @@ import re
 from app.database import get_db
 from app.models.rent_expense import RentExpense
 from app.models.user import User
-from app.core.auth import get_current_user
+from app.core.auth import get_current_user, is_admin_user
 from app.schemas.rent_expense import (
     RentExpenseCreate,
     RentExpenseResponse,
@@ -25,7 +25,7 @@ PERIOD_RE = re.compile(r"^\d{4}-\d{2}$")
 
 
 def require_admin_user(user: User):
-    if user.username != "admin":
+    if not is_admin_user(user):
         raise HTTPException(status_code=403, detail="Admin privileges required")
 
 

@@ -231,3 +231,11 @@ def get_allowed_emails() -> List[str]:
     # Split by comma and strip whitespace
     emails = [email.strip() for email in allowed_emails_str.split(",") if email.strip()]
     return emails
+
+
+def is_admin_user(user: User) -> bool:
+    """Determine if user has admin privileges."""
+    if user.username == "admin":
+        return True
+    allowed_emails = get_allowed_emails()
+    return bool(user.email and user.email in allowed_emails)

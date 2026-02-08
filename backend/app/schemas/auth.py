@@ -17,6 +17,7 @@ class UserResponse(BaseModel):
     username: Optional[str] = None
     email: Optional[str] = None
     is_active: bool
+    is_admin: bool = False
     token: Optional[str] = None  # Bearer token for cross-site cookie fallback
 
     class Config:

@@ -14,7 +14,8 @@ from app.core.auth import (
     SESSION_COOKIE_NAME,
     SESSION_EXPIRE_HOURS,
     verify_google_token,
-    get_allowed_emails
+    get_allowed_emails,
+    is_admin_user
 )
 from datetime import timedelta
 import os
@@ -122,6 +123,7 @@ async def login(
             username=user.username,
             email=user.email,
             is_active=user.is_active,
+            is_admin=is_admin_user(user),
             token=session_token  # Include token for frontend to store and use as Bearer token
         )
     except HTTPException:
@@ -253,6 +255,7 @@ async def google_login(
             username=user.username,
             email=user.email,
             is_active=user.is_active,
+            is_admin=is_admin_user(user),
             token=session_token  # Include token for frontend to store and use as Bearer token
         )
         
@@ -276,7 +279,14 @@ async def get_current_user_info(
     current_user: User = Depends(get_current_user)
 ):
     """Get current authenticated user information"""
-    return current_user
+    return UserResponse(
+        id=current_user.id,
+        username=current_user.username,
+        email=current_user.email,
+        is_active=current_user.is_active,
+        is_admin=is_admin_user(current_user),
+        token=None
+    )
 
 
 @router.get("/auth/debug")
