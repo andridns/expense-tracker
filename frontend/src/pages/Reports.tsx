@@ -78,11 +78,15 @@ const Reports = () => {
     enabled: activeTab === 'rent',
   });
 
+  const isRentPeriodMonthly = rentPeriodType === 'monthly';
+  const isValidMonthlyRentPeriod = !!selectedRentPeriod && /^\d{4}-\d{2}$/.test(selectedRentPeriod);
+  const isRentDetailEnabled = activeTab === 'rent' && rentUsageView === 'cost' && isRentPeriodMonthly && isValidMonthlyRentPeriod;
+
   // Fetch specific period's expense when selected
   const { data: selectedPeriodExpense, error: rentExpensesError, isLoading: isLoadingRentExpenses } = useQuery<RentExpense>({
     queryKey: ['rentExpense', selectedRentPeriod],
     queryFn: () => rentExpensesApi.getByPeriod(selectedRentPeriod!),
-    enabled: activeTab === 'rent' && selectedRentPeriod !== null && rentUsageView === 'cost',
+    enabled: isRentDetailEnabled,
   });
 
   // Reset accumulated expenses when filters change
@@ -110,10 +114,19 @@ const Reports = () => {
     }
   }, [period, selectedCategoryIds, activeTab]);
 
+  useEffect(() => {
+    setSelectedRentPeriod(null);
+  }, [rentPeriodType]);
+
   const handleDataPointClick = (periodValue: string) => {
     if (activeTab === 'daily') {
       setSelectedPeriodValue(periodValue);
     } else {
+      if (rentPeriodType !== 'monthly') {
+        setSelectedRentPeriod(null);
+        toast('Details are available only in Monthly view.');
+        return;
+      }
       setSelectedRentPeriod(periodValue);
     }
   };
@@ -725,7 +738,7 @@ const Reports = () => {
           )}
 
           {/* Rent Expense Detail Card - Only show in cost view */}
-          {rentUsageView === 'cost' && selectedRentPeriod ? (
+          {rentUsageView === 'cost' && isRentDetailEnabled && selectedRentPeriod ? (
             isLoadingRentExpenses ? (
               <div className="glass p-4 md:p-5 rounded-2xl shadow-modern border border-modern-border/50">
                 <div className="text-center py-8">
@@ -744,6 +757,12 @@ const Reports = () => {
                 </div>
               </div>
             )
+          ) : rentUsageView === 'cost' && rentPeriodType !== 'monthly' ? (
+            <div className="glass p-4 md:p-5 rounded-2xl shadow-modern border border-modern-border/50">
+              <div className="text-center py-8 text-modern-text-light text-sm">
+                Details are available only in Monthly view. Switch the period to Monthly to view breakdowns.
+              </div>
+            </div>
           ) : rentUsageView === 'cost' ? (
             <div className="glass p-4 md:p-5 rounded-2xl shadow-modern border border-modern-border/50">
               <div className="text-center py-8 text-modern-text-light text-sm">

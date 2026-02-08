@@ -178,7 +178,7 @@ export interface RentExpenseTrendItem {
 }
 
 export interface RentExpenseTrend {
-  period_type: 'monthly' | 'yearly';
+  period_type: 'monthly' | 'quarterly' | 'semester' | 'yearly';
   trends: RentExpenseTrendItem[];
 }
 
