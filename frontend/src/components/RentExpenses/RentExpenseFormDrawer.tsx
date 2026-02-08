@@ -306,7 +306,7 @@ const RentExpenseFormDrawer = ({ open, mode, expense, onClose, onSaved }: RentEx
 
     for (const [field, label] of nullableFields) {
       const value = formData[field];
-      if (value !== null && value < 0) {
+      if (typeof value === 'number' && value < 0) {
         nextErrors[field] = `${label} must be zero or greater`;
       }
     }
@@ -720,9 +720,9 @@ const RentExpenseFormDrawer = ({ open, mode, expense, onClose, onSaved }: RentEx
               type="button"
               onClick={handleDelete}
               className="px-4 py-2 text-sm font-semibold text-red-700 border border-red-200 rounded-lg hover:bg-red-50"
-              disabled={deleteMutation.isLoading}
+              disabled={deleteMutation.isPending}
             >
-              {deleteMutation.isLoading ? 'Deleting...' : 'Delete'}
+              {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
             </button>
           ) : (
             <div className="text-xs text-warm-gray-500">
@@ -740,9 +740,9 @@ const RentExpenseFormDrawer = ({ open, mode, expense, onClose, onSaved }: RentEx
             <button
               type="submit"
               className="px-5 py-2 text-sm font-semibold text-white bg-primary-600 rounded-lg shadow-modern hover:bg-primary-700"
-              disabled={upsertMutation.isLoading}
+              disabled={upsertMutation.isPending}
             >
-              {upsertMutation.isLoading ? 'Saving...' : 'Save Rent'}
+              {upsertMutation.isPending ? 'Saving...' : 'Save Rent'}
             </button>
           </div>
         </div>
