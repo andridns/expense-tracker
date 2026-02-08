@@ -18,6 +18,8 @@ type TabType = 'daily' | 'rent';
 const Reports = () => {
   // Tab state
   const [activeTab, setActiveTab] = useState<TabType>('daily');
+  const [dailyTrendView, setDailyTrendView] = useState<'chart' | 'table'>('table');
+  const [rentTrendView, setRentTrendView] = useState<'chart' | 'table'>('table');
 
   // Get current year as string
   const getCurrentYear = () => {
@@ -468,6 +470,8 @@ const Reports = () => {
           <TrendChart
             data={trends}
             title={`Expense Trends${getCategoryNames() ? ` - ${getCategoryNames()}` : ''}`}
+            view={dailyTrendView}
+            onViewChange={setDailyTrendView}
             onDataPointClick={handleDataPointClick}
           />
 
@@ -690,7 +694,9 @@ const Reports = () => {
           {!selectedPeriodValue && (
             <div className="glass p-4 md:p-5 rounded-2xl shadow-modern border border-modern-border/50">
               <div className="text-center py-8 text-modern-text-light text-sm">
-                Click on a data point in the chart above to view top expenses for that period.
+                {dailyTrendView === 'table'
+                  ? 'Use the table above to select a period and view top expenses.'
+                  : 'Click on a data point in the chart above to view top expenses for that period.'}
               </div>
             </div>
           )}
@@ -733,6 +739,8 @@ const Reports = () => {
               data={rentTrends}
               usageView={rentUsageView}
               title={`Rent Expense Trends${selectedRentCategories.length > 0 ? ` - ${selectedRentCategories.map(c => c.charAt(0).toUpperCase() + c.slice(1).replace('_', ' ')).join(', ')}` : ''}`}
+              view={rentTrendView}
+              onViewChange={setRentTrendView}
               onDataPointClick={handleDataPointClick}
             />
           )}
@@ -766,7 +774,9 @@ const Reports = () => {
           ) : rentUsageView === 'cost' ? (
             <div className="glass p-4 md:p-5 rounded-2xl shadow-modern border border-modern-border/50">
               <div className="text-center py-8 text-modern-text-light text-sm">
-                Click on a data point in the chart above to view detailed breakdown for that period.
+                {rentTrendView === 'table'
+                  ? 'Use the table above to select a period and view detailed breakdown for that period.'
+                  : 'Click on a data point in the chart above to view detailed breakdown for that period.'}
               </div>
             </div>
           ) : null}
