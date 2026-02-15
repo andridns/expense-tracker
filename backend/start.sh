@@ -1,6 +1,23 @@
 #!/bin/bash
 # Don't use set -e here - we want to handle errors gracefully
 
+# Load env vars from .env when running locally (Railway/prod uses real env vars).
+if [ -f ".env" ]; then
+    echo "Loading environment from .env..."
+    DATABASE_URL_LINE=$(grep -v '^#' .env | grep -v '^$' | grep '^DATABASE_URL=' | head -1)
+    if [ -n "$DATABASE_URL_LINE" ]; then
+        export "$DATABASE_URL_LINE"
+    fi
+    DEFAULT_USERNAME_LINE=$(grep -v '^#' .env | grep -v '^$' | grep '^DEFAULT_USERNAME=' | head -1)
+    if [ -n "$DEFAULT_USERNAME_LINE" ]; then
+        export "$DEFAULT_USERNAME_LINE"
+    fi
+    DEFAULT_PASSWORD_LINE=$(grep -v '^#' .env | grep -v '^$' | grep '^DEFAULT_PASSWORD=' | head -1)
+    if [ -n "$DEFAULT_PASSWORD_LINE" ]; then
+        export "$DEFAULT_PASSWORD_LINE"
+    fi
+fi
+
 # Wait for database to be ready (if using PostgreSQL)
 # Railway handles database readiness, but we can add a simple retry loop
 if [ -n "$DATABASE_URL" ] && [[ "$DATABASE_URL" == postgresql* ]]; then

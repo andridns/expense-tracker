@@ -314,6 +314,21 @@ if [ -f ".env" ]; then
     fi
 fi
 
+# Keep Alembic + backend aligned: if DATABASE_URL isn't set, use the backend default.
+if [ -z "$DATABASE_URL" ]; then
+    export DATABASE_URL="postgresql://postgres:postgres@localhost:5432/expense_tracker"
+    echo -e "${YELLOW}Warning: DATABASE_URL not set; defaulting to ${DATABASE_URL}${NC}"
+fi
+
+# Run database migrations (keeps schema in sync with backend code)
+echo -e "${BLUE}Running database migrations...${NC}"
+poetry run alembic upgrade head > /tmp/expense-tracker-backend-migrations.log 2>&1 || {
+    echo -e "${RED}Database migration failed. Check logs:${NC}"
+    cat /tmp/expense-tracker-backend-migrations.log
+    exit 1
+}
+echo -e "${GREEN}✓ Database migrations up to date${NC}"
+
 poetry run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload > /tmp/expense-tracker-backend.log 2>&1 &
 BACKEND_PID=$!
 echo "$BACKEND_PID" > "$BACKEND_PID_FILE"
