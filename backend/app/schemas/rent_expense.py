@@ -11,6 +11,7 @@ class RentExpenseBase(BaseModel):
     
     # Summary fields
     sinking_fund_idr: float = Field(default=0, description="Sinking fund amount in IDR")
+    correction_idr: float = Field(default=0, description="Optional correction (can be negative) in IDR")
     service_charge_idr: float = Field(default=0, description="Service charge amount in IDR")
     ppn_service_charge_idr: float = Field(default=0, description="PPN service charge amount in IDR")
     electric_m1_total_idr: float = Field(default=0, description="Total electricity amount in IDR")

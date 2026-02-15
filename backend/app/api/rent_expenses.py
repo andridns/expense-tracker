@@ -209,7 +209,7 @@ async def get_rent_expense_trends(
 @router.get("/rent-expenses/breakdown", response_model=RentExpenseBreakdown)
 async def get_rent_expense_breakdown(
     period: Optional[str] = Query(None, description="Filter by period (YYYY-MM format)"),
-    category: Optional[str] = Query(None, description="Filter by category (electricity, water, service_charge, sinking_fund, fitout)"),
+    category: Optional[str] = Query(None, description="Filter by category (electricity, water, service_charge, sinking_fund, fitout, correction)"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -235,6 +235,7 @@ async def get_rent_expense_breakdown(
         "service_charge": 0.0,
         "sinking_fund": 0.0,
         "fitout": 0.0,
+        "correction": 0.0,
     }
     
     count = len(rent_expenses)
@@ -245,6 +246,7 @@ async def get_rent_expense_breakdown(
         breakdown_data["service_charge"] += float(expense.service_charge_idr or 0) + float(expense.ppn_service_charge_idr or 0)
         breakdown_data["sinking_fund"] += float(expense.sinking_fund_idr or 0)
         breakdown_data["fitout"] += float(expense.fitout_idr or 0)
+        breakdown_data["correction"] += float(expense.correction_idr or 0)
     
     # Filter by category if specified
     if category:
@@ -255,7 +257,7 @@ async def get_rent_expense_breakdown(
     # Convert to list format
     breakdown = []
     for cat, total in breakdown_data.items():
-        if total > 0:  # Only include categories with values
+        if total != 0:  # Only include categories with values (supports negative corrections)
             breakdown.append({
                 "category": cat,
                 "total": total,
@@ -292,6 +294,7 @@ async def upsert_rent_expense(
 
     # Round money fields to whole IDR
     sinking_fund_idr = round_idr(payload.sinking_fund_idr)
+    correction_idr = round_idr(payload.correction_idr)
     service_charge_idr = round_idr(payload.service_charge_idr)
     ppn_service_charge_idr = round_idr(payload.ppn_service_charge_idr)
     electric_usage_idr = round_idr(payload.electric_usage_idr)
@@ -317,12 +320,13 @@ async def upsert_rent_expense(
         + water_pemeliharaan_idr
         + water_area_bersama_idr
     )
-    total_idr = sinking_fund_idr + service_charge_total + electric_total + water_total + fitout_idr
+    total_idr = sinking_fund_idr + correction_idr + service_charge_total + electric_total + water_total + fitout_idr
 
     # Persist
     rent_expense.period = period
     rent_expense.currency = "IDR"
     rent_expense.sinking_fund_idr = sinking_fund_idr
+    rent_expense.correction_idr = correction_idr
     rent_expense.service_charge_idr = service_charge_idr
     rent_expense.ppn_service_charge_idr = ppn_service_charge_idr
     rent_expense.electric_m1_total_idr = electric_total

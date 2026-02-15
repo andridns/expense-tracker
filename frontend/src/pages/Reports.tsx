@@ -140,6 +140,34 @@ const Reports = () => {
     }
   };
 
+  const handleEditRentByPeriod = async (periodValue: string) => {
+    if (!isAdmin) {
+      toast.error('Admin privileges required');
+      return;
+    }
+    if (rentPeriodType !== 'monthly' || rentUsageView !== 'cost') {
+      toast('Editing is available only in Monthly cost view.');
+      return;
+    }
+    if (!/^\d{4}-\d{2}$/.test(periodValue)) {
+      toast.error('Invalid period. Use YYYY-MM.');
+      return;
+    }
+
+    try {
+      const expense = await queryClient.fetchQuery({
+        queryKey: ['rentExpense', periodValue],
+        queryFn: () => rentExpensesApi.getByPeriod(periodValue),
+      });
+      setRentFormMode('edit');
+      setRentFormExpense(expense);
+      setRentFormOpen(true);
+    } catch (error: any) {
+      const detail = error?.response?.data?.detail;
+      toast.error(detail || 'Failed to load rent expense');
+    }
+  };
+
   const getPeriodDisplayText = (): string => {
     if (!selectedPeriodValue) return '';
 
@@ -783,6 +811,8 @@ const Reports = () => {
               view={rentTrendView}
               onViewChange={setRentTrendView}
               onDataPointClick={handleDataPointClick}
+              canEdit={isAdmin}
+              onEditPeriod={handleEditRentByPeriod}
             />
           )}
 

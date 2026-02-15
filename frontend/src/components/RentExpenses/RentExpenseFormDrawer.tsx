@@ -19,6 +19,7 @@ type RentExpenseFormData = {
   period: string;
   currency: 'IDR';
   sinking_fund_idr: number;
+  correction_idr: number;
   service_charge_idr: number;
   ppn_service_charge_idr: number;
   electric_usage_idr: number;
@@ -59,17 +60,89 @@ const nextPeriod = (period: string) => {
   return `${nextYear}-${String(nextMonth).padStart(2, '0')}`;
 };
 
-const roundIdr = (value: number) => Math.round(value || 0);
+// Match backend rounding (Decimal ROUND_HALF_UP): halves go away from zero.
+const roundIdr = (value: number) => {
+  const n = Number.isFinite(value) ? value : 0;
+  return n < 0 ? -Math.round(-n) : Math.round(n);
+};
 
-const toNumber = (value: string) => (value === '' ? 0 : Number(value));
 const toNullableNumber = (value: string) => (value === '' ? null : Number(value));
 const safeNumber = (value: number | null | undefined) =>
   typeof value === 'number' && !Number.isNaN(value) ? value : 0;
+
+type LedgerMoneyInputProps = Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  'type' | 'value' | 'onChange'
+> & {
+  value: number;
+  onValueChange: (next: number) => void;
+};
+
+const LedgerMoneyInput = ({ value, onValueChange, readOnly, onFocus, onBlur, ...props }: LedgerMoneyInputProps) => {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState<string>('');
+  const isReadOnly = !!readOnly;
+
+  useEffect(() => {
+    if (!editing) {
+      setDraft(value === 0 ? '' : String(value));
+    }
+  }, [editing, value]);
+
+  return (
+    <input
+      {...props}
+      type="number"
+      step={props.step ?? '1'}
+      inputMode={props.inputMode ?? 'numeric'}
+      value={editing && !isReadOnly ? draft : value}
+      readOnly={readOnly}
+      placeholder={props.placeholder ?? '0'}
+      onFocus={(e) => {
+        if (isReadOnly) {
+          onFocus?.(e);
+          return;
+        }
+        setDraft(value === 0 ? '' : String(value));
+        setEditing(true);
+        onFocus?.(e);
+      }}
+      onBlur={(e) => {
+        if (!isReadOnly) {
+          const normalizedRaw = draft.trim();
+          const normalized =
+            normalizedRaw === '' || normalizedRaw === '-' || normalizedRaw === '+'
+              ? 0
+              : Number(normalizedRaw);
+          onValueChange(Number.isFinite(normalized) ? normalized : 0);
+        }
+        setEditing(false);
+        onBlur?.(e);
+      }}
+      onChange={(e) => {
+        if (isReadOnly) return;
+        const nextDraft = e.target.value;
+        setDraft(nextDraft);
+
+        // Allow intermediate typing states ('' or '-') without forcing a numeric state.
+        if (nextDraft.trim() === '' || nextDraft === '-' || nextDraft === '+') {
+          onValueChange(0);
+          return;
+        }
+
+        const parsed = Number(nextDraft);
+        if (!Number.isFinite(parsed)) return;
+        onValueChange(parsed);
+      }}
+    />
+  );
+};
 
 const emptyForm = (): RentExpenseFormData => ({
   period: getCurrentPeriod(),
   currency: 'IDR',
   sinking_fund_idr: 0,
+  correction_idr: 0,
   service_charge_idr: 0,
   ppn_service_charge_idr: 0,
   electric_usage_idr: 0,
@@ -93,6 +166,7 @@ const fromExpense = (expense: RentExpense): RentExpenseFormData => ({
   period: expense.period,
   currency: 'IDR',
   sinking_fund_idr: expense.sinking_fund_idr ?? 0,
+  correction_idr: expense.correction_idr ?? 0,
   service_charge_idr: expense.service_charge_idr ?? 0,
   ppn_service_charge_idr: expense.ppn_service_charge_idr ?? 0,
   electric_usage_idr: expense.electric_usage_idr ?? 0,
@@ -192,6 +266,15 @@ const RentExpenseFormDrawer = ({ open, mode, expense, onClose, onSaved }: RentEx
     return roundIdr(formData.service_charge_idr) + roundIdr(formData.ppn_service_charge_idr);
   }, [formData.service_charge_idr, formData.ppn_service_charge_idr]);
 
+  const coreTotal = useMemo(() => {
+    return (
+      roundIdr(formData.sinking_fund_idr)
+      + roundIdr(formData.correction_idr)
+      + serviceChargeTotal
+      + roundIdr(formData.fitout_idr)
+    );
+  }, [formData.sinking_fund_idr, formData.correction_idr, serviceChargeTotal, formData.fitout_idr]);
+
   const electricTotal = useMemo(() => {
     return (
       roundIdr(electricUsageValue)
@@ -222,12 +305,13 @@ const RentExpenseFormDrawer = ({ open, mode, expense, onClose, onSaved }: RentEx
   const grandTotal = useMemo(() => {
     return (
       roundIdr(formData.sinking_fund_idr)
+      + roundIdr(formData.correction_idr)
       + serviceChargeTotal
       + electricTotal
       + waterTotal
       + roundIdr(formData.fitout_idr)
     );
-  }, [formData.sinking_fund_idr, serviceChargeTotal, electricTotal, waterTotal, formData.fitout_idr]);
+  }, [formData.sinking_fund_idr, formData.correction_idr, serviceChargeTotal, electricTotal, waterTotal, formData.fitout_idr]);
 
   const upsertMutation = useMutation({
     mutationFn: (payload: RentExpenseCreate) => rentExpensesApi.upsert(payload.period, payload),
@@ -323,6 +407,7 @@ const RentExpenseFormDrawer = ({ open, mode, expense, onClose, onSaved }: RentEx
       period: formData.period,
       currency: 'IDR',
       sinking_fund_idr: roundIdr(formData.sinking_fund_idr),
+      correction_idr: roundIdr(formData.correction_idr),
       service_charge_idr: roundIdr(formData.service_charge_idr),
       ppn_service_charge_idr: roundIdr(formData.ppn_service_charge_idr),
       electric_m1_total_idr: electricTotal,
@@ -359,6 +444,7 @@ const RentExpenseFormDrawer = ({ open, mode, expense, onClose, onSaved }: RentEx
   if (!open) return null;
 
   const hasCopySource = mode === 'create' && !!latestExpense;
+  const formId = 'rent-ledger-form';
 
   return (
     <div className="fixed inset-0 z-50 flex">
@@ -388,7 +474,7 @@ const RentExpenseFormDrawer = ({ open, mode, expense, onClose, onSaved }: RentEx
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+        <form id={formId} onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-xs uppercase tracking-[0.2em] text-warm-gray-500">Period</label>
@@ -426,52 +512,61 @@ const RentExpenseFormDrawer = ({ open, mode, expense, onClose, onSaved }: RentEx
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="ledger-label">Sinking Fund</label>
-                    <input
-                      type="number"
-                      step="1"
+                    <LedgerMoneyInput
                       value={formData.sinking_fund_idr}
-                      onChange={(e) => setFormData(prev => ({ ...prev, sinking_fund_idr: toNumber(e.target.value) }))}
+                      onValueChange={(next) => setFormData(prev => ({ ...prev, sinking_fund_idr: next }))}
                       className="ledger-input"
                     />
                     {errors.sinking_fund_idr && <p className="ledger-error">{errors.sinking_fund_idr}</p>}
                   </div>
                   <div>
                     <label className="ledger-label">Fitout</label>
-                    <input
-                      type="number"
-                      step="1"
+                    <LedgerMoneyInput
                       value={formData.fitout_idr}
-                      onChange={(e) => setFormData(prev => ({ ...prev, fitout_idr: toNumber(e.target.value) }))}
+                      onValueChange={(next) => setFormData(prev => ({ ...prev, fitout_idr: next }))}
                       className="ledger-input"
                     />
                     {errors.fitout_idr && <p className="ledger-error">{errors.fitout_idr}</p>}
                   </div>
                   <div>
                     <label className="ledger-label">Service Charge</label>
-                    <input
-                      type="number"
-                      step="1"
+                    <LedgerMoneyInput
                       value={formData.service_charge_idr}
-                      onChange={(e) => setFormData(prev => ({ ...prev, service_charge_idr: toNumber(e.target.value) }))}
+                      onValueChange={(next) => setFormData(prev => ({ ...prev, service_charge_idr: next }))}
                       className="ledger-input"
                     />
                     {errors.service_charge_idr && <p className="ledger-error">{errors.service_charge_idr}</p>}
                   </div>
                   <div>
                     <label className="ledger-label">PPN Service Charge</label>
-                    <input
-                      type="number"
-                      step="1"
+                    <LedgerMoneyInput
                       value={formData.ppn_service_charge_idr}
-                      onChange={(e) => setFormData(prev => ({ ...prev, ppn_service_charge_idr: toNumber(e.target.value) }))}
+                      onValueChange={(next) => setFormData(prev => ({ ...prev, ppn_service_charge_idr: next }))}
                       className="ledger-input"
                     />
                     {errors.ppn_service_charge_idr && <p className="ledger-error">{errors.ppn_service_charge_idr}</p>}
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="ledger-label">Correction</label>
+                    <LedgerMoneyInput
+                      value={formData.correction_idr}
+                      onValueChange={(next) => setFormData(prev => ({ ...prev, correction_idr: next }))}
+                      className="ledger-input"
+                      inputMode="decimal"
+                      placeholder="0 (optional, can be negative)"
+                    />
+                    <p className="mt-1 text-xs text-warm-gray-500">
+                      Optional adjustment. Use a negative value to deduct from the total.
+                    </p>
                   </div>
                 </div>
                 <div className="ledger-total-row">
                   <span className="ledger-label">Service Charge Subtotal</span>
                   <CurrencyDisplay amount={serviceChargeTotal} currency="IDR" className="ledger-font-mono text-warm-gray-800" size="sm" />
+                </div>
+                <div className="ledger-total-row ledger-total-row-strong">
+                  <span className="ledger-label">Summary Subtotal</span>
+                  <CurrencyDisplay amount={coreTotal} currency="IDR" className="ledger-font-mono text-warm-gray-900" size="sm" />
                 </div>
               </div>
             )}
@@ -526,11 +621,12 @@ const RentExpenseFormDrawer = ({ open, mode, expense, onClose, onSaved }: RentEx
                       {electricUsageOverride ? 'Override on' : 'Auto'}
                     </button>
                   </div>
-                  <input
-                    type="number"
-                    step="1"
+                  <LedgerMoneyInput
                     value={electricUsageOverride ? formData.electric_usage_idr : roundIdr(computedElectricUsage)}
-                    onChange={(e) => setFormData(prev => ({ ...prev, electric_usage_idr: toNumber(e.target.value) }))}
+                    onValueChange={(next) => {
+                      if (!electricUsageOverride) return;
+                      setFormData(prev => ({ ...prev, electric_usage_idr: next }));
+                    }}
                     className="ledger-input"
                     readOnly={!electricUsageOverride}
                   />
@@ -539,33 +635,27 @@ const RentExpenseFormDrawer = ({ open, mode, expense, onClose, onSaved }: RentEx
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="ledger-label">PPN</label>
-                    <input
-                      type="number"
-                      step="1"
+                    <LedgerMoneyInput
                       value={formData.electric_ppn_idr}
-                      onChange={(e) => setFormData(prev => ({ ...prev, electric_ppn_idr: toNumber(e.target.value) }))}
+                      onValueChange={(next) => setFormData(prev => ({ ...prev, electric_ppn_idr: next }))}
                       className="ledger-input"
                     />
                     {errors.electric_ppn_idr && <p className="ledger-error">{errors.electric_ppn_idr}</p>}
                   </div>
                   <div>
                     <label className="ledger-label">Area Bersama</label>
-                    <input
-                      type="number"
-                      step="1"
+                    <LedgerMoneyInput
                       value={formData.electric_area_bersama_idr}
-                      onChange={(e) => setFormData(prev => ({ ...prev, electric_area_bersama_idr: toNumber(e.target.value) }))}
+                      onValueChange={(next) => setFormData(prev => ({ ...prev, electric_area_bersama_idr: next }))}
                       className="ledger-input"
                     />
                     {errors.electric_area_bersama_idr && <p className="ledger-error">{errors.electric_area_bersama_idr}</p>}
                   </div>
                   <div>
                     <label className="ledger-label">PJU</label>
-                    <input
-                      type="number"
-                      step="1"
+                    <LedgerMoneyInput
                       value={formData.electric_pju_idr}
-                      onChange={(e) => setFormData(prev => ({ ...prev, electric_pju_idr: toNumber(e.target.value) }))}
+                      onValueChange={(next) => setFormData(prev => ({ ...prev, electric_pju_idr: next }))}
                       className="ledger-input"
                     />
                     {errors.electric_pju_idr && <p className="ledger-error">{errors.electric_pju_idr}</p>}
@@ -628,11 +718,12 @@ const RentExpenseFormDrawer = ({ open, mode, expense, onClose, onSaved }: RentEx
                       {waterUsageOverride ? 'Override on' : 'Auto'}
                     </button>
                   </div>
-                  <input
-                    type="number"
-                    step="1"
+                  <LedgerMoneyInput
                     value={waterUsageOverride ? formData.water_usage_potable_idr : roundIdr(computedWaterUsage)}
-                    onChange={(e) => setFormData(prev => ({ ...prev, water_usage_potable_idr: toNumber(e.target.value) }))}
+                    onValueChange={(next) => {
+                      if (!waterUsageOverride) return;
+                      setFormData(prev => ({ ...prev, water_usage_potable_idr: next }));
+                    }}
                     className="ledger-input"
                     readOnly={!waterUsageOverride}
                   />
@@ -641,55 +732,45 @@ const RentExpenseFormDrawer = ({ open, mode, expense, onClose, onSaved }: RentEx
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="ledger-label">Usage (Non-potable)</label>
-                    <input
-                      type="number"
-                      step="1"
+                    <LedgerMoneyInput
                       value={formData.water_non_potable_idr}
-                      onChange={(e) => setFormData(prev => ({ ...prev, water_non_potable_idr: toNumber(e.target.value) }))}
+                      onValueChange={(next) => setFormData(prev => ({ ...prev, water_non_potable_idr: next }))}
                       className="ledger-input"
                     />
                     {errors.water_non_potable_idr && <p className="ledger-error">{errors.water_non_potable_idr}</p>}
                   </div>
                   <div>
                     <label className="ledger-label">Air Limbah</label>
-                    <input
-                      type="number"
-                      step="1"
+                    <LedgerMoneyInput
                       value={formData.water_air_limbah_idr}
-                      onChange={(e) => setFormData(prev => ({ ...prev, water_air_limbah_idr: toNumber(e.target.value) }))}
+                      onValueChange={(next) => setFormData(prev => ({ ...prev, water_air_limbah_idr: next }))}
                       className="ledger-input"
                     />
                     {errors.water_air_limbah_idr && <p className="ledger-error">{errors.water_air_limbah_idr}</p>}
                   </div>
                   <div>
                     <label className="ledger-label">PPN Air Limbah</label>
-                    <input
-                      type="number"
-                      step="1"
+                    <LedgerMoneyInput
                       value={formData.water_ppn_air_limbah_idr}
-                      onChange={(e) => setFormData(prev => ({ ...prev, water_ppn_air_limbah_idr: toNumber(e.target.value) }))}
+                      onValueChange={(next) => setFormData(prev => ({ ...prev, water_ppn_air_limbah_idr: next }))}
                       className="ledger-input"
                     />
                     {errors.water_ppn_air_limbah_idr && <p className="ledger-error">{errors.water_ppn_air_limbah_idr}</p>}
                   </div>
                   <div>
                     <label className="ledger-label">Pemeliharaan</label>
-                    <input
-                      type="number"
-                      step="1"
+                    <LedgerMoneyInput
                       value={formData.water_pemeliharaan_idr}
-                      onChange={(e) => setFormData(prev => ({ ...prev, water_pemeliharaan_idr: toNumber(e.target.value) }))}
+                      onValueChange={(next) => setFormData(prev => ({ ...prev, water_pemeliharaan_idr: next }))}
                       className="ledger-input"
                     />
                     {errors.water_pemeliharaan_idr && <p className="ledger-error">{errors.water_pemeliharaan_idr}</p>}
                   </div>
                   <div>
                     <label className="ledger-label">Area Bersama</label>
-                    <input
-                      type="number"
-                      step="1"
+                    <LedgerMoneyInput
                       value={formData.water_area_bersama_idr}
-                      onChange={(e) => setFormData(prev => ({ ...prev, water_area_bersama_idr: toNumber(e.target.value) }))}
+                      onValueChange={(next) => setFormData(prev => ({ ...prev, water_area_bersama_idr: next }))}
                       className="ledger-input"
                     />
                     {errors.water_area_bersama_idr && <p className="ledger-error">{errors.water_area_bersama_idr}</p>}
@@ -707,9 +788,23 @@ const RentExpenseFormDrawer = ({ open, mode, expense, onClose, onSaved }: RentEx
             <div className="flex items-center justify-between">
               <div>
                 <p className="ledger-font-display text-lg text-warm-gray-800">Grand Total</p>
-                <p className="text-xs text-warm-gray-500">Auto-calculated on save</p>
+                <p className="text-xs text-warm-gray-500">Live calculated from section subtotals</p>
               </div>
               <CurrencyDisplay amount={grandTotal} currency="IDR" className="ledger-font-mono text-warm-gray-900 text-lg" size="lg" />
+            </div>
+            <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-2">
+              <div className="flex items-center justify-between rounded-lg border border-warm-gray-200/80 bg-white/60 px-3 py-2">
+                <span className="text-xs uppercase tracking-[0.2em] text-warm-gray-500">Summary</span>
+                <CurrencyDisplay amount={coreTotal} currency="IDR" className="ledger-font-mono text-warm-gray-800" size="sm" />
+              </div>
+              <div className="flex items-center justify-between rounded-lg border border-warm-gray-200/80 bg-white/60 px-3 py-2">
+                <span className="text-xs uppercase tracking-[0.2em] text-warm-gray-500">Electricity</span>
+                <CurrencyDisplay amount={electricTotal} currency="IDR" className="ledger-font-mono text-warm-gray-800" size="sm" />
+              </div>
+              <div className="flex items-center justify-between rounded-lg border border-warm-gray-200/80 bg-white/60 px-3 py-2">
+                <span className="text-xs uppercase tracking-[0.2em] text-warm-gray-500">Water</span>
+                <CurrencyDisplay amount={waterTotal} currency="IDR" className="ledger-font-mono text-warm-gray-800" size="sm" />
+              </div>
             </div>
           </section>
         </form>
@@ -739,6 +834,7 @@ const RentExpenseFormDrawer = ({ open, mode, expense, onClose, onSaved }: RentEx
             </button>
             <button
               type="submit"
+              form={formId}
               className="px-5 py-2 text-sm font-semibold text-white bg-primary-600 rounded-lg shadow-modern hover:bg-primary-700"
               disabled={upsertMutation.isPending}
             >

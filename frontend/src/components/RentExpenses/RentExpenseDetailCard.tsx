@@ -84,6 +84,25 @@ const RentExpenseDetailCard = ({ expense, onEdit, canEdit = false }: RentExpense
           </div>
         </div>
 
+        {/* Correction Section */}
+        {expense.correction_idr !== 0 && (
+          <div className="border-b border-modern-border/20 pb-4">
+            <h4 className="text-base md:text-lg font-semibold text-warm-gray-800 mb-3 flex items-center gap-2">
+              <span>🧮</span>
+              <span>Correction</span>
+            </h4>
+            <div className="pl-5 md:pl-7">
+              <div className="flex justify-between items-center">
+                <span className="text-warm-gray-600">Adjustment</span>
+                <CurrencyDisplay amount={expense.correction_idr} currency="IDR" size="sm" />
+              </div>
+              <p className="text-xs text-warm-gray-500 mt-2">
+                Negative values deduct from the total.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Electricity Section */}
         <div className="border-b border-modern-border/20 pb-4">
           <h4 className="text-base md:text-lg font-semibold text-warm-gray-800 mb-3 flex items-center gap-2">

@@ -139,6 +139,7 @@ export interface RentExpense {
   
   // Summary fields
   sinking_fund_idr: number;
+  correction_idr: number;
   service_charge_idr: number;
   ppn_service_charge_idr: number;
   electric_m1_total_idr: number;
@@ -178,6 +179,7 @@ export interface RentExpenseCreate {
 
   // Summary fields
   sinking_fund_idr: number;
+  correction_idr: number;
   service_charge_idr: number;
   ppn_service_charge_idr: number;
   electric_m1_total_idr: number;

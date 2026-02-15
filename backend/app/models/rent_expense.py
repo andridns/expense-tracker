@@ -14,6 +14,7 @@ class RentExpense(Base):
     
     # Summary fields
     sinking_fund_idr = Column(Numeric(15, 2), nullable=False, default=0)
+    correction_idr = Column(Numeric(15, 2), nullable=False, default=0)
     service_charge_idr = Column(Numeric(15, 2), nullable=False, default=0)
     ppn_service_charge_idr = Column(Numeric(15, 2), nullable=False, default=0)
     electric_m1_total_idr = Column(Numeric(15, 2), nullable=False, default=0)

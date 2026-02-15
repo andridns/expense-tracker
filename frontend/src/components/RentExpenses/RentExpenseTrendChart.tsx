@@ -33,6 +33,8 @@ interface RentExpenseTrendChartProps {
   view?: 'chart' | 'table';
   onViewChange?: (view: 'chart' | 'table') => void;
   onDataPointClick?: (period: string) => void;
+  canEdit?: boolean;
+  onEditPeriod?: (period: string) => void;
 }
 
 const RentExpenseTrendChart = ({
@@ -42,6 +44,8 @@ const RentExpenseTrendChart = ({
   view = 'chart',
   onViewChange,
   onDataPointClick,
+  canEdit = false,
+  onEditPeriod,
 }: RentExpenseTrendChartProps) => {
   const chartRef = useRef<ChartJS<'line', number[], string>>(null);
   const trendItems = data?.trends ?? [];
@@ -108,6 +112,9 @@ const RentExpenseTrendChart = ({
 
   const totalHeader =
     usageView === 'cost' ? 'Total (IDR)' : usageView === 'electricity_usage' ? 'Usage (kWh)' : 'Usage (m³)';
+
+  const isMonthlyPeriodKey = (period: string) => /^\d{4}-\d{2}$/.test(period);
+  const showActions = isCostView && trendItems.some((item) => isMonthlyPeriodKey(item.period));
 
   const options: ChartOptions<'line'> = {
     responsive: true,
@@ -255,7 +262,7 @@ const RentExpenseTrendChart = ({
                 <th className="px-4 py-3 text-right text-xs font-bold text-modern-text-light uppercase tracking-wider">
                   {totalHeader}
                 </th>
-                {isCostView && (
+                {showActions && (
                   <th className="px-4 py-3 text-right text-xs font-bold text-modern-text-light uppercase tracking-wider">
                     Action
                   </th>
@@ -275,16 +282,27 @@ const RentExpenseTrendChart = ({
                       ? `${formatUsageValue(item.total)} kWh`
                       : `${formatUsageValue(item.total)} m³`}
                   </td>
-                  {isCostView && (
+                  {showActions && (
                     <td className="px-4 py-3 text-right">
-                      <button
-                        type="button"
-                        onClick={() => onDataPointClick?.(item.period)}
-                        disabled={!onDataPointClick}
-                        className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-primary-600 text-white shadow-apple hover:bg-primary-700 disabled:bg-warm-gray-200 disabled:text-warm-gray-500 disabled:shadow-none"
-                      >
-                        View
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        {canEdit && onEditPeriod && isMonthlyPeriodKey(item.period) && (
+                          <button
+                            type="button"
+                            onClick={() => onEditPeriod(item.period)}
+                            className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-600 text-white shadow-apple hover:bg-red-700"
+                          >
+                            Edit
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => onDataPointClick?.(item.period)}
+                          disabled={!onDataPointClick || !isMonthlyPeriodKey(item.period)}
+                          className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-primary-600 text-white shadow-apple hover:bg-primary-700 disabled:bg-warm-gray-200 disabled:text-warm-gray-500 disabled:shadow-none"
+                        >
+                          View
+                        </button>
+                      </div>
                     </td>
                   )}
                 </tr>
